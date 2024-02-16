@@ -1,0 +1,14 @@
+package user
+
+import (
+	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/models"
+)
+
+templ ShowUsers(users []models.User) {
+	@layout.Base() {
+		for _, user := range users {
+			@ShowUser(user)
+		}
+	}
+}

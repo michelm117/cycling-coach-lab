@@ -1,0 +1,16 @@
+package user
+
+import (
+	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/models"
+	"github.com/michelm117/cycling-coach-lab/views/components"
+)
+
+templ ShowUser(user models.User) {
+	@layout.Base() {
+		@components.Card() {
+			<h1>User</h1>
+			<p>Email: { user.Email }</p>
+		}
+	}
+}
