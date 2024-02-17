@@ -1,18 +1,28 @@
 package main
 
 import (
+	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
+
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/handlers"
 	"github.com/michelm117/cycling-coach-lab/middlewares"
-	"go.uber.org/zap"
 )
 
 func main() {
-	// Init logger
+
+	// Load environment variables from the .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	db.OpenDB()
+
+	// Init logger
 	sugar := initLogger()
 	app := echo.New()
 

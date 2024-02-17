@@ -1,13 +1,13 @@
 package user
 
 import (
-	"github.com/michelm117/cycling-coach-lab/models"
 	"github.com/michelm117/cycling-coach-lab/views/components"
+	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/models"
 )
 
 templ ShowUser(user models.User) {
-	@components.Card() {
-		<p>Username { user.Name } </p>
-		<p>Email: { user.Email }</p>
+	@layout.Base() {
+		@components.UserCard(user)
 	}
 }

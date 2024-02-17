@@ -1,3 +1,6 @@
 tmp
 *_templ.go
 postgres/
+node_modules
+assets/styles.css
+.env

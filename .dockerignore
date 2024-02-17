@@ -1,9 +1,15 @@
 Dockerfile
+docker-compose.yml
 Makefile
 README.md
 CONTRIBUTING.md
 .vscode
 .git
 .gitignore
+node_modules
 tmp
 .air.toml
+.env
+.env.template
+.init.sql
+.package*.json

@@ -15,8 +15,10 @@ help: Makefile
 .PHONY: init
 init:
 	@go install github.com/cosmtrek/air@latest
-	@npm install -g tailwindcss
 	@go mod download
+	@npm install -g tailwindcss
+	@npm install -D daisyui@latest
+
 
 ## generate: generate static files
 .PHONY: generate
@@ -32,17 +34,21 @@ run: generate
 ## start: build and run project with hot reload
 .PHONY: start
 start: generate
+	@docker compose --env-file=.env up --build -d
 	@air & tailwindcss -o assets/styles.css --minify --watch
+
 
 ## test: run unit tests
 .PHONY: test
 test:
 	go test -race -cover $(PACKAGES)
 
+
 ## docker-build: build project into a docker container image
 .PHONY: docker-build
 docker-build: test
 	GOPROXY=direct docker buildx build -t ${name} .
+
 
 ## docker-run: run project in a container
 .PHONY: docker-run
