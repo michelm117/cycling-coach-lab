@@ -14,11 +14,25 @@ help: Makefile
 ## init: initialize project (make init module=github.com/user/project)
 .PHONY: init
 init:
-	go install github.com/cosmtrek/air@latest
+	@go install github.com/cosmtrek/air@latest
+	@npm install -g tailwindcss
+	@go mod download
 
-run:
+## generate: generate static files
+.PHONY: generate
+generate:
+	@tailwindcss -o assets/styles.css --minify
 	@templ generate
+
+
+## run: run local project
+run: generate
 	@go run cmd/main.go
+
+## start: build and run project with hot reload
+.PHONY: start
+start: generate
+	@air & tailwindcss -o assets/styles.css --minify --watch
 
 ## test: run unit tests
 .PHONY: test
@@ -33,19 +47,5 @@ docker-build: test
 ## docker-run: run project in a container
 .PHONY: docker-run
 docker-run:
-	docker run -it --rm -p 8080:8080 ${name}
+	docker run -it --rm -p 80:80 ${name}
 
-## start: build and run local project
-.PHONY: start
-start: build
-	air
-
-## css: build tailwindcss
-.PHONY: css
-css:
-	tailwindcss -i css/input.css -o css/output.css --minify
-
-## css-watch: watch build tailwindcss
-.PHONY: css-watch
-css-watch:
-	tailwindcss -i css/input.css -o css/output.css --watch

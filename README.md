@@ -12,7 +12,7 @@ This is a Go project that uses the [Echo](https://echo.labstack.com) framework f
 
 1. Install the dependencies:
 ```sh
-go mod download
+make init
 ```
 
 
@@ -21,11 +21,11 @@ You can run the project in two ways:
 
 
 ### Using Go
-This command will start the server on port 3000.
+- This command will start the server on port 3000.
 ```sh
 make start
 ```
-
+- This command will start the server with hot reload on port 3000.
 
 ### Using Docker
 1. First, build the Docker image:
@@ -38,7 +38,7 @@ make docker-build
 make docker-run
 ```
 
-This command will start the server on port 8080.
+This command will start the server on port 80.
 
 
 

@@ -11,9 +11,7 @@ import (
 
 func main() {
 	// Init logger
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-	sugar := logger.Sugar()
+	sugar := initLogger()
 
 	app := echo.New()
 
@@ -33,4 +31,15 @@ func main() {
 		port = "3000"
 	}
 	app.Logger.Fatal(app.Start(":" + port))
+}
+
+func initLogger() *zap.SugaredLogger {
+	var logger *zap.Logger
+	if os.Getenv("ENV") == "development" {
+		logger, _ = zap.NewDevelopment()
+	} else {
+		logger, _ = zap.NewProduction()
+	}
+	defer logger.Sync()
+	return logger.Sugar()
 }
