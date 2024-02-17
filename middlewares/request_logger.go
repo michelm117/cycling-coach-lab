@@ -28,6 +28,7 @@ func RequestLogger(sugar *zap.SugaredLogger) func(next echo.HandlerFunc) echo.Ha
 				req.Proto,
 				req.UserAgent(),
 				latency,
+				req.Body,
 			)
 
 			return nil

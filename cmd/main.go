@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
+	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/handlers"
 	"github.com/michelm117/cycling-coach-lab/middlewares"
 	"go.uber.org/zap"
@@ -11,8 +12,8 @@ import (
 
 func main() {
 	// Init logger
+	db.OpenDB()
 	sugar := initLogger()
-
 	app := echo.New()
 
 	// Middlewares
@@ -30,7 +31,7 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
-	app.Logger.Fatal(app.Start(":" + port))
+	app.Logger.Fatal(app.Start(":" + "8080"))
 }
 
 func initLogger() *zap.SugaredLogger {
