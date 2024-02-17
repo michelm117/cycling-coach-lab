@@ -1,5 +1,7 @@
 package layout
 
+import "github.com/michelm117/cycling-coach-lab/views/components"
+
 templ Base() {
 	<html>
 		<head>
@@ -8,11 +10,11 @@ templ Base() {
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚴</text></svg>"/>
 			<link rel="stylesheet" href="/assets/styles.css"/>
+			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 		</head>
 		<body class="bg-indigo-200">
-			<div class="relative isolate px-6 pt-14 lg:px-8">
-				{ children... }
-			</div>
+			@components.Form()
+			{ children... }
 		</body>
 	</html>
 }

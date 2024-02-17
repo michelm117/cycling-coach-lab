@@ -7,8 +7,10 @@ import (
 
 templ ShowUsers(users []models.User) {
 	@layout.Base() {
-		for _, user := range users {
-			@ShowUser(user)
-		}
+		<div id="users" hx-swap-oob="true">
+			for _, user := range users {
+				@ShowUser(user)
+			}
+		</div>
 	}
 }
