@@ -1,0 +1,62 @@
+package components
+
+import (
+	"github.com/michelm117/cycling-coach-lab/models"
+)
+
+templ UserTable(users []models.User) {
+	<div class="overflow-x-auto">
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th>
+						<label>
+							<input type="checkbox" class="checkbox"/>
+						</label>
+					</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Status</th>
+					<th>Registered Since</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, user:= range users {
+					<!-- row 1 -->
+					<tr>
+						<th>
+							<label>
+								<input type="checkbox" class="checkbox"/>
+							</label>
+						</th>
+						<td>
+							<div class="flex items-center gap-3">
+								<div class="avatar">
+									<div class="mask mask-squircle w-12 h-12">
+										<img src="https://source.unsplash.com/random/?Profile" alt="Avatar Tailwind CSS Component"/>
+									</div>
+								</div>
+								<div>
+									<div class="font-bold">{ user.Name }</div>
+								</div>
+							</div>
+						</td>
+						<td>
+							{ user.Email }
+							<br/>
+						</td>
+						<th>
+							<span class="indicator-item indicator-middle indicator-center badge badge-secondary">Active</span>
+						</th>
+						<td>2023/12/12</td>
+						<th>
+							<button class="btn btn-ghost btn-xs">details</button>
+						</th>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
