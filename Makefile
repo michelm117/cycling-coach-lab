@@ -31,6 +31,7 @@ generate:
 run: generate
 	@go run cmd/main.go
 
+
 ## start: build and run project with hot reload
 .PHONY: start
 start: generate
