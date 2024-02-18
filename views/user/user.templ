@@ -7,7 +7,9 @@ import (
 )
 
 templ ShowUser(user models.User) {
-	@layout.Base() {
-		@components.UserCard(user)
-	}
+	<div id="users">
+		@layout.Base() {
+			@components.UserCard(user)
+		}
+	</div>
 }

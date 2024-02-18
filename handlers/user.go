@@ -42,8 +42,6 @@ func (h UserHandler) HandlerAddUser(c echo.Context) error {
 		Name:  name,
 		Email: email,
 	}
-	println(newUser.Name)
-	println(newUser.Email)
 	_, err := h.repo.AddUser(newUser)
 	if err != nil {
 		fmt.Println("error when adding user:" + err.Error())

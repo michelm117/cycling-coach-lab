@@ -51,15 +51,15 @@ func (repo *UserRepository) GetByName(name string) (*models.User, error) {
 }
 
 func (repo *UserRepository) AddUser(user models.User) (*models.User, error) {
-	row := repo.db.QueryRow("INSERT INTO users (username, email) VALUES ($1, $2)")
+	println("we are in add user" + user.Email)
 
-	var id int
-	err := row.Scan(&id)
+	_, err := repo.db.Exec("INSERT INTO users (username, email) VALUES ($1, $2)", user.Name, user.Email)
+
 	if err != nil {
 		return nil, fmt.Errorf("User could no be added: %s", err)
 	}
 
-	return repo.GetById(id)
+	return &user, nil
 }
 
 func (repo *UserRepository) GetAllUsers() ([]*models.User, error) {
