@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	_ "github.com/jackc/pgx/stdlib"
 )
 
 func ConnectToDatabase() *sql.DB {
@@ -12,14 +14,15 @@ func ConnectToDatabase() *sql.DB {
 	if err != nil {
 		log.Fatal("Error:", err)
 	}
-
+	println(psqlInfo)
 	db, err := sql.Open("pgx", psqlInfo)
+	println(db)
 	if err != nil {
 		log.Fatal("Error while connecting to db cause: " + err.Error())
 	}
 
 	if err := db.Ping(); err != nil {
-		log.Fatal("Error while pining to db cause: " + err.Error())
+		log.Fatal("Error while pinging to db cause: " + err.Error())
 	}
 
 	return db

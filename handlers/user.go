@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/models"
 	"github.com/michelm117/cycling-coach-lab/repositories"
 	"github.com/michelm117/cycling-coach-lab/views/user"
@@ -14,6 +13,10 @@ import (
 
 type UserHandler struct {
 	repo *repositories.UserRepository
+}
+
+func NewUserHandler(repo *repositories.UserRepository) UserHandler {
+	return UserHandler{repo: repo}
 }
 
 func (h UserHandler) HandlerShowUserById(c echo.Context) error {
@@ -41,11 +44,11 @@ func (h UserHandler) HandlerAddUser(c echo.Context) error {
 	}
 	println(newUser.Name)
 	println(newUser.Email)
-	err := db.AddUser(newUser)
+	_, err := h.repo.AddUser(newUser)
 	if err != nil {
 		fmt.Println("error when adding user:" + err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
-	users, err := db.GetAllUsers()
+	users, err := h.repo.GetAllUsers()
 	return render(c, user.ShowUsers(users))
 }

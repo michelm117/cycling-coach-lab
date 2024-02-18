@@ -28,10 +28,8 @@ func main() {
 
 	app := echo.New()
 	app.Use(middlewares.RequestLogger(logger))
-
 	userRepository := repositories.NewUserRepository(db, logger)
-	// Routes
-	userHandler := handlers.UserHandler{}
+	userHandler := handlers.NewUserHandler(userRepository)
 	handlers.SetupRoutes(app, &userHandler)
 
 	// Serve static files
@@ -40,9 +38,9 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "8080"
 	}
-	app.Logger.Fatal(app.Start(":" + "8080"))
+	app.Logger.Fatal(app.Start(":" + port))
 }
 
 func initLogger() *zap.SugaredLogger {
