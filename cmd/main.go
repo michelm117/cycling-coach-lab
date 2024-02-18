@@ -11,6 +11,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/handlers"
 	"github.com/michelm117/cycling-coach-lab/middlewares"
+	"github.com/michelm117/cycling-coach-lab/repositories"
 )
 
 func main() {
@@ -20,17 +21,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	db.OpenDB()
 
-	// Init logger
-	sugar := initLogger()
+	db := db.ConnectToDatabase()
+
+	logger := initLogger()
+
 	app := echo.New()
-
-	// Middlewares
-	app.Use(middlewares.RequestLogger(sugar))
-
-	// Routes
-	userHandler := handlers.UserHandler{}
+	app.Use(middlewares.RequestLogger(logger))
+	userRepository := repositories.NewUserRepository(db, logger)
+	userHandler := handlers.NewUserHandler(userRepository)
 	handlers.SetupRoutes(app, &userHandler)
 
 	// Serve static files
@@ -39,9 +38,9 @@ func main() {
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "8080"
 	}
-	app.Logger.Fatal(app.Start(":" + "8080"))
+	app.Logger.Fatal(app.Start(":" + port))
 }
 
 func initLogger() *zap.SugaredLogger {
