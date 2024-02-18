@@ -16,6 +16,28 @@ templ Base() {
 				<div class="flex-1">
 					<a class="btn btn-ghost text-xl">Cycling Coach Lab</a>
 				</div>
+				<button class="btn" onclick="my_modal_1.showModal()">Add User</button>
+				<dialog id="my_modal_1" class="modal">
+					<div class="modal-box flex items-center justify-center">
+						<div class="p-1">
+							<h3 class="font-bold text-xl mb-4">Add a User</h3>
+							<div class="modal-action">
+								<button class="btn btn-xs btn-ghost absolute top-2 right-2" onclick="my_modal_1.close()">✕</button>
+								<form hx-post="/users/add" method="dialog" hx-target="#users" class="space-y-4">
+									<div class="flex flex-col">
+										<label for="name" class="text-sm">Name:</label>
+										<input type="text" id="name" name="name" required class="input input-bordered"/>
+									</div>
+									<div class="flex flex-col">
+										<label for="email" class="text-sm">Email:</label>
+										<input type="email" id="email" name="email" required class="input input-bordered"/>
+									</div>
+									<button type="submit" class="btn btn-primary w-full">Add User</button>
+								</form>
+							</div>
+						</div>
+					</div>
+				</dialog>
 				<div class="flex-none">
 					<div class="dropdown dropdown-end">
 						<div tabindex="0" role="button" class="btn m-1">
