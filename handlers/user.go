@@ -5,12 +5,16 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/models"
+	"github.com/michelm117/cycling-coach-lab/repositories"
 	"github.com/michelm117/cycling-coach-lab/views/user"
 )
 
-type UserHandler struct{}
+type UserHandler struct {
+	repo *repositories.UserRepository
+}
 
 func (h UserHandler) HandlerShowUserById(c echo.Context) error {
 	u := models.User{
@@ -20,20 +24,10 @@ func (h UserHandler) HandlerShowUserById(c echo.Context) error {
 }
 
 func (h UserHandler) HandlerShowUsers(c echo.Context) error {
-	fmt.Println("handle all users")
-	users, err := db.GetAllUsers()
+	users, err := h.repo.GetAllUsers()
 	if err != nil {
 		fmt.Println("error when looking for all users:" + err.Error())
 	}
-
-	if len(users) == 0 {
-		println("no users in db")
-		users = append(users, models.User{
-			Name:  "name",
-			Email: "email",
-		})
-	}
-	println("we got till here")
 	return render(c, user.ShowUsers(users))
 }
 

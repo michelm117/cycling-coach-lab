@@ -11,6 +11,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/handlers"
 	"github.com/michelm117/cycling-coach-lab/middlewares"
+	"github.com/michelm117/cycling-coach-lab/repositories"
 )
 
 func main() {
@@ -20,15 +21,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	db.OpenDB()
 
-	// Init logger
-	sugar := initLogger()
+	db := db.ConnectToDatabase()
+
+	logger := initLogger()
+
 	app := echo.New()
+	app.Use(middlewares.RequestLogger(logger))
 
-	// Middlewares
-	app.Use(middlewares.RequestLogger(sugar))
-
+	userRepository := repositories.NewUserRepository(db, logger)
 	// Routes
 	userHandler := handlers.UserHandler{}
 	handlers.SetupRoutes(app, &userHandler)
