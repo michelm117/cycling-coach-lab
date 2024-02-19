@@ -19,6 +19,24 @@ func NewUserHandler(repo *repositories.UserRepository) UserHandler {
 	return UserHandler{repo: repo}
 }
 
+func (h UserHandler) HandleDeleteUser(c echo.Context) error {
+	println("Handle delete User2")
+	name := c.FormValue("name")
+	email := c.FormValue("email")
+	println(name)
+	println(email)
+	userToBeDeleted := models.User{Name: name, Email: email}
+	h.repo.DeleteUser(userToBeDeleted)
+	users, _ := h.repo.GetAllUsers()
+	println(users)
+	for _, t := range users {
+		println(t.Email)
+		println(t.Name)
+	}
+
+	return render(c, user.ShowUsers(users))
+}
+
 func (h UserHandler) HandlerShowUserById(c echo.Context) error {
 	u := models.User{
 		Email: "a@gg.com",
