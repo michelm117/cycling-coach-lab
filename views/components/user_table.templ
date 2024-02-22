@@ -63,7 +63,9 @@ templ UserTable(users []*models.User) {
 							<button class="btn btn-ghost btn-xs">details</button>
 						</th>
 						<th>
-							<button class="btn btn-error btn-xs" hx-post="/users/delete"  hx-vals={ buildUserJSON(user)} hx-target="#users">delete</button>
+						<div hx-ext="path-params">
+							<button class="btn btn-error btn-xs" hx-delete="/users/delete/{email}"  hx-vals={buildUserJSON(user)} hx-target="#users">delete</button>
+						</div>
 						</th>
 					</tr>
 				}

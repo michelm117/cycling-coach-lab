@@ -65,6 +65,20 @@ func (repo *UserRepository) GetByName(name string) (*models.User, error) {
 	return &user, nil
 }
 
+func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
+	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.email = $1", email)
+
+	var user models.User
+	err := row.Scan(&user.Name, &user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("User not found")
+		}
+		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+	}
+	return &user, nil
+}
+
 func (repo *UserRepository) AddUser(user models.User) (*models.User, error) {
 	println("we are in add user" + user.Email)
 
