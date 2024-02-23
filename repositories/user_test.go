@@ -21,8 +21,23 @@ func TestMain(t *testing.M) {
 	os.Exit(t.Run())
 }
 
+func TestCountUsers(t *testing.T) {
+	repo := repositories.NewUserRepository(DB, nil)
+	count, err := repo.Count()
+	if err != nil {
+		t.Errorf("Error while trying to count users: %s", err)
+	}
+	if count == 0 {
+		t.Errorf("No users found")
+	}
+}
+
 func TestAddUser(t *testing.T) {
 	repo := repositories.NewUserRepository(DB, nil)
+	beforeSize, err := repo.Count()
+	if err != nil {
+		t.Errorf("Error while trying to count users: %s", err)
+	}
 	u := models.User{
 		Name:  "test",
 		Email: "test@test.de",
@@ -35,6 +50,14 @@ func TestAddUser(t *testing.T) {
 	if user == nil {
 		t.Errorf("Newly added user was not returned: %s", u)
 	}
+
+	afterSize, err := repo.Count()
+	if err != nil {
+		t.Errorf("Error while trying to count users: %s", err)
+	}
+	if beforeSize+1 != afterSize {
+		t.Errorf("Expected %d users, but got %d", beforeSize+1, afterSize)
+	}
 }
 
 func TestGetByName(t *testing.T) {
@@ -46,5 +69,15 @@ func TestGetByName(t *testing.T) {
 	if user == nil {
 		t.Errorf("User not found")
 	}
+}
 
+func TestUserWithNameNotFound(t *testing.T) {
+	repo := repositories.NewUserRepository(DB, nil)
+	user, err := repo.GetByName("foo")
+	if user != nil {
+		t.Errorf("User should not be found")
+	}
+	if err == nil {
+		t.Errorf("Error should not be nil")
+	}
 }

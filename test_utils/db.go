@@ -20,6 +20,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/db"
 )
 
+// https://medium.com/@dilshataliev/integration-tests-with-golang-test-containers-and-postgres-abb49e8096c5
 type TestDatabase struct {
 	Db        *sql.DB
 	DbUrl     string
