@@ -1,0 +1,73 @@
+name: release
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: simple
+          manifest-file: .release-please-manifest.json
+      - uses: actions/checkout@v4
+      - name: Setup Go 1.22.0
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.0'
+          cache-dependency-path: go.sum
+      - name: Setup CI Environment 
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          npm install -g tailwindcss
+          npm install -D daisyui@latest
+          tailwindcss -o assets/styles.css --minify
+          templ generate
+          go mod download
+      - name: Build
+        run: CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go
+      - name: Print Version
+        run: |
+          echo "New Version: v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          echo "Release outputs: v${{ steps.release.outputs }} ${{ steps.release.outputs.tag_name }}"
+      - name: Upload Release Artifact
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tar -cvzf cycling-coacl-lab.tar.gz main CHANGELOG.MD README.md version.txt LICENSE
+          gh release upload ${{ steps.release.outputs.tag_name }} cycling-coach-app.tar.gz
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # - name: PrepareReg Names
+      #   id: read-docker-image-identifiers
+      #   run: |
+      #     echo VERSION_TAG=$(echo ${{ steps.version_step.outputs.version_tag }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+      #     echo LASTEST_TAG=$(echo ${{ steps.version_step.outputs.latest_tag  }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+      # - name: Build and push
+      #   id: docker_build
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: |
+      #       ${{env.VERSION_TAG}}
+      #       ${{env.LASTEST_TAG}}
+      #     build-args: |
+      #       ${{steps.version_step.outputs.version}}
