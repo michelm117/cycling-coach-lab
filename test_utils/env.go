@@ -4,8 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
-
 	"github.com/michelm117/cycling-coach-lab/db"
 )
 
@@ -15,10 +13,17 @@ type TestEnvironment struct {
 
 func SetupEnvironment() TestEnvironment {
 	// https://github.com/joho/godotenv/issues/43
-	err := godotenv.Load(os.ExpandEnv("../.env"))
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err.Error())
-	}
+	os.Setenv("PORT", "8080")
+	os.Setenv("DB_HOST", "localhost")
+	os.Setenv("DB_PORT", "5432")
+	os.Setenv("DB_USER", "postgres")
+	os.Setenv("DB_PASSWORD", "postgres")
+	os.Setenv("DB_NAME", "postgres")
+
+	// err := godotenv.Load(os.ExpandEnv("../.env"))
+	// if err != nil {
+	// 	log.Fatalf("Error loading .env file: %s", err.Error())
+	// }
 
 	databaseEnv, err := db.GetDatabaseEnv()
 	if err != nil {

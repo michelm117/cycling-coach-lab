@@ -4,3 +4,4 @@ postgres/
 node_modules
 assets/styles.css
 .env
+main
