@@ -10,7 +10,7 @@ import (
 )
 
 type TestEnvironment struct {
-	databaseEnv *db.DatabaseEnv
+	db *db.DatabaseEnv
 }
 
 func SetupEnvironment() TestEnvironment {
@@ -24,5 +24,5 @@ func SetupEnvironment() TestEnvironment {
 	if err != nil {
 		log.Fatalf("Error getting database environment: %s", err.Error())
 	}
-	return TestEnvironment{databaseEnv: databaseEnv}
+	return TestEnvironment{db: databaseEnv}
 }
