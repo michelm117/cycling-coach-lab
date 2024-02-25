@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 
@@ -17,6 +18,26 @@ type UserHandler struct {
 
 func NewUserHandler(repo *repositories.UserRepository) UserHandler {
 	return UserHandler{repo: repo}
+}
+
+func (h UserHandler) HandleDeleteUser(c echo.Context) error {
+	println("Handle delete User2")
+	email := c.ParamValues()
+	println(email[0])
+	emailOfUser := strings.Replace(email[0], "%40", "@", -1)
+	userToBeDeleted, err := h.repo.GetByEmail(emailOfUser)
+	if err != nil {
+		return err
+	}
+	h.repo.DeleteUser(*userToBeDeleted)
+	users, _ := h.repo.GetAllUsers()
+	println(users)
+	for _, t := range users {
+		println(t.Email)
+		println(t.Name)
+	}
+
+	return render(c, user.ShowUsers(users))
 }
 
 func (h UserHandler) HandlerShowUserById(c echo.Context) error {

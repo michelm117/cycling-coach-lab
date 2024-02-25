@@ -2,7 +2,16 @@ package components
 
 import (
 	"github.com/michelm117/cycling-coach-lab/models"
+	"encoding/json"
 )
+
+func buildUserJSON( user *models.User) string {
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		println("error while marshelling")
+	}
+	return string(jsonData)
+}
 
 templ UserTable(users []*models.User) {
 	<div class="overflow-x-auto">
@@ -38,12 +47,12 @@ templ UserTable(users []*models.User) {
 									</div>
 								</div>
 								<div>
-									<div class="font-bold">{ user.Name }</div>
+									<div class="font-bold" id="user-name">{ user.Name }</div>
 								</div>
 							</div>
 						</td>
 						<td>
-							{ user.Email }
+						<div id="user-email">{ user.Email }</div>
 							<br/>
 						</td>
 						<th>
@@ -52,6 +61,11 @@ templ UserTable(users []*models.User) {
 						<td>2023/12/12</td>
 						<th>
 							<button class="btn btn-ghost btn-xs">details</button>
+						</th>
+						<th>
+						<div hx-ext="path-params">
+							<button class="btn btn-error btn-xs" hx-delete="/users/delete/{email}"  hx-vals={buildUserJSON(user)} hx-target="#users">delete</button>
+						</div>
 						</th>
 					</tr>
 				}

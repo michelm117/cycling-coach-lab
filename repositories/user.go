@@ -36,8 +36,37 @@ func (repo *UserRepository) GetById(id int) (*models.User, error) {
 	return &user, nil
 }
 
+func (repo *UserRepository) DeleteUser(user models.User) (*models.User, error) {
+	println("AYPPP")
+	println(user.Email)
+	println(user.Name)
+	_, err := repo.db.Exec("DELETE FROM users WHERE users.username = $1 AND users.email = $2", user.Name, user.Email)
+
+	if err != nil {
+		println("WE GET AN ERROR")
+		println(err.Error())
+		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+	}
+
+	return &user, nil
+}
+
 func (repo *UserRepository) GetByName(name string) (*models.User, error) {
 	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.username = $1", name)
+
+	var user models.User
+	err := row.Scan(&user.Name, &user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("User not found")
+		}
+		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+	}
+	return &user, nil
+}
+
+func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
+	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.email = $1", email)
 
 	var user models.User
 	err := row.Scan(&user.Name, &user.Email)
