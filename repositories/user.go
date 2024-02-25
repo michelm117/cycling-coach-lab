@@ -82,7 +82,11 @@ func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
 func (repo *UserRepository) AddUser(user models.User) (*models.User, error) {
 	println("we are in add user" + user.Email)
 
-	_, err := repo.db.Exec("INSERT INTO users (username, email) VALUES ($1, $2)", user.Name, user.Email)
+	_, err := repo.db.Exec(
+		"INSERT INTO users (username, email) VALUES ($1, $2)",
+		user.Name,
+		user.Email,
+	)
 
 	if err != nil {
 		return nil, fmt.Errorf("User could no be added: %s", err)
@@ -113,4 +117,14 @@ func (repo *UserRepository) GetAllUsers() ([]*models.User, error) {
 
 	defer rows.Close()
 	return users, nil
+}
+
+func (repo *UserRepository) Count() (int, error) {
+	row := repo.db.QueryRow("SELECT count(*) FROM users")
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		return -1, fmt.Errorf("Error while trying to execute query: %s", err)
+	}
+	return count, nil
 }
