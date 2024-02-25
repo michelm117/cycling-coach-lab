@@ -3,21 +3,18 @@ package test_utils
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
-	"time"
+	"path/filepath"
+	"runtime"
 
-	_ "github.com/golang-migrate/migrate/source/file"
+	"github.com/docker/go-connections/nat"
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/lib/pq"
 	"github.com/testcontainers/testcontainers-go"
-	testcontainerPostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
-
-	"github.com/michelm117/cycling-coach-lab/db"
 )
 
 // https://medium.com/@dilshataliev/integration-tests-with-golang-test-containers-and-postgres-abb49e8096c5
@@ -27,87 +24,66 @@ type TestDatabase struct {
 	container testcontainers.Container
 }
 
-func SetupTestDatabase() *TestDatabase {
-	env := SetupEnvironment().databaseEnv
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
-
-	// setup db container
-	container, dbInstance, dbAddr, err := createContainer(ctx, env)
-	if err != nil {
-		log.Fatal("failed to setup test", err)
-	}
-
-	// migrate db schema
-	err = migrateDb(dbAddr)
-	if err != nil {
-		log.Fatal("failed to perform db migration", err)
-	}
-	cancel()
-
-	return &TestDatabase{
-		container: container,
-		Db:        dbInstance,
-		DbUrl:     dbAddr,
-	}
-}
-
-func (tdb *TestDatabase) TearDown() {
-	tdb.Db.Close()
-	// remove test container
-	_ = tdb.container.Terminate(context.Background())
-}
-
-func createContainer(
+func CreateTestContainer(
 	ctx context.Context,
-	env *db.DatabaseEnv,
-) (testcontainers.Container, *sql.DB, string, error) {
+) (testcontainers.Container, *sql.DB, error) {
+	globalEnv := SetupEnvironment()
 
-	postgresContainer, err := testcontainerPostgres.RunContainer(ctx,
-		testcontainers.WithImage("docker.io/postgres:16.2-alpine"),
-		testcontainerPostgres.WithDatabase(env.Name),
-		testcontainerPostgres.WithUsername(env.User),
-		testcontainerPostgres.WithPassword(env.Password),
-		testcontainers.WithWaitStrategy(
-			wait.ForLog("database system is ready to accept connections").
-				WithOccurrence(2).
-				WithStartupTimeout(5*time.Second)),
+	var env = map[string]string{
+		"POSTGRES_USER":     globalEnv.databaseEnv.User,
+		"POSTGRES_PASSWORD": globalEnv.databaseEnv.Password,
+		"POSTGRES_DB":       globalEnv.databaseEnv.Name,
+	}
+	var port = "5432/tcp"
+	req := testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        "postgres:16.2-alpine",
+			ExposedPorts: []string{port},
+			Cmd:          []string{"postgres", "-c", "fsync=off"},
+			Env:          env,
+			WaitingFor:   wait.ForListeningPort("5432/tcp"),
+		},
+		Started: true,
+	}
+	container, err := testcontainers.GenericContainer(ctx, req)
+	if err != nil {
+		return container, nil, fmt.Errorf("failed to start container: %s", err)
+	}
+
+	mappedPort, err := container.MappedPort(ctx, nat.Port(port))
+	if err != nil {
+		return container, nil, fmt.Errorf("failed to get container external port: %s", err)
+	}
+
+	log.Println("postgres container ready and running at port: ", mappedPort)
+
+	url := fmt.Sprintf(
+		"postgres://postgres:password@localhost:%s/%s?sslmode=disable",
+		mappedPort.Port(),
+		globalEnv.databaseEnv.Port,
 	)
+	db, err := sql.Open("postgres", url)
 	if err != nil {
-		err = fmt.Errorf("failed to start container: %s", err)
+		return container, db, fmt.Errorf("failed to establish database connection: %s", err)
 	}
 
-	if err != nil {
-		err = fmt.Errorf("Error: %s", err)
-	}
-	db, err := sql.Open("pgx", env.Address)
-	if err != nil {
-		err = fmt.Errorf("Error while connecting to db cause: " + err.Error())
-	}
-
-	if err := db.Ping(); err != nil {
-		err = fmt.Errorf("Error while pinging to db cause: " + err.Error())
-	}
-
-	return postgresContainer, db, env.Address, err
-
+	return container, db, nil
 }
 
-func migrateDb(dbAddr string) error {
-	m, err := migrate.New(
-		fmt.Sprintf("file:///home/michelm/Projects/cycling-coach-lab/migrations"),
-		fmt.Sprintf("%s?sslmode=disable", dbAddr),
-	)
+func NewPgMigrator(db *sql.DB) (*migrate.Migrate, error) {
+	_, currentFilePath, _, ok := runtime.Caller(0)
+	if !ok {
+		log.Fatalf("failed to get path")
+	}
+
+	projectRoot := filepath.Dir(filepath.Dir(currentFilePath))
+	sourceUrl := fmt.Sprintf("file://%s/migrations", projectRoot)
+
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+
 	if err != nil {
-		return err
-	}
-	defer m.Close()
-
-	err = m.Up()
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return err
+		log.Fatalf("failed to create migrator driver: %s", err)
 	}
 
-	log.Println("migration done")
-
-	return nil
+	return migrate.NewWithDatabaseInstance(sourceUrl, "postgres", driver)
 }

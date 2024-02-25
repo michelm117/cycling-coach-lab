@@ -35,7 +35,7 @@ run: generate
 ## start: build and run project with hot reload
 .PHONY: start
 start: generate
-	@docker compose --env-file=.env up --build -d
+	@docker compose --env-file=.env up --build -d --restart=no
 	@air & tailwindcss -o assets/styles.css --minify --watch
 
 
