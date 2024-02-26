@@ -1,5 +1,4 @@
 {
-  "prerelease": true,
-  "prerelease-type": "alpha",
+  ".": "0.0.0"
 }
 
