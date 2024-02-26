@@ -17,7 +17,7 @@ jobs:
         id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: simple
+          config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
       - uses: actions/checkout@v4
         # these if statements ensure that a publication only occurs when
@@ -51,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tar -cvzf cycling-coacl-lab.tar.gz main CHANGELOG.MD README.md version.txt LICENSE
+          tar -cvzf cycling-coacl-lab.tar.gz main CHANGELOG.MD README.md LICENSE
           gh release upload ${{ steps.release.outputs.tag_name }} cycling-coach-app.tar.gz
       - name: Set up QEMU
         if: ${{ steps.release.outputs.release_created }}
