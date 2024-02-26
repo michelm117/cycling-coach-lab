@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.0.0...v1.0.1) (2024-02-26)
+
+
+### Bug Fixes
+
+* release pipeline ([777e7ca](https://github.com/michelm117/cycling-coach-lab/commit/777e7cad48b4a860d07279af12b5e1d58c2d190e))
+
 ## 1.0.0 (2024-02-26)
 
 
