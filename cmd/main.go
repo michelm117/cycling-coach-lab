@@ -1,10 +1,8 @@
 package main
 
 import (
-	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
@@ -15,13 +13,6 @@ import (
 )
 
 func main() {
-
-	// Load environment variables from the .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
-
 	db := db.ConnectToDatabase()
 
 	logger := initLogger()

@@ -23,35 +23,10 @@ jobs:
         # these if statements ensure that a publication only occurs when
         # a new release is created:
         if: ${{ steps.release.outputs.release_created }}
-      - name: Setup Go 1.22.0
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.22.0'
-          cache-dependency-path: go.sum
-      - name: Setup CI Environment 
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          go install github.com/a-h/templ/cmd/templ@latest
-          npm install -g tailwindcss
-          npm install -D daisyui@latest
-          tailwindcss -o assets/styles.css --minify
-          templ generate
-          go mod download
-      - name: Build
-        if: ${{ steps.release.outputs.release_created }}
-        run: CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go
       - name: Print Version
         if: ${{ steps.release.outputs.release_created }}
         run: |
           echo "New Version: v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
-      - name: Upload Release Artifact
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tar -cvzf cycling-coach-lab.tar.gz main CHANGELOG.md README.md LICENSE
-          gh release upload ${{ steps.release.outputs.tag_name }} cycling-coach-lab.tar.gz
       - name: Set up QEMU
         if: ${{ steps.release.outputs.release_created }}
         uses: docker/setup-qemu-action@v3
