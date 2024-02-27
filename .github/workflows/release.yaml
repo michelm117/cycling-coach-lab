@@ -43,7 +43,6 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         uses: docker/build-push-action@v5
         with:
-          context: .
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:latest
