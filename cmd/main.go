@@ -13,9 +13,10 @@ import (
 )
 
 func main() {
-	db := db.ConnectToDatabase()
 
 	logger := initLogger()
+
+	db := db.ConnectToDatabase(logger)
 
 	app := echo.New()
 	app.Use(middlewares.RequestLogger(logger))
