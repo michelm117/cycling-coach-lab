@@ -10,6 +10,7 @@ node_modules
 tmp
 .air.toml
 .env
+.envrc
 .env.template
 .init.sql
 .package*.json
