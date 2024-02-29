@@ -27,7 +27,7 @@ func ConnectToDatabase(logger *zap.SugaredLogger) *sql.DB {
 	}
 
 	logger.Info("Creating migrator")
-	migrator, err := NewMigrator(database, logger)
+	migrator, err := NewMigrator(database)
 	if err != nil {
 		log.Fatalf("failed to create migrator: %s", err)
 	}
