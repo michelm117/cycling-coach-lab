@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 	// Run the actual tests
 	exitCode := m.Run()
 
-	// Perform tear
+	// Perform tear down
 	defer func() {
 		if err := container.Terminate(ctx); err != nil {
 			log.Fatalf("failed to terminate container: %s", err)
