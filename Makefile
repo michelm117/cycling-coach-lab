@@ -46,7 +46,7 @@ start: generate
 
 ## test: run unit tests
 .PHONY: test
-test:
+test: generate
 	@echo "Running tests..."
 	go test -race -cover ./...
 
