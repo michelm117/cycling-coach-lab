@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.1.0...v1.2.0) (2024-03-02)
+
+
+### Features
+
+* add simple healtcheck endpoint ([985541a](https://github.com/michelm117/cycling-coach-lab/commit/985541aec51116b5edfb840610e53ec69862aec3))
+
 ## [1.1.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.0.1...v1.1.0) (2024-02-27)
 
 
