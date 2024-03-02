@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.2.0...v1.2.1) (2024-03-02)
+
+
+### Bug Fixes
+
+* use the latest pg driver ([4d69952](https://github.com/michelm117/cycling-coach-lab/commit/4d699523703977e1998cc20ef5735de2ff3d5609))
+
 ## [1.2.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.1.0...v1.2.0) (2024-03-02)
 
 
