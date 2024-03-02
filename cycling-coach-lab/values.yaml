@@ -46,29 +46,24 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
 service:
   type: ClusterIP
   port: 8080
-  externalPort: 80
-  internalPort: 8080
 
 ingress:
   enabled: true
   className: ""
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: hello.local
+    - host: ccl.newtri-science.michel.lu
       paths:
         - path: /
           pathType: Prefix
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  tls:
+   - secretName: cycling-coach-lab-tls
+     hosts:
+       - ccl.newtri-science.michel.lu
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
