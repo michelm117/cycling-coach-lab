@@ -1,15 +1,3 @@
-# FROM golang:1.22 AS build-stage
-#
-# WORKDIR /app
-#
-# COPY main /entrypoint
-# COPY assets/ /assets
-#
-# ENV PORT=80
-# EXPOSE 80
-#
-# ENTRYPOINT ["/entrypoint"]
-
 # Build.
 FROM golang:1.22 AS build-stage
 WORKDIR /app
@@ -30,7 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /entrypoint /app/cmd/main.go
 FROM gcr.io/distroless/static-debian11 AS release-stage
 WORKDIR /
 COPY --from=build-stage /entrypoint /app/entrypoint
-COPY --from=build-stage /app/assets /app/assets
+COPY --from=build-stage /app/assets /assets
 COPY --from=build-stage /app/migrations /app/migrations
 EXPOSE 8080
 USER nonroot:nonroot

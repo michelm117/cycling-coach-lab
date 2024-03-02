@@ -19,7 +19,7 @@ init:
 	@go install github.com/cosmtrek/air@latest
 	@go install github.com/a-h/templ/cmd/templ@latest
 	@go mod tidy
-	@npm install -g tailwindcss
+	@npm install -D tailwindcss
 	@npm install -D daisyui@latest
 
 
@@ -40,7 +40,7 @@ run: generate
 ## start: build and run project with hot reload
 .PHONY: start
 start: generate
-	@docker compose --env-file=.env up --build -d --restart=no
+	@docker compose --env-file=.env up --build -d --restart=no -f docker-compose.dev.yml
 	@air & tailwindcss -o assets/styles.css --minify --watch
 
 
@@ -53,14 +53,16 @@ test: generate
 
 ## docker-build: build project into a docker container image
 .PHONY: docker-build
-docker-build: test
+docker-build:
 	@echo "Building docker image..."
-	GOPROXY=direct docker buildx build -t ${name} .
+	docker buildx build -t ${name} .
+	docker build --no-cache . -t unrealwombat/cycling-coach-lab:latest
+
 
 
 ## docker-run: run project in a container
 .PHONY: docker-run
 docker-run:
 	@echo "Running docker container..."
-	docker run -it --rm -p 80:80 ${name}
+	docker compose --env-file=.env -f docker-compose.prod.yml up
 
