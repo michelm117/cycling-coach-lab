@@ -14,3 +14,4 @@ tmp
 .env.template
 .init.sql
 .package*.json
+cycling-coach-lab
