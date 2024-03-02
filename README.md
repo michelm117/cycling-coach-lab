@@ -39,7 +39,7 @@ make docker-build
 make docker-run
 ```
 
-This command will start the server on port 80.
+This command will start the server on port 8080.
 
 
 
@@ -49,6 +49,19 @@ To run the unit tests:
 make test
 ```
 
+
+## K8s development
+To test the kubernetes deployment you can install [minikube](https://minikube.sigs.k8s.io/docs/start/) on your dev maschine.
+
+1. Install minikube on your maschine
+2. Init minikube
+```sh
+minikube start --vm-driver=docker --alsologtostderr
+```
+3. Test minikube
+```sh
+kubectl get pods -A
+```
 
 ## Contributing
 Please read [CONTRIBUTION.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
