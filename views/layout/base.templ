@@ -10,6 +10,7 @@ templ Base() {
 			<link rel="stylesheet" href="/assets/styles.css"/>
 			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 			<script src="https://unpkg.com/htmx.org/dist/ext/path-params.js"></script>
+			<script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
 		</head>
 		<body class="font-sans">
 			<!-- Navigation Bar -->
@@ -24,7 +25,7 @@ templ Base() {
 							<h3 class="font-bold text-xl mb-4">Add a User</h3>
 							<div class="modal-action">
 								<button class="btn btn-xs btn-ghost absolute top-2 right-2" onclick="my_modal_1.close()">✕</button>
-								<form hx-post="/users/add" method="dialog" hx-target="#users" class="space-y-4">
+								<form hx-post="/users/add" method="dialog" hx-target-5*="#email-taken" hx-target="#users" class="space-y-4">
 									<div class="flex flex-col">
 										<label for="name" class="text-sm">Name:</label>
 										<input type="text" id="name" name="name" required class="input input-bordered"/>
@@ -34,6 +35,7 @@ templ Base() {
 										<input type="email" id="email" name="email" required class="input input-bordered"/>
 									</div>
 									<button type="submit" class="btn btn-primary w-full">Add User</button>
+									<div id="email-taken"></div>
 								</form>
 							</div>
 						</div>
