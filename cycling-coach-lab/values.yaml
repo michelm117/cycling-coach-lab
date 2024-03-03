@@ -48,8 +48,7 @@ securityContext: {}
   # runAsUser: 1000
 service:
   type: ClusterIP
-  port: 80
-  targetPort: 8080
+  port: 8080
 
 ingress:
   enabled: true
@@ -57,14 +56,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: ccl.michel.lu
+    - host: ccl.newtri-science.michel.lu
       paths:
         - path: /
           pathType: Prefix
   tls:
    - secretName: cycling-coach-lab-tls
      hosts:
-       - ccl.michel.lu
+       - ccl.newtri-science.michel.lu
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
