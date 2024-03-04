@@ -53,7 +53,7 @@ func CreateTestContainer(ctx context.Context) TestDatabase {
 	}
 
 	logger.Info("Creating migrator")
-	migrator, err := DB.NewMigrator(db)
+	migrator, err := DB.NewMigrator(db, nil)
 	if err != nil {
 		log.Fatalf("failed to create migrator: %s", err)
 	}
