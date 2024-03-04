@@ -7,6 +7,7 @@ This is a Go project that uses the [Echo](https://echo.labstack.com) framework f
 - Go 1.22.0 or later
 - Docker (for building and running the Docker image)
 - [migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
+- [direnv](https://direnv.net)
 
 
 ## Setup
@@ -16,6 +17,7 @@ This is a Go project that uses the [Echo](https://echo.labstack.com) framework f
 make init
 ```
 
+2. Setup you `.env` file. See [.env.template](.env)
 
 ## Running the Project
 You can run the project in two ways:

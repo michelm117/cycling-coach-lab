@@ -1,7 +1,9 @@
 package main
 
 import (
+	"log"
 	"os"
+	"path"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -10,11 +12,17 @@ import (
 	"github.com/michelm117/cycling-coach-lab/handlers"
 	"github.com/michelm117/cycling-coach-lab/middlewares"
 	"github.com/michelm117/cycling-coach-lab/repositories"
+	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
 func main() {
+	err := utils.CheckForRequiredEnvVars()
+	if err != nil {
+		log.Fatal("Error:", err)
+	}
 
 	logger := initLogger()
+	logger.Infof("Starting server in %s mode", os.Getenv("ENV"))
 
 	db := db.ConnectToDatabase(logger)
 
@@ -25,7 +33,9 @@ func main() {
 	handlers.SetupRoutes(app, &userHandler)
 
 	// Serve static files
-	app.Static("/assets", "assets")
+	assetsPath := path.Join(utils.GetProjectRoot(), "assets")
+	logger.Infof("Serving static files from: %s", assetsPath)
+	app.Static("/assets", assetsPath)
 
 	// Start server
 	port := os.Getenv("PORT")

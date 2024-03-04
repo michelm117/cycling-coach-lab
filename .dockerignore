@@ -1,17 +1,31 @@
-Dockerfile
-docker-compose.yml
-Makefile
-README.md
-CONTRIBUTING.md
-.vscode
-.git
-.gitignore
-node_modules
-tmp
-.air.toml
-.env
-.envrc
-.env.template
-.init.sql
-.package*.json
-cycling-coach-lab
+# Dockerfile
+# docker-compose.yml
+# docker-compose.*.yml
+# Makefile
+# README.md
+# CONTRIBUTING.md
+# .vscode
+# .git
+# .gitignore
+# node_modules
+# tmp
+# src/.air.toml
+# .env*
+# .package*.json
+# cycling-coach-lab
+# assets
+
+# Ignore everything
+# *
+
+
+# Allow files and directories
+# !src/*
+# !/migrations/*
+# !/package.json
+# !/package-lock.json
+# !tailwind.config.js
+
+# Ignore specific files
+# **/.air.toml
+

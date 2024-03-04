@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -19,11 +20,14 @@ func NewMigrator(db *sql.DB) (*migrate.Migrate, error) {
 		log.Fatalf("failed to get path")
 	}
 
-	projectRoot := filepath.Dir(filepath.Dir(currentFilePath))
-	sourceUrl := fmt.Sprintf("file://%s/migrations", projectRoot)
+	projectRoot := filepath.Join(filepath.Dir(currentFilePath), "../../", "migrations")
+	if os.Getenv("ENV") == "production" {
+		projectRoot = filepath.Join(filepath.Dir(currentFilePath), "../../", "migrations")
+	}
+	sourceUrl := fmt.Sprintf("file://%s", projectRoot)
+	fmt.Println("Looking for migrations in: ", sourceUrl)
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
-
 	if err != nil {
 		log.Fatalf("failed to create migrator driver: %s", err)
 	}

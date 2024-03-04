@@ -1,9 +1,8 @@
-tmp
+src/.tmp
 *_templ.go
 postgres/
 node_modules
 assets/styles.css
 .env
-.envrc
 main
 cycling-coach-lab/charts/*
