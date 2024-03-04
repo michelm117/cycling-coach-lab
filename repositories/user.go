@@ -21,6 +21,21 @@ func NewUserRepository(db *sql.DB, logger *zap.SugaredLogger) *UserRepository {
 	}
 }
 
+func (repo *UserRepository) SearchForUser(keyword string) ([]*models.User, error) {
+	rowName, err := repo.db.Query("SELECT username, email FROM users WHERE users.username LIKE '%' || $1 || '%'", keyword)
+	var users []*models.User
+	for rowName.Next() {
+		var user models.User
+		err := rowName.Scan(&user.Name, &user.Email)
+		if err != nil {
+			return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		}
+		users = append(users, &user)
+	}
+
+	return users, err
+}
+
 func (repo *UserRepository) GetById(id int) (*models.User, error) {
 	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.username = $1", id)
 
