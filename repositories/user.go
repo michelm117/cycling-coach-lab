@@ -22,7 +22,7 @@ func NewUserRepository(db *sql.DB, logger *zap.SugaredLogger) *UserRepository {
 }
 
 func (repo *UserRepository) SearchForUser(keyword string) ([]*models.User, error) {
-	rowName, err := repo.db.Query("SELECT username, email FROM users WHERE users.username LIKE '%' || $1 || '%'", keyword)
+	rowName, err := repo.db.Query("SELECT username, email FROM users WHERE users.username LIKE '%' || $1 || '%'  OR email LIKE '%' || $1 || '%'", keyword)
 	var users []*models.User
 	for rowName.Next() {
 		var user models.User
