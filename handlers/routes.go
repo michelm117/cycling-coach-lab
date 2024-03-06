@@ -22,7 +22,6 @@ func userRoutes(app *echo.Echo, h *UserHandler) {
 
 	group.POST("/add", h.HandlerAddUser)
 	group.GET("", h.HandlerShowUsers)
-	group.GET("/details/:id", h.HandlerShowUserById)
-	//TODO: this is a post because I couldnt get the values with a delete because we dont have a unique key rn
 	group.DELETE("/delete/*", h.HandleDeleteUser)
+	group.POST("/search", h.HandlerGetUser)
 }

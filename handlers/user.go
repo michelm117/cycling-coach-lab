@@ -9,6 +9,7 @@ import (
 
 	"github.com/michelm117/cycling-coach-lab/models"
 	"github.com/michelm117/cycling-coach-lab/repositories"
+	"github.com/michelm117/cycling-coach-lab/views/components"
 	"github.com/michelm117/cycling-coach-lab/views/user"
 )
 
@@ -21,9 +22,7 @@ func NewUserHandler(repo *repositories.UserRepository) UserHandler {
 }
 
 func (h UserHandler) HandleDeleteUser(c echo.Context) error {
-	println("Handle delete User2")
 	email := c.ParamValues()
-	println(email[0])
 	emailOfUser := strings.Replace(email[0], "%40", "@", -1)
 	userToBeDeleted, err := h.repo.GetByEmail(emailOfUser)
 	if err != nil {
@@ -31,7 +30,6 @@ func (h UserHandler) HandleDeleteUser(c echo.Context) error {
 	}
 	h.repo.DeleteUser(*userToBeDeleted)
 	users, _ := h.repo.GetAllUsers()
-	println(users)
 	for _, t := range users {
 		println(t.Email)
 		println(t.Name)
@@ -40,11 +38,11 @@ func (h UserHandler) HandleDeleteUser(c echo.Context) error {
 	return render(c, user.ShowUsers(users))
 }
 
-func (h UserHandler) HandlerShowUserById(c echo.Context) error {
-	u := models.User{
-		Email: "a@gg.com",
-	}
-	return render(c, user.ShowUser(u))
+func (h UserHandler) HandlerGetUser(c echo.Context) error {
+	keyword := c.FormValue("search")
+
+	users, _ := h.repo.SearchForUser(keyword)
+	return render(c, user.ShowUsers(users))
 }
 
 func (h UserHandler) HandlerShowUsers(c echo.Context) error {
@@ -65,9 +63,12 @@ func (h UserHandler) HandlerAddUser(c echo.Context) error {
 	}
 	_, err := h.repo.AddUser(newUser)
 	if err != nil {
+		if strings.Contains(err.Error(), "duplicate") {
+			return render(c, components.EmailTaken(newUser))
+		}
 		fmt.Println("error when adding user:" + err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
-	users, err := h.repo.GetAllUsers()
+	users, _ := h.repo.GetAllUsers()
 	return render(c, user.ShowUsers(users))
 }
