@@ -38,13 +38,6 @@ func (h UserHandler) HandleDeleteUser(c echo.Context) error {
 	return render(c, user.ShowUsers(users))
 }
 
-func (h UserHandler) HandlerShowUserById(c echo.Context) error {
-	u := models.User{
-		Email: "a@gg.com",
-	}
-	return render(c, user.ShowUser(u))
-}
-
 func (h UserHandler) HandlerGetUser(c echo.Context) error {
 	keyword := c.FormValue("search")
 
