@@ -13,8 +13,7 @@ help: Makefile
 .PHONY: init
 init:
 	@echo "Initializing project..."
-	@cd src; go install github.com/cosmtrek/air@latest
-	@cd src; go install github.com/a-h/templ/cmd/templ@latest
+	@templ generate -path ./src
 	@cd src; go mod tidy
 	@npm install -D tailwindcss
 	@npm install -D daisyui@latest
@@ -40,7 +39,7 @@ run: generate
 .PHONY: start
 start: generate
 	@docker compose --env-file=.env -f docker-compose.dev.yml up -d
-	@cd src; air & tailwindcss -c ../tailwind.config.js -o ../assets/styles.css --minify --watch
+	@cd src; air & npx tailwindcss -c ../tailwind.config.js -o ../assets/styles.css --minify --watch
 
 
 ## update: update project dependencies
