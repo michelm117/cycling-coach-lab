@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/michelm117/cycling-coach-lab/compare/v1.2.1...v1.2.2) (2024-03-07)
+
+
+### Bug Fixes
+
+* adjust ingress controller ([72eb0a1](https://github.com/michelm117/cycling-coach-lab/commit/72eb0a18f79e3c777828c046cb2d0898b3d758fe))
+
 ## [1.2.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.2.0...v1.2.1) (2024-03-02)
 
 
