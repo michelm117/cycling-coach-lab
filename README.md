@@ -12,12 +12,21 @@ This is a Go project that uses the [Echo](https://echo.labstack.com) framework f
 
 ## Setup
 
-1. Install the dependencies:
+1. Make sure the your Go setup is completed:
+ Paste the following in your `$HOME/.zshrc`
+ ```sh
+ export GOPATH=$HOME/go
+ export PATH=$GOPATH/bin:$PATH
+ ```
+
+2. Install the dependencies:
 ```sh
+go install github.com/cosmtrek/air@latest
+go install github.com/a-h/templ/cmd/templ@latest
 make init
 ```
 
-2. Setup you `.env` file. See [.env.template](.env)
+3. Setup you `.env` file. See [.env.template](.env.template)
 
 ## Running the Project
 You can run the project in two ways:
