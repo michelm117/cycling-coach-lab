@@ -1,11 +1,11 @@
-package components
+package users_table
 
 import (
 	"github.com/michelm117/cycling-coach-lab/models"
 	"encoding/json"
 )
 
-func buildUserJSON( user *models.User) string {
+func buildUserJSON(user *models.User) string {
 	jsonData, err := json.Marshal(user)
 	if err != nil {
 		println("error while marshelling")
@@ -52,7 +52,7 @@ templ UserTable(users []*models.User) {
 							</div>
 						</td>
 						<td>
-						<div id="user-email">{ user.Email }</div>
+							<div id="user-email">{ user.Email }</div>
 							<br/>
 						</td>
 						<th>
@@ -63,9 +63,9 @@ templ UserTable(users []*models.User) {
 							<button class="btn btn-ghost btn-xs">details</button>
 						</th>
 						<th>
-						<div hx-ext="path-params">
-							<button class="btn btn-error btn-xs" hx-delete="/users/delete/{email}"  hx-vals={buildUserJSON(user)} hx-target="#users">delete</button>
-						</div>
+							<div hx-ext="path-params">
+								<button class="btn btn-error btn-xs" hx-delete="/users/delete/{email}" hx-vals={ buildUserJSON(user) } hx-target="#users">delete</button>
+							</div>
 						</th>
 					</tr>
 				}

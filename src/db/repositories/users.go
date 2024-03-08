@@ -9,20 +9,23 @@ import (
 	"github.com/michelm117/cycling-coach-lab/models"
 )
 
-type UserRepository struct {
+type UsersRepository struct {
 	db     *sql.DB
 	logger *zap.SugaredLogger
 }
 
-func NewUserRepository(db *sql.DB, logger *zap.SugaredLogger) *UserRepository {
-	return &UserRepository{
+func NewUsersRepository(db *sql.DB, logger *zap.SugaredLogger) *UsersRepository {
+	return &UsersRepository{
 		db:     db,
 		logger: logger,
 	}
 }
 
-func (repo *UserRepository) SearchForUser(keyword string) ([]*models.User, error) {
-	rowName, err := repo.db.Query("SELECT username, email FROM users WHERE users.username LIKE '%' || $1 || '%'  OR email LIKE '%' || $1 || '%'", keyword)
+func (repo *UsersRepository) SearchForUser(keyword string) ([]*models.User, error) {
+	rowName, err := repo.db.Query(
+		"SELECT username, email FROM users WHERE users.username LIKE '%' || $1 || '%'  OR email LIKE '%' || $1 || '%'",
+		keyword,
+	)
 	var users []*models.User
 	for rowName.Next() {
 		var user models.User
@@ -36,7 +39,7 @@ func (repo *UserRepository) SearchForUser(keyword string) ([]*models.User, error
 	return users, err
 }
 
-func (repo *UserRepository) GetById(id int) (*models.User, error) {
+func (repo *UsersRepository) GetById(id int) (*models.User, error) {
 	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.username = $1", id)
 
 	var user models.User
@@ -51,7 +54,7 @@ func (repo *UserRepository) GetById(id int) (*models.User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) DeleteUser(user models.User) (*models.User, error) {
+func (repo *UsersRepository) DeleteUser(user models.User) (*models.User, error) {
 	_, err := repo.db.Exec(
 		"DELETE FROM users WHERE users.username = $1 AND users.email = $2",
 		user.Name,
@@ -65,7 +68,7 @@ func (repo *UserRepository) DeleteUser(user models.User) (*models.User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) GetByName(name string) (*models.User, error) {
+func (repo *UsersRepository) GetByName(name string) (*models.User, error) {
 	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.username = $1", name)
 
 	var user models.User
@@ -79,7 +82,7 @@ func (repo *UserRepository) GetByName(name string) (*models.User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
+func (repo *UsersRepository) GetByEmail(email string) (*models.User, error) {
 	row := repo.db.QueryRow("SELECT username, email FROM users WHERE users.email = $1", email)
 
 	var user models.User
@@ -93,7 +96,7 @@ func (repo *UserRepository) GetByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) AddUser(user models.User) (*models.User, error) {
+func (repo *UsersRepository) AddUser(user models.User) (*models.User, error) {
 	_, err := repo.db.Exec(
 		"INSERT INTO users (username, email) VALUES ($1, $2)",
 		user.Name,
@@ -107,7 +110,7 @@ func (repo *UserRepository) AddUser(user models.User) (*models.User, error) {
 	return &user, nil
 }
 
-func (repo *UserRepository) GetAllUsers() ([]*models.User, error) {
+func (repo *UsersRepository) GetAllUsers() ([]*models.User, error) {
 	rows, err := repo.db.Query("SELECT username, email FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
@@ -131,7 +134,7 @@ func (repo *UserRepository) GetAllUsers() ([]*models.User, error) {
 	return users, nil
 }
 
-func (repo *UserRepository) Count() (int, error) {
+func (repo *UsersRepository) Count() (int, error) {
 	row := repo.db.QueryRow("SELECT count(*) FROM users")
 	var count int
 	err := row.Scan(&count)

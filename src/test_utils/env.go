@@ -20,11 +20,6 @@ func SetupEnvironment() TestEnvironment {
 	os.Setenv("DB_PASSWORD", "postgres")
 	os.Setenv("DB_NAME", "postgres")
 
-	// err := godotenv.Load(os.ExpandEnv("../.env"))
-	// if err != nil {
-	// 	log.Fatalf("Error loading .env file: %s", err.Error())
-	// }
-
 	databaseEnv, err := db.GetDatabaseEnv()
 	if err != nil {
 		log.Fatalf("Error getting database environment: %s", err.Error())

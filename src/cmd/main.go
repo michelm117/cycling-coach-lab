@@ -9,9 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/michelm117/cycling-coach-lab/db"
-	"github.com/michelm117/cycling-coach-lab/handlers"
-	"github.com/michelm117/cycling-coach-lab/middlewares"
-	"github.com/michelm117/cycling-coach-lab/repositories"
+	"github.com/michelm117/cycling-coach-lab/shell"
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
@@ -22,21 +20,16 @@ func main() {
 	}
 
 	logger := initLogger()
-	logger.Infof("Starting server in %s mode", os.Getenv("ENV"))
-
+	logger.Infof("Starting server in `%s` mode", os.Getenv("ENV"))
 	db := db.ConnectToDatabase(logger)
-
 	app := echo.New()
-	app.Use(middlewares.RequestLogger(logger))
-	userRepository := repositories.NewUserRepository(db, logger)
-	userHandler := handlers.NewUserHandler(userRepository)
-	handlers.SetupRoutes(app, &userHandler)
 
 	// Serve static files
 	assetsPath := path.Join(utils.GetProjectRoot(), "assets")
 	logger.Infof("Serving static files from: %s", assetsPath)
 	app.Static("/assets", assetsPath)
 
+	shell.Setup(app, db, logger)
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {

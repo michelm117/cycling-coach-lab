@@ -22,11 +22,9 @@ init:
 ## generate: generate static files
 .PHONY: generate
 generate:
-	@echo "Update go mod file"
-	@cd src; go mod tidy
 	@echo "Generating static files..."
-	@npx tailwindcss -o assets/styles.css --minify
 	@templ generate -path ./src
+	@npx tailwindcss -o assets/styles.css --minify
 
 
 ## run: run local project
