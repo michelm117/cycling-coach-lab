@@ -9,8 +9,8 @@ import (
 
 	_ "github.com/jackc/pgx/stdlib"
 
+	"github.com/michelm117/cycling-coach-lab/db/repositories"
 	"github.com/michelm117/cycling-coach-lab/models"
-	"github.com/michelm117/cycling-coach-lab/repositories"
 	"github.com/michelm117/cycling-coach-lab/test_utils"
 )
 
@@ -40,7 +40,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCountUsers(t *testing.T) {
-	repo := repositories.NewUserRepository(DB, nil)
+	repo := repositories.NewUsersRepository(DB, nil)
 	count, err := repo.Count()
 	if err != nil {
 		t.Errorf("Error while trying to count users: %s", err)
@@ -51,7 +51,7 @@ func TestCountUsers(t *testing.T) {
 }
 
 func TestAddUser(t *testing.T) {
-	repo := repositories.NewUserRepository(DB, nil)
+	repo := repositories.NewUsersRepository(DB, nil)
 	beforeSize, err := repo.Count()
 	if err != nil {
 		t.Errorf("Error while trying to count users: %s", err)
@@ -79,7 +79,7 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestGetByName(t *testing.T) {
-	repo := repositories.NewUserRepository(DB, nil)
+	repo := repositories.NewUsersRepository(DB, nil)
 	user, err := repo.GetByName("user1")
 	if err != nil {
 		t.Errorf("Error while trying to get user by name: %s", err)
@@ -90,7 +90,7 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestUserWithNameNotFound(t *testing.T) {
-	repo := repositories.NewUserRepository(DB, nil)
+	repo := repositories.NewUsersRepository(DB, nil)
 	user, err := repo.GetByName("foo")
 	if user != nil {
 		t.Errorf("User should not be found")
