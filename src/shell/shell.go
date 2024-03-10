@@ -15,6 +15,10 @@ import (
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	app.Use(middlewares.RequestLogger(logger))
 
+	app.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusTemporaryRedirect, "/users")
+	})
+
 	app.GET("/health", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Service is healthy!")
 	})
