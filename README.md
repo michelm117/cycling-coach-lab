@@ -6,8 +6,8 @@ This is a Go project that uses the [Echo](https://echo.labstack.com) framework f
 
 - Go 1.22.0 or later
 - Docker (for building and running the Docker image)
-- [migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
-- [direnv](https://direnv.net)
+- [migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file) (for running database migrations)
+- [direnv](https://direnv.net) (for loading automatically environment variables from the .env file)
 
 
 ## Setup
