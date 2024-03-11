@@ -14,7 +14,7 @@ postgresql:
   enabled: true
   auth:
     postgresPassword: "postgres"
-    username: "noah"
+    username: "postgres"
     password: "postgres"
     database: "postgres"
   autoscaling:
@@ -57,14 +57,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: ccl.michel.lu
+    - host: ccl.newtri-science.michel.lu
       paths:
         - path: /
           pathType: Prefix
   tls:
    - secretName: cycling-coach-lab-tls
      hosts:
-       - ccl.michel.lu
+       - ccl.newtri-science.michel.lu
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
