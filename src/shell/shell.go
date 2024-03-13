@@ -2,6 +2,7 @@ package shell
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -24,6 +25,10 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	})
 
 	usersRepository := repositories.NewUsersRepository(db, logger)
+	tasksRepository := repositories.NewTasksRepository(db, logger)
 
-	admin_dashboard.Setup(app, logger, usersRepository)
+	if tasksRepository == nil {
+		log.Fatal("tasksRepository is nil")
+	}
+	admin_dashboard.Setup(app, logger, usersRepository, tasksRepository)
 }

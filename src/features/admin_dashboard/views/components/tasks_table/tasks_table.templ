@@ -1,0 +1,60 @@
+package tasks_table
+
+import (
+	"github.com/michelm117/cycling-coach-lab/models"
+)
+
+templ TaskTable(tasks []*models.Task) {
+	<div class="overflow-x-auto">
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th>
+						<label>
+							<input type="checkbox" class="checkbox"/>
+						</label>
+					</th>
+					<th>ID</th>
+					<th>Title</th>
+					<th>Completed</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, task:= range tasks {
+					<tr>
+						<th>
+							<label>
+								<input type="checkbox" class="checkbox"/>
+							</label>
+						</th>
+						<td>
+							<div class="flex items-center gap-3">
+								<div>
+									<div class="font-bold" id="task-id">Todo ID</div>
+								</div>
+							</div>
+						</td>
+						<td>
+							<div id="task-title">{ task.Title }</div>
+							<br/>
+						</td>
+						<td>
+							<div id="task-completed">TODO complete</div>
+							<br/>
+						</td>
+						<th>
+							<button class="btn btn-ghost btn-xs">details</button>
+						</th>
+						<th>
+							<div hx-ext="path-params">
+								<button class="btn btn-error btn-xs" hx-delete="/tasks/delete/{id}" hx-vals={ "huhu" } hx-target="#tasks">delete</button>
+							</div>
+						</th>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

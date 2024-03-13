@@ -16,11 +16,13 @@ import (
 
 type AdminDashboardHandler struct {
 	repo   *repositories.UsersRepository
+	repoTasks *repositories.TasksRepository
 	logger *zap.SugaredLogger
 }
 
 func NewAdminDashboardHandler(
 	repo *repositories.UsersRepository,
+	repoTasks *repositories.TasksRepository,
 	logger *zap.SugaredLogger,
 ) AdminDashboardHandler {
 	return AdminDashboardHandler{repo: repo}
@@ -69,4 +71,24 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 	}
 	users, _ := h.repo.GetAllUsers()
 	return utils.Render(c, views.AdminDashboard(users))
+}
+
+func (h AdminDashboardHandler) ListTasks(c echo.Context) error {
+	// return c.String(http.StatusOK, "ListTasks")
+	fmt.Println(h)
+	fmt.Println(h.repoTasks)
+	_, err := h.repoTasks.GetAllTasks()
+	if err != nil {
+		fmt.Println("error when looking for all tasks:" + err.Error())
+	}
+	return c.String(http.StatusOK, "ListTasks")
+	//return utils.Render(c, views.AdminTasks(tasks))
+}
+
+func (h AdminDashboardHandler) AddTask(c echo.Context) error {
+	return c.String(http.StatusOK, "AddTask")
+}
+
+func (h AdminDashboardHandler) DeleteTask(c echo.Context) error {
+	return c.String(http.StatusOK, "DeleteTask")
 }
