@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   release:
-    environment: production
+    environment:
+      name: production
+      url: https://ccl.newtri-science.michel.lu
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v4
@@ -48,3 +50,28 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+      - name: Checkout k8s config repo
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+        with:
+          repository: 'michelm117/cycling-coach-lab-k8s'
+          token: ${{ secrets.GH_PAT }}
+          ref: main
+      - name: Install Helm
+        if: ${{ steps.release.outputs.release_created }}
+        uses: azure/setup-helm@v3
+      - name: Update prod application in k8s repo
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          cat > values.yaml <<EOL
+          name: prod
+          image.tag: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          targetRevision: main
+          subDomain: ccl
+          EOL
+          helm template argocd-application --values values.yaml > apps/prod.yaml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add apps/prod.yaml
+          git commit -m "ci: update prod app"
+          git push
