@@ -15,6 +15,7 @@ type TasksRepository struct {
 }
 
 func NewTasksRepository(db *sql.DB, logger *zap.SugaredLogger) *TasksRepository {
+	fmt.Printf("db from tasksRepository: %v\n", db)
 	return &TasksRepository{
 		db:     db,
 		logger: logger,

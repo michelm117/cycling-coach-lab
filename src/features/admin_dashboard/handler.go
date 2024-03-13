@@ -15,9 +15,9 @@ import (
 )
 
 type AdminDashboardHandler struct {
-	repo   *repositories.UsersRepository
+	repo      *repositories.UsersRepository
 	repoTasks *repositories.TasksRepository
-	logger *zap.SugaredLogger
+	logger    *zap.SugaredLogger
 }
 
 func NewAdminDashboardHandler(
@@ -25,7 +25,7 @@ func NewAdminDashboardHandler(
 	repoTasks *repositories.TasksRepository,
 	logger *zap.SugaredLogger,
 ) AdminDashboardHandler {
-	return AdminDashboardHandler{repo: repo}
+	return AdminDashboardHandler{repo: repo, repoTasks: repoTasks, logger: logger}
 }
 
 func (h AdminDashboardHandler) ListUsers(c echo.Context) error {
@@ -74,15 +74,11 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 }
 
 func (h AdminDashboardHandler) ListTasks(c echo.Context) error {
-	// return c.String(http.StatusOK, "ListTasks")
-	fmt.Println(h)
-	fmt.Println(h.repoTasks)
-	_, err := h.repoTasks.GetAllTasks()
+	tasks, err := h.repoTasks.GetAllTasks()
 	if err != nil {
 		fmt.Println("error when looking for all tasks:" + err.Error())
 	}
-	return c.String(http.StatusOK, "ListTasks")
-	//return utils.Render(c, views.AdminTasks(tasks))
+	return utils.Render(c, views.AdminTasks(tasks))
 }
 
 func (h AdminDashboardHandler) AddTask(c echo.Context) error {
