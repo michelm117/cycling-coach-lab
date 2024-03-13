@@ -47,3 +47,23 @@ jobs:
           context: .
           push: false
           tags: user/app:latest
+
+  update-prod-app:
+    environment: production
+    name: Update k8s prod application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout k8s config repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'michelm117/cycling-coach-lab-k8s'
+          token: ${{ secrets.GH_PAT }}
+          ref: main
+      - run: |
+          date > generated.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add generated.txt
+          git commit -m "generated"
+          git push
+
