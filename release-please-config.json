@@ -3,6 +3,7 @@
   "prerelease": true,
   "prerelease-type": "alpha",
   "release-type": "simple",
+  "path": "cycling-coach-lab",
   "packages": {
     ".": {}
   }

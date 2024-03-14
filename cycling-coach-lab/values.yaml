@@ -8,7 +8,7 @@ image:
   repository: unrealwombat/cycling-coach-lab
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  # tag: "latest"
 
 postgresql:
   enabled: true
