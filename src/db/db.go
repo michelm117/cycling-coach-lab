@@ -17,6 +17,7 @@ func ConnectToDatabase(logger *zap.SugaredLogger) *sql.DB {
 	}
 
 	logger.Info("Connecting to database")
+	logger.Info(env.Address)
 	database, err := sql.Open("pgx", env.Address)
 	if err != nil {
 		log.Fatal("Error while connecting to db cause: " + err.Error())

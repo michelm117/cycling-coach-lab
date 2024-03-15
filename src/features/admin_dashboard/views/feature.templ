@@ -3,6 +3,7 @@ package views
 import (
 	"github.com/michelm117/cycling-coach-lab/models"
 	"github.com/michelm117/cycling-coach-lab/features/admin_dashboard/views/components/users_table"
+	"github.com/michelm117/cycling-coach-lab/features/admin_dashboard/views/components/tasks_table"
 	"github.com/michelm117/cycling-coach-lab/shell/views"
 )
 
@@ -10,6 +11,14 @@ templ AdminDashboard(users []*models.User) {
 	@views.BaseLayout() {
 		<div id="users" hx-swap-oob="true">
 			@users_table.UserTable(users)
+		</div>
+	}
+}
+
+templ AdminTasks(tasks []*models.Task) {
+	@views.BaseLayout() {
+		<div id="tasks" hx-swap-oob="true">
+			@tasks_table.TaskTable(tasks)
 		</div>
 	}
 }
