@@ -31,7 +31,7 @@ func (repo *UsersRepository) SearchForUser(keyword string) ([]*model.User, error
 		var user model.User
 		err := rowName.Scan(&user.Name, &user.Email)
 		if err != nil {
-			return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+			return nil, fmt.Errorf("error while trying to execute query: %s", err)
 		}
 		users = append(users, &user)
 	}
@@ -46,9 +46,9 @@ func (repo *UsersRepository) GetById(id int) (*model.User, error) {
 	err := row.Scan(&user.Name, &user.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("User with id '%d' not found", id)
+			return nil, fmt.Errorf("user with id '%d' not found", id)
 		}
-		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 
 	return &user, nil
@@ -62,7 +62,7 @@ func (repo *UsersRepository) DeleteUser(user model.User) (*model.User, error) {
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 
 	return &user, nil
@@ -75,9 +75,9 @@ func (repo *UsersRepository) GetByName(name string) (*model.User, error) {
 	err := row.Scan(&user.Name, &user.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("User not found")
+			return nil, fmt.Errorf("user not found")
 		}
-		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 	return &user, nil
 }
@@ -89,9 +89,9 @@ func (repo *UsersRepository) GetByEmail(email string) (*model.User, error) {
 	err := row.Scan(&user.Name, &user.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("User not found")
+			return nil, fmt.Errorf("user not found")
 		}
-		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 	return &user, nil
 }
@@ -104,7 +104,7 @@ func (repo *UsersRepository) AddUser(user model.User) (*model.User, error) {
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("User could no be added: %s", err)
+		return nil, fmt.Errorf("user could no be added: %s", err)
 	}
 
 	return &user, nil
@@ -113,7 +113,7 @@ func (repo *UsersRepository) AddUser(user model.User) (*model.User, error) {
 func (repo *UsersRepository) GetAllUsers() ([]*model.User, error) {
 	rows, err := repo.db.Query("SELECT username, email FROM users")
 	if err != nil {
-		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 
 	var users []*model.User
@@ -121,13 +121,13 @@ func (repo *UsersRepository) GetAllUsers() ([]*model.User, error) {
 		var user model.User
 		err := rows.Scan(&user.Name, &user.Email)
 		if err != nil {
-			return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+			return nil, fmt.Errorf("error while trying to execute query: %s", err)
 		}
 		users = append(users, &user)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("Error while trying to execute query: %s", err)
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 
 	defer rows.Close()
@@ -139,7 +139,7 @@ func (repo *UsersRepository) Count() (int, error) {
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
-		return -1, fmt.Errorf("Error while trying to execute query: %s", err)
+		return -1, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 	return count, nil
 }
