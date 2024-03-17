@@ -8,12 +8,12 @@ import (
 	"path"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/db/repositories"
 	"github.com/michelm117/cycling-coach-lab/handler"
-	"github.com/michelm117/cycling-coach-lab/middlewares"
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
@@ -43,7 +43,7 @@ func main() {
 }
 
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
-	app.Use(middlewares.RequestLogger(logger))
+	app.Use(middleware.Logger())
 
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
