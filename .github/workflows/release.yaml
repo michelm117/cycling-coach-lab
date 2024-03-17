@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: ${{ !steps.release.outputs.release_created }}
-      - name: Update Chat.yaml
+      - name: Update Chart.yaml
         run: |
-          sed -i 's/appVersion: "1.16.0"/appVersion: "${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"/' cycling-coach-lab/Chart.yaml
+          sed -i 's/appVersion: "1.16.0"/appVersion: "${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"/' deployments/cycling-coach-lab/Chart.yaml
         working-directory: ${{ github.workspace }}
       - uses: google-github-actions/release-please-action@v4
         id: release

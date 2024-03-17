@@ -18,7 +18,7 @@ jobs:
       - name: Setup CI Environment 
         run: |
           npm install
-          npx tailwindcss -o assets/styles.css --minify
+          npx tailwindcss -o src/assets/styles.css --minify
           go install github.com/a-h/templ/cmd/templ@latest
           templ generate -path src
           cd src; go mod download
