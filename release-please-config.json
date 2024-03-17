@@ -7,7 +7,7 @@
   "packages": {
     ".": {}
   },
-  "extraFiles": [
+  "extra-files": [
     "deployments/cycling-coach-lab/Chart.yaml"
   ]
 }
