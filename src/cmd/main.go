@@ -1,15 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"log"
+	"net/http"
 	"os"
 	"path"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 
 	"github.com/michelm117/cycling-coach-lab/db"
-	"github.com/michelm117/cycling-coach-lab/shell"
+	"github.com/michelm117/cycling-coach-lab/db/repositories"
+	"github.com/michelm117/cycling-coach-lab/handler"
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
@@ -29,13 +33,29 @@ func main() {
 	logger.Infof("Serving static files from: %s", assetsPath)
 	app.Static("/assets", assetsPath)
 
-	shell.Setup(app, db, logger)
+	Setup(app, db, logger)
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 	app.Logger.Fatal(app.Start(":" + port))
+}
+
+func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
+	app.Use(middleware.Logger())
+
+	app.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusTemporaryRedirect, "/users")
+	})
+
+	app.GET("/health", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Service is healthy!")
+	})
+
+	usersRepository := repositories.NewUsersRepository(db, logger)
+
+	handler.Setup(app, logger, usersRepository)
 }
 
 func initLogger() *zap.SugaredLogger {

@@ -1,4 +1,4 @@
-package admin_dashboard
+package handler
 
 import (
 	"github.com/labstack/echo/v4"

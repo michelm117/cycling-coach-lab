@@ -1,9 +1,10 @@
-package views
+package layout
 
 import (
-	"github.com/michelm117/cycling-coach-lab/shell/views/components/top_bar"
-	"github.com/michelm117/cycling-coach-lab/shell/views/components/side_bar"
-	"github.com/michelm117/cycling-coach-lab/shell/views/components/head"
+	"github.com/michelm117/cycling-coach-lab/views/components/common/top_bar"
+	"github.com/michelm117/cycling-coach-lab/views/components/common/side_bar"
+	"github.com/michelm117/cycling-coach-lab/views/components/common/head"
+	"github.com/michelm117/cycling-coach-lab/views/components/admin_dashboard"
 )
 
 templ BaseLayout() {
@@ -22,6 +23,7 @@ templ BaseLayout() {
 				</div>
 				@side_bar.SideBar()
 			</div>
+			@admin_dashboard.AddUserModal()
 		</body>
 	</html>
 }
