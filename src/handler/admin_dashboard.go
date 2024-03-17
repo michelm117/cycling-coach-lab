@@ -11,6 +11,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/db/repositories"
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/utils"
+	"github.com/michelm117/cycling-coach-lab/views/components/admin_dashboard"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
 )
 
@@ -48,7 +49,7 @@ func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
 		println(t.Name)
 	}
 
-	return utils.Render(c, layout.AdminDashboard(users))
+	return utils.Render(c, admin_dashboard.UserTable(users))
 }
 
 func (h AdminDashboardHandler) AddUser(c echo.Context) error {
@@ -68,5 +69,5 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 	users, _ := h.repo.GetAllUsers()
-	return utils.Render(c, layout.AdminDashboard(users))
+	return utils.Render(c, admin_dashboard.UserTable(users))
 }

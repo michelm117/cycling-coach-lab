@@ -7,8 +7,6 @@ import (
 
 templ AdminDashboard(users []*model.User) {
 	@BaseLayout() {
-		<div id="users" hx-swap-oob="true">
-			@admin_dashboard.UserTable(users)
-		</div>
+		@admin_dashboard.UserTable(users)
 	}
 }
