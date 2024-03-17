@@ -6,5 +6,8 @@
   "path": "cycling-coach-lab",
   "packages": {
     ".": {}
-  }
+  },
+  "extraFiles": [
+    "deployments/cycling-coach-lab/Chart.yaml"
+  ]
 }
