@@ -2,7 +2,7 @@ src/.tmp
 *_templ.go
 postgres/
 node_modules
-assets/styles.css
+src/assets/styles.css
 .env
 main
 cycling-coach-lab/charts/*
