@@ -1,11 +1,11 @@
 package admin_dashboard
 
 import (
-	"github.com/michelm117/cycling-coach-lab/models"
+	"github.com/michelm117/cycling-coach-lab/model"
 	"encoding/json"
 )
 
-func buildUserJSON(user *models.User) string {
+func buildUserJSON(user *model.User) string {
 	jsonData, err := json.Marshal(user)
 	if err != nil {
 		println("error while marshelling")
@@ -13,7 +13,7 @@ func buildUserJSON(user *models.User) string {
 	return string(jsonData)
 }
 
-templ UserTable(users []*models.User) {
+templ UserTable(users []*model.User) {
 	<div class="overflow-x-auto">
 		<table class="table">
 			<!-- head -->

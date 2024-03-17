@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/michelm117/cycling-coach-lab/db/repositories"
-	"github.com/michelm117/cycling-coach-lab/models"
+	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/utils"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
 )
@@ -55,7 +55,7 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 	name := c.FormValue("name")
 	email := c.FormValue("email")
 
-	newUser := models.User{
+	newUser := model.User{
 		Name:  name,
 		Email: email,
 	}

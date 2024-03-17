@@ -1,13 +1,12 @@
 package layout
 
 import (
-	"github.com/michelm117/cycling-coach-lab/models"
+	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/views/components/admin_dashboard"
-	"github.com/michelm117/cycling-coach-lab/shell/views"
 )
 
-templ AdminDashboard(users []*models.User) {
-	@layout.BaseLayout() {
+templ AdminDashboard(users []*model.User) {
+	@BaseLayout() {
 		<div id="users" hx-swap-oob="true">
 			@admin_dashboard.UserTable(users)
 		</div>

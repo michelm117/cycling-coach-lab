@@ -10,7 +10,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 
 	"github.com/michelm117/cycling-coach-lab/db/repositories"
-	"github.com/michelm117/cycling-coach-lab/models"
+	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/test_utils"
 )
 
@@ -56,7 +56,7 @@ func TestAddUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error while trying to count users: %s", err)
 	}
-	u := models.User{
+	u := model.User{
 		Name:  "test",
 		Email: "test@test.de",
 	}
