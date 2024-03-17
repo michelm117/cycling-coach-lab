@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/michelm117/cycling-coach-lab/compare/v1.3.1...v1.3.2) (2024-03-17)
+
+
+### Bug Fixes
+
+* conventional commits are hard ([d289b2c](https://github.com/michelm117/cycling-coach-lab/commit/d289b2c79b7f977e33ab1b76aff84fcbfe04a961))
+
 ## [1.3.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.3.0...v1.3.1) (2024-03-17)
 
 
