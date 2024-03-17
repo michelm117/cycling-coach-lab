@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.3.0...v1.3.1) (2024-03-17)
+
+
+### Bug Fixes
+
+* set app version in Chart.yaml on release ([e3c01c0](https://github.com/michelm117/cycling-coach-lab/commit/e3c01c0d431e34462a1f26c22e2c4a7427580707))
+* update chart.yaml on release ([112cfec](https://github.com/michelm117/cycling-coach-lab/commit/112cfecda104ec8b74619cd92fa6c187f9a2ee71))
+* update relase version in Chart.yaml ([7091148](https://github.com/michelm117/cycling-coach-lab/commit/709114854d2fec6ff52baafb07b34da6a2b10c72))
+
 ## [1.3.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.2.2...v1.3.0) (2024-03-11)
 
 
