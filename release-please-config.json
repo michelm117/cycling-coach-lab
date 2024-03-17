@@ -8,6 +8,9 @@
     ".": {}
   },
   "extra-files": [
-    "deployments/cycling-coach-lab/Chart.yaml"
+    {
+      "path": "deployments/cycling-coach-lab/Chart.yaml",
+      "type": "generic"
+    }
   ]
 }
