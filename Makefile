@@ -24,7 +24,7 @@ init:
 generate:
 	@echo "Generating static files..."
 	@templ generate -path ./src
-	@npx tailwindcss -o assets/styles.css --minify
+	@npx tailwindcss -o src/assets/styles.css --minify
 
 
 ## run: run local project
@@ -36,8 +36,8 @@ run: generate
 ## start: build and run project with hot reload
 .PHONY: start
 start: generate
-	@docker compose --env-file=.env -f docker-compose.dev.yml up -d
-	@cd src; air & npx tailwindcss -c ../tailwind.config.js -o ../assets/styles.css --minify --watch
+	@docker compose --env-file=.env -f deployments/docker-compose.dev.yml up -d
+	@cd src; air & npx tailwindcss -c ../tailwind.config.js -o assets/styles.css --minify --watch
 
 
 ## update: update project dependencies
@@ -67,6 +67,6 @@ docker-build:
 .PHONY: docker-run
 docker-run:
 	@echo "Running docker container..."
-	@docker compose -f docker-compose.prod.yml down --remove-orphans
-	@docker compose --env-file=.env -f docker-compose.prod.yml up
+	@docker compose -f deployments/docker-compose.prod.yml down --remove-orphans
+	@docker compose --env-file=.env -f deployments/docker-compose.prod.yml up
 

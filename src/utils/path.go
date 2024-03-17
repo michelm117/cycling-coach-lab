@@ -14,7 +14,7 @@ func GetProjectRoot() string {
 	}
 
 	if os.Getenv("ENVIRONMENT") != "production" {
-		return filepath.Join(filepath.Dir(currentFilePath), "../../")
+		return filepath.Join(filepath.Dir(currentFilePath), "../")
 	}
 	return filepath.Join(filepath.Dir(currentFilePath), ".")
 }

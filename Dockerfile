@@ -15,12 +15,13 @@ RUN apt-get update && apt-get upgrade -y && \
 RUN npm install
 RUN npx tailwindcss -o /app/assets/styles.css --minify
 
+
 # Deploy.
 FROM gcr.io/distroless/static-debian11 AS release-stage
 WORKDIR /app
 COPY --from=build-stage /app/entrypoint /app/entrypoint
 COPY --from=build-stage /app/assets /app/assets
-COPY --from=build-stage /app/migrations /app/migrations
+COPY --from=build-stage /app/src/migrations /app/src/migrations
 ENV ENV=production
 EXPOSE 8080
 USER nonroot:nonroot
