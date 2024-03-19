@@ -1,4 +1,6 @@
 all: help
+MAKEFILE_PATH := $(lastword $(MAKEFILE_LIST))
+MAKEFILE_DIR := $(dir $(abspath $(MAKEFILE_PATH)))
 
 .PHONY: help
 help: Makefile
@@ -24,7 +26,7 @@ init:
 generate:
 	@echo "Generating static files..."
 	@templ generate -path ./src
-	@npx tailwindcss -o src/assets/styles.css --minify
+	@npx tailwindcss -o $(MAKEFILE_DIR)/src/assets/styles.css --minify
 
 
 ## run: run local project
@@ -37,7 +39,7 @@ run: generate
 .PHONY: start
 start: generate
 	@docker compose --env-file=.env -f deployments/docker-compose.dev.yml up -d
-	@cd src; air & npx tailwindcss -c ../tailwind.config.js -o assets/styles.css --minify --watch
+	@cd src; air & npx tailwindcss -c ../tailwind.config.js -o $(MAKEFILE_DIR)/assets/styles.css --minify --watch
 
 
 ## update: update project dependencies
