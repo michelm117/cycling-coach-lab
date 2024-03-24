@@ -1,4 +1,4 @@
-package utils
+package handler
 
 import (
 	"github.com/a-h/templ"

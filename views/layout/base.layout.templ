@@ -1,0 +1,96 @@
+package layout
+
+templ BaseLayout() {
+	<!DOCTYPE html>
+	<html data-theme="dim">
+		<head>
+			<title>Cycling Coach Lab</title>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚴</text></svg>"/>
+			<link rel="stylesheet" href="/assets/styles.css"/>
+			<link rel="stylesheet" href="/assets/base.css"/>
+			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+			<script src="https://unpkg.com/htmx.org/dist/ext/path-params.js"></script>
+			<script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
+			<!-- Alpine Plugins -->
+			<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+			<!-- Alpine Core -->
+			<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+		</head>
+		<body class="base-layout font-sans" x-data="{ showSidebar: $persist(true) }">
+			@SideBar()
+			@TopBar()
+			<!-- Main page content -->
+			<div class="main-view">
+				// <div class="sticky-top-scroll"></div>
+				<main class="main-content container mx-auto relative">
+					{ children... }
+				</main>
+			</div>
+		</body>
+	</html>
+}
+
+templ TopBar() {
+	<header class="top-bar navbar bg-base-300">
+		<div class="flex-1">
+			<div class="flex flex-row items-center ">
+				<button class="btn btn-ghost" x-on:click="showSidebar = !showSidebar">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+						<path fill="none" d="M0 0h24v24H0z"></path>
+						<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
+					</svg>
+				</button>
+				<a x-show="showSidebar" ref="/" class="btn btn-ghost text-xl mr-12">Cycling Coach Lab</a>
+			</div>
+			<div class="text-sm breadcrumbs">
+				<ul>
+					<li><a>Dashboard</a></li>
+					<li><a>Benutzerverwaltung</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="flex-none">
+			<div class="dropdown dropdown-end">
+				<div tabindex="0" role="button" class="btn m-1">
+					Theme
+					<svg width="12px" height="12px" class="h-2 w-2 fill-current opacity-60 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path></svg>
+				</div>
+				<ul tabindex="0" class="menu menu-sm dropdown-content z-[1] p-2 shadow-2xl bg-base-300 rounded-box w-52">
+					<li><input type="radio" name="theme-dropdown" class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Default" value="default"/></li>
+					<li><input type="radio" name="theme-dropdown" class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Retro" value="retro"/></li>
+					<li><input type="radio" name="theme-dropdown" class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Cyberpunk" value="cyberpunk"/></li>
+					<li><input type="radio" name="theme-dropdown" class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Valentine" value="valentine"/></li>
+					<li><input type="radio" name="theme-dropdown" class="theme-controller btn btn-sm btn-block btn-ghost justify-start" aria-label="Aqua" value="aqua"/></li>
+				</ul>
+			</div>
+			<div class="dropdown dropdown-end">
+				<div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+					<div class="w-10 rounded-full">
+						<img alt="Tailwind CSS Navbar component" src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"/>
+					</div>
+				</div>
+				<ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+					<li>
+						<a class="justify-between">
+							Profile
+							<span class="badge">New</span>
+						</a>
+					</li>
+					<li><a>Settings</a></li>
+					<li><a>Logout</a></li>
+				</ul>
+			</div>
+		</div>
+	</header>
+}
+
+templ SideBar() {
+	<nav class="sidebar flex-auto" x-show="showSidebar" x-transition.scale.origin.top>
+		<ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+			<li><a href="/">Dashboard</a></li>
+			<li><a href="/users">Users Management</a></li>
+		</ul>
+	</nav>
+}

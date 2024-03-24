@@ -1,12 +1,19 @@
 package admin_dashboard
 
 templ AddUserModal() {
-	<dialog id="my_modal_1" class="modal">
+	<div class="tooltip absolute bottom-20 right-20" data-tip="Benutzer hinzufügen">
+		<button class="btn btn-circle btn-accent " onclick="add_user_modal.showModal()">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12M12 6v12"></path>
+			</svg>
+		</button>
+	</div>
+	<dialog id="add_user_modal" class="modal">
 		<div class="modal-box flex items-center justify-center">
 			<div class="p-1">
 				<h3 class="font-bold text-xl mb-4">Add a User</h3>
 				<div class="modal-action">
-					<button class="btn btn-xs btn-ghost absolute top-2 right-2" onclick="my_modal_1.close()">✕</button>
+					<button class="btn btn-xs btn-ghost absolute top-2 right-2" onclick="add_user_modal.close()">✕</button>
 					<form hx-post="/users/add" method="dialog" hx-target-5*="#email-taken" hx-target="#users" class="space-y-4">
 						<div class="flex flex-col">
 							<label for="name" class="text-sm">Name:</label>
