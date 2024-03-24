@@ -5,4 +5,4 @@ node_modules
 assets/styles.css
 .env
 main
-cycling-coach-lab/charts/*
+deployments/cycling-coach-lab/charts/*
