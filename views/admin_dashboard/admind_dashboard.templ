@@ -1,0 +1,83 @@
+package admin_dashboard
+
+import (
+	"github.com/michelm117/cycling-coach-lab/model"
+	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"encoding/json"
+)
+
+func buildUserJSON(user *model.User) string {
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		println("error while marshelling")
+	}
+	return string(jsonData)
+}
+
+templ UserTable(users []*model.User) {
+	<div id="users" hx-swap-oob="true" class="overflow-x-auto h-full">
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th>
+						<label>
+							<input type="checkbox" class="checkbox"/>
+						</label>
+					</th>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Status</th>
+					<th>Registered Since</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, user:= range users {
+					<tr>
+						<th>
+							<label>
+								<input type="checkbox" class="checkbox"/>
+							</label>
+						</th>
+						<td>
+							<div class="flex items-center gap-3">
+								<div class="avatar">
+									<div class="mask mask-squircle w-12 h-12">
+										<img src="https://source.unsplash.com/random/?Profile" alt="Avatar Tailwind CSS Component"/>
+									</div>
+								</div>
+								<div>
+									<div class="font-bold" id="user-name">{ user.Name }</div>
+								</div>
+							</div>
+						</td>
+						<td>
+							<div id="user-email">{ user.Email }</div>
+							<br/>
+						</td>
+						<th>
+							<span class="indicator-item indicator-middle indicator-center badge badge-secondary">Active</span>
+						</th>
+						<td>2023/12/12</td>
+						<th>
+							<button class="btn btn-ghost btn-xs">details</button>
+						</th>
+						<th>
+							<div hx-ext="path-params">
+								<button class="btn btn-error btn-xs" hx-delete="/users/delete/{email}" hx-vals={ buildUserJSON(user) } hx-target="#users">delete</button>
+							</div>
+						</th>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+templ Index(users []*model.User) {
+	@layout.BaseLayout() {
+		@UserTable(users)
+		@AddUserModal()
+	}
+}

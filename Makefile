@@ -13,8 +13,8 @@ help: Makefile
 .PHONY: init
 init:
 	@echo "Initializing project..."
-	@templ generate -path ./src
-	@cd src; go mod tidy
+	@templ generate
+	@go mod tidy
 	@npm install -D tailwindcss
 	@npm install -D daisyui@latest
 
@@ -23,29 +23,29 @@ init:
 .PHONY: generate
 generate:
 	@echo "Generating static files..."
-	@templ generate -path ./src
-	@npx tailwindcss -o src/assets/styles.css --minify
+	@templ generate 
+	@npx tailwindcss -o assets/styles.css --minify
 
 
 ## run: run local project
 run: generate
 	@echo "Running project..."
-	@cd src; go run cmd/main.go
+	@go run cmd/main.go
 
 
 ## start: build and run project with hot reload
 .PHONY: start
 start: generate
 	@docker compose --env-file=.env -f deployments/docker-compose.dev.yml up -d
-	@cd src; air & npx tailwindcss -c ../tailwind.config.js -o assets/styles.css --minify --watch
+	@air & npx tailwindcss -c tailwind.config.js -o assets/styles.css --minify --watch
 
 
 ## update: update project dependencies
 .PHONY: update
 update:
 	@echo "Updating dependencies..."
-	@cd src; go get -u ./...
-	@cd src; go mod tidy
+	@go get -u ./...
+	@go mod tidy
 	@npm update
 
 
@@ -53,7 +53,7 @@ update:
 .PHONY: test
 test: generate
 	@echo "Running tests..."
-	@cd src; go test -race -cover ./...
+	@go test -race -cover ./...
 
 
 ## docker-build: build project into a docker container image

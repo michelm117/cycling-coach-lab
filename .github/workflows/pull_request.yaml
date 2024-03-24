@@ -13,22 +13,22 @@ jobs:
       - name: Setup Go 1.22.0
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.0'
-          cache-dependency-path: src/go.sum
-      - name: Setup CI Environment 
+          go-version: "1.22.0"
+          cache-dependency-path: go.sum
+      - name: Setup CI Environment
         run: |
           npm install
-          npx tailwindcss -o src/assets/styles.css --minify
+          npx tailwindcss -o assets/styles.css --minify
           go install github.com/a-h/templ/cmd/templ@latest
-          templ generate -path src
-          cd src; go mod download
+          templ generate
+          go mod download
       - name: Build
         run: |
-          cd src; CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go
+          CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go
       - name: Run Tests
         uses: robherley/go-test-action@v0.1.0
         with:
-          moduleDirectory: ./src
+          # moduleDirectory: ./src
           omitUntestedPackages: true
 
   docker-build:
@@ -46,4 +46,4 @@ jobs:
         with:
           context: .
           push: false
-          tags: user/ap:latest
+          tags: user/app:latest

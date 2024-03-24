@@ -9,7 +9,7 @@
 # .gitignore
 # node_modules
 # tmp
-# src/.air.toml
+# .air.toml
 # .env*
 # .package*.json
 # cycling-coach-lab

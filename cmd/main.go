@@ -12,8 +12,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/michelm117/cycling-coach-lab/db"
-	"github.com/michelm117/cycling-coach-lab/db/repositories"
 	"github.com/michelm117/cycling-coach-lab/handler"
+	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
@@ -53,9 +53,13 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 		return c.String(http.StatusOK, "Service is healthy!")
 	})
 
-	usersRepository := repositories.NewUsersRepository(db, logger)
+	userService := services.NewUserService(db, logger)
+	handler := handler.NewAdminDashboardHandler(userService, logger)
 
-	handler.Setup(app, logger, usersRepository)
+	group := app.Group("/users")
+	group.POST("/add", handler.AddUser)
+	group.GET("", handler.ListUsers)
+	group.DELETE("/delete/*", handler.DeleteUser)
 }
 
 func initLogger() *zap.SugaredLogger {

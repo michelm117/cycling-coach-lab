@@ -8,20 +8,18 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
-	"github.com/michelm117/cycling-coach-lab/db/repositories"
 	"github.com/michelm117/cycling-coach-lab/model"
-	"github.com/michelm117/cycling-coach-lab/utils"
-	"github.com/michelm117/cycling-coach-lab/views/components/admin_dashboard"
-	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/services"
+	"github.com/michelm117/cycling-coach-lab/views/admin_dashboard"
 )
 
 type AdminDashboardHandler struct {
-	repo   *repositories.UsersRepository
+	repo   *services.UserService
 	logger *zap.SugaredLogger
 }
 
 func NewAdminDashboardHandler(
-	repo *repositories.UsersRepository,
+	repo *services.UserService,
 	logger *zap.SugaredLogger,
 ) AdminDashboardHandler {
 	return AdminDashboardHandler{repo: repo}
@@ -32,7 +30,7 @@ func (h AdminDashboardHandler) ListUsers(c echo.Context) error {
 	if err != nil {
 		fmt.Println("error when looking for all users:" + err.Error())
 	}
-	return utils.Render(c, layout.AdminDashboard(users))
+	return Render(c, admin_dashboard.Index(users))
 }
 
 func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
@@ -49,7 +47,7 @@ func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
 		println(t.Name)
 	}
 
-	return utils.Render(c, admin_dashboard.UserTable(users))
+	return Render(c, admin_dashboard.UserTable(users))
 }
 
 func (h AdminDashboardHandler) AddUser(c echo.Context) error {
@@ -69,5 +67,5 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 	users, _ := h.repo.GetAllUsers()
-	return utils.Render(c, admin_dashboard.UserTable(users))
+	return Render(c, admin_dashboard.UserTable(users))
 }
