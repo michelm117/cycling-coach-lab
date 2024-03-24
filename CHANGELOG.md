@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.3.2...v1.4.0) (2024-03-24)
+
+
+### Features
+
+* Sidebar can now be expanded and collapsed ([eefc77f](https://github.com/michelm117/cycling-coach-lab/commit/eefc77f49430b73fd40e307ce5536acf5a07bc22))
+
 ## [1.3.2](https://github.com/michelm117/cycling-coach-lab/compare/v1.3.1...v1.3.2) (2024-03-17)
 
 
