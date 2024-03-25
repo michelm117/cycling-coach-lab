@@ -28,22 +28,67 @@ jobs:
       - name: Run Tests
         uses: robherley/go-test-action@v0.1.0
         with:
-          # moduleDirectory: ./src
           omitUntestedPackages: true
 
-  docker-build:
-    name: Build docker image
+  deploy-review:
+    name: Deploy review app
+    environment: 
+      name: production
+      url: ${{ steps.gen-url.outputs.review_url }}
+    env:
+      BASE_URL: 'newtri-science.michel.lu'
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     runs-on: ubuntu-latest
     steps:
+      - name: generate review url
+        id: gen-url
+        run: |
+          REVIEW_TAG=pre-$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-zA-Z0-9]/-/g')
+          echo "REVIEW_TAG=$REVIEW_TAG" >> $GITHUB_ENV
+          echo "review_url=https://${REVIEW_TAG}.${BASE_URL}" >> $GITHUB_OUTPUT
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build image
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: false
-          tags: user/app:latest
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:${{ env.REVIEW_TAG }}
+      - name: Checkout k8s config repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'michelm117/cycling-coach-lab-k8s'
+          token: ${{ secrets.GH_PAT }}
+          ref: main
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+      - run: |
+          cat > values.yaml <<EOL
+          name: ${{ env.REVIEW_TAG }}
+          image:
+            tag: ${{ env.REVIEW_TAG }}
+          targetRevision: ${{ env.BRANCH_NAME }}
+          subDomain: ${{ env.REVIEW_TAG }}
+          postgresql:
+            persistence:
+              enabled: false
+          ingress:
+            tls:
+              secretName: ccl-review-${{ env.REVIEW_TAG }}-tls
+          EOL
+          helm template argocd-application --values values.yaml > apps/${{ env.REVIEW_TAG }}.yaml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add apps/${{ env.REVIEW_TAG }}.yaml
+          git commit -m "ci: added review app ${{ env.REVIEW_TAG }}"
+          git push
