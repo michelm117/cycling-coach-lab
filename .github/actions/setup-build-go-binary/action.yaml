@@ -1,0 +1,25 @@
+name: 'Setup & build go binary'
+inputs:
+  go-version:
+    description: 'The Go version to use'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go 
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}
+        cache-dependency-path: go.sum
+    - name: Setup CI Environment
+      shell: bash
+      run: |
+        npm install
+        npx tailwindcss -o assets/styles.css --minify
+        go install github.com/a-h/templ/cmd/templ@latest
+        templ generate
+        go mod download
+    - name: Build
+      shell: bash
+      run: |
+        CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go

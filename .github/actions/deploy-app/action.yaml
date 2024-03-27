@@ -1,0 +1,61 @@
+name: Deploy app
+inputs:
+  token:
+    description: 'A Github PAT'
+    required: true
+  name:
+    description: 'The name of the app'
+    required: true
+  tag:
+    description: 'Docker tag that should be used'
+    required: true
+  version:
+    description: 'The current version to display at the "/version" endpoint of the application'
+    required: true
+  persistence:
+    required: false
+    default: false
+  tlsName:
+    required: true
+  subDomain:
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout k8s config repository
+      uses: actions/checkout@v4
+      with:
+        repository: 'michelm117/cycling-coach-lab-k8s'
+        token: ${{ inputs.token }}
+        ref: main
+    - name: Generate values.yaml
+      shell: bash
+      id: generate-values
+      run: |
+        cat > values.yaml <<EOL
+        name: ${{ inputs.name }}
+        version: ${{ inputs.version }}
+        image:
+          tag: ${{ inputs.tag }}
+        targetRevision: ${{ github.head_ref || github.ref_name }}
+        subDomain: ${{ inputs.subDomain }}
+        postgresql:
+          persistence:
+            enabled: ${{ inputs.persistence }}
+        ingress:
+          tls:
+            secretName: ${{ inputs.tlsName }}
+        EOL
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+    - name: Commit changes to k8s repository
+      shell: bash
+      run: |
+        helm template argocd-application --values values.yaml > apps/${{ inputs.name }}.yaml
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add apps/${{ inputs.name }}.yaml
+        git commit -m "ci: add review app ${{ inputs.name }}"
+        git push
+    - name: Recheckout original repository
+      uses: actions/checkout@v4
