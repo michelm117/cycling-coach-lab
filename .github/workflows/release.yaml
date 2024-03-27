@@ -21,57 +21,34 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-      - uses: actions/checkout@v4
-        # these if statements ensure that a publication only occurs when
-        # a new release is created:
+      - name: Checkout repository
+        # these if statements ensure that a publication only occurs when a new release is created
         if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
       - name: Print Version
         if: ${{ steps.release.outputs.release_created }}
         run: |
           echo "New Version: v${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
-      - name: Set up QEMU
+      - name: Build and push docker image
         if: ${{ steps.release.outputs.release_created }}
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        if: ${{ steps.release.outputs.release_created }}
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        if: ${{ steps.release.outputs.release_created }}
-        uses: docker/login-action@v3
+        uses: ./.github/actions/build-push-docker-image
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+          tag: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          docker_user: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
+          isLatest: true
+      - name: Deploy production app
         if: ${{ steps.release.outputs.release_created }}
-        uses: docker/build-push-action@v5
+        uses: ./.github/actions/deploy-app
         with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
-      - name: Checkout k8s config repo
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@v4
-        with:
-          repository: 'michelm117/cycling-coach-lab-k8s'
+          name: prod
+          tag: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+          version: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
           token: ${{ secrets.GH_PAT }}
-          ref: main
-      - name: Install Helm
-        if: ${{ steps.release.outputs.release_created }}
-        uses: azure/setup-helm@v3
-      - name: Update prod application in k8s repo
+          tlsName: cycling-coach-lab-tls
+          subDomain: ccl
+          persistence: true
+      - name: Wait for review app deployment
         if: ${{ steps.release.outputs.release_created }}
         run: |
-          cat > values.yaml <<EOL
-          name: prod
-          image.tag: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
-          targetRevision: main
-          subDomain: ccl
-          EOL
-          helm template argocd-application --values values.yaml > apps/prod.yaml
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add apps/prod.yaml
-          git commit -m "ci: update prod app"
-          git push
+          .ci/wait_for_version_change.sh ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} "https://ccl.newtri-science.michel.lu"

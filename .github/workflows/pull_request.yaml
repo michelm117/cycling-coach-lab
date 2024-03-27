@@ -5,26 +5,16 @@ on:
       - main
 
 jobs:
-  test:
+  build-test:
     name: Build & Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Go 1.22.0
-        uses: actions/setup-go@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build Go Binary
+        uses: ./.github/actions/setup-build-go-binary
         with:
           go-version: "1.22.0"
-          cache-dependency-path: go.sum
-      - name: Setup CI Environment
-        run: |
-          npm install
-          npx tailwindcss -o assets/styles.css --minify
-          go install github.com/a-h/templ/cmd/templ@latest
-          templ generate
-          go mod download
-      - name: Build
-        run: |
-          CGO_ENABLED=0 GOOS=linux go build -o main cmd/main.go
       - name: Run Tests
         uses: robherley/go-test-action@v0.1.0
         with:
@@ -32,66 +22,79 @@ jobs:
 
   deploy-review:
     name: Deploy review app
+    needs: [build-test]
     environment: 
-      name: production
-      url: ${{ steps.gen-url.outputs.review_url }}
-    env:
-      BASE_URL: 'newtri-science.michel.lu'
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      name: development
+      url: ${{ steps.generate_environment.outputs.url }}
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Generate environment
+        id: generate_environment
+        uses: ./.github/actions/setup-environment
+        with:
+          base_url: 'newtri-science.michel.lu'
+      - name: Save tag name
+        run: echo ${{ steps.generate_environment.outputs.tag }} > open-review-app.txt 
+      - name: Upload tag name artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-review-app
+          path: open-review-app.txt
+      - name: Build and push docker image
+        uses: ./.github/actions/build-push-docker-image
+        with:
+          tag: ${{ steps.generate_environment.outputs.tag }}
+          docker_user: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
+          isLatest: false
+      - name: Deploy review app
+        uses: ./.github/actions/deploy-app
+        with:
+          tag: ${{ steps.generate_environment.outputs.tag }}
+          subDomain: ${{ steps.generate_environment.outputs.tag }}
+          name: ${{ steps.generate_environment.outputs.tag }}
+          version: ${{ steps.generate_environment.outputs.commit_hash }}
+          token: ${{ secrets.GH_PAT }}
+          tlsName: ccl-review-${{ steps.generate_environment.outputs.tag }}-tls
+          persistence: false
+      - name: Wait for review app deployment
+        if: always()
+        run: |
+          .ci/wait_for_version_change.sh ${{ steps.generate_environment.outputs.commit_hash }} "https://${{ steps.generate_environment.outputs.tag }}.newtri-science.michel.lu"
+          echo "tag=${{ steps.generate_environment.outputs.tag }}" >> $GITHUB_OUTPUT
+
+  stop-review-app:
+    name: Stop review app & docker tag
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' || github.event_name == 'pull_request_target' && github.event.action == 'synchronize' }}
+    environment: development
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: generate review url
-        id: gen-url
+      - name: Download review app artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: open-review-app 
+      - name: Read tag of review app to close
+        id: review-app-to-close
         run: |
-          REVIEW_TAG=pre-$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-zA-Z0-9]/-/g')
-          echo "REVIEW_TAG=$REVIEW_TAG" >> $GITHUB_ENV
-          echo "review_url=https://${REVIEW_TAG}.${BASE_URL}" >> $GITHUB_OUTPUT
-          COMMIT_HASH=$(git rev-parse --short "$GITHUB_SHA")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/cycling-coach-lab:${{ env.REVIEW_TAG }}
-      - name: Checkout k8s config repo
+          tag=$(cat open-review-app.txt)
+          echo "tag=$tag"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+      - name: Checkout k8s config repository
         uses: actions/checkout@v4
         with:
           repository: 'michelm117/cycling-coach-lab-k8s'
           token: ${{ secrets.GH_PAT }}
           ref: main
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-      - run: |
-          cat > values.yaml <<EOL
-          name: ${{ env.REVIEW_TAG }}
-          version: ${{ env.COMMIT_HASH }}
-          image:
-            tag: ${{ env.REVIEW_TAG }}
-          targetRevision: ${{ env.BRANCH_NAME }}
-          subDomain: ${{ env.REVIEW_TAG }}
-          postgresql:
-            persistence:
-              enabled: false
-          ingress:
-            tls:
-              secretName: ccl-review-${{ env.REVIEW_TAG }}-tls
-          EOL
-          helm template argocd-application --values values.yaml > apps/${{ env.REVIEW_TAG }}.yaml
+      - name: Remove review app
+        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add apps/${{ env.REVIEW_TAG }}.yaml
-          git commit -m "ci: added review app ${{ env.REVIEW_TAG }}"
+          git rm apps/${{ steps.review-app-to-close.outputs.tag }}.yaml
+          git commit -m "ci: remove review app ${{ steps.review-app-to-close.outputs.tag }}"
           git push
+      # - name: "Todo: delete docker tag on docker hub"
+
