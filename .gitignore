@@ -6,3 +6,4 @@ assets/styles.css
 .env
 main
 deployments/cycling-coach-lab/charts/*
+cypress/node_modules
