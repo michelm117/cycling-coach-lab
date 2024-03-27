@@ -44,22 +44,22 @@ func main() {
 
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	app.Use(middleware.Logger())
+	app.Use(middleware.Recover())
 
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
 	})
 
-	app.GET("/health", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Service is healthy!")
-	})
+	healthCheckHandler := handler.NewHealthCheckHandler(db)
+	app.GET("/health", healthCheckHandler.Check)
 
 	userService := services.NewUserService(db, logger)
-	handler := handler.NewAdminDashboardHandler(userService, logger)
+	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
 
 	group := app.Group("/users")
-	group.POST("/add", handler.AddUser)
-	group.GET("", handler.ListUsers)
-	group.DELETE("/delete/*", handler.DeleteUser)
+	group.POST("/add", dashboardHandler.AddUser)
+	group.GET("", dashboardHandler.ListUsers)
+	group.DELETE("/delete/*", dashboardHandler.DeleteUser)
 }
 
 func initLogger() *zap.SugaredLogger {
