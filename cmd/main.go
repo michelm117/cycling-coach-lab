@@ -50,8 +50,9 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
 	})
 
-	healthCheckHandler := handler.NewHealthCheckHandler(db)
-	app.GET("/health", healthCheckHandler.Check)
+	utilsHandler := handler.NewUtilsHandler(db)
+	app.GET("/health", utilsHandler.HealthCheck)
+	app.GET("/version", utilsHandler.Version)
 
 	userService := services.NewUserService(db, logger)
 	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
