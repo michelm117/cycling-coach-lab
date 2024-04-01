@@ -1,0 +1,40 @@
+name: Workflow on PR Close
+
+on:
+  pull_request:
+    types:
+      - closed
+jobs:
+  stop-review-app:
+    name: Stop review app & docker tag
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' || github.event_name == 'pull_request_target' && github.event.action == 'synchronize' }}
+    environment: development
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Download review app artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: open-review-app 
+      - name: Read tag of review app to close
+        id: review-app-to-close
+        run: |
+          tag=$(cat open-review-app.txt)
+          echo "tag=$tag"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+      - name: Checkout k8s config repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'michelm117/cycling-coach-lab-k8s'
+          token: ${{ secrets.GH_PAT }}
+          ref: main
+      - name: Remove review app
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git rm apps/${{ steps.review-app-to-close.outputs.tag }}.yaml
+          git commit -m "ci: remove review app ${{ steps.review-app-to-close.outputs.tag }}"
+          git push
+      # - name: "Todo: delete docker tag on docker hub"
+
