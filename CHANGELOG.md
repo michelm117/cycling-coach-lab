@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.4.0...v1.5.0) (2024-04-01)
+
+
+### Features
+
+* add database to healtcheck ([0005df5](https://github.com/michelm117/cycling-coach-lab/commit/0005df5b976c7110152c08ad4a439c5e1415930e))
+* add version endpoint ([b2e6874](https://github.com/michelm117/cycling-coach-lab/commit/b2e687492e40a95387f64b7561e710d8fe1c6289))
+
 ## [1.4.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.3.2...v1.4.0) (2024-03-24)
 
 
