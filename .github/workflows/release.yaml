@@ -36,7 +36,7 @@ jobs:
           tag: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
           docker_user: ${{ secrets.DOCKERHUB_USERNAME }}
           docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
-          isLatest: true
+          isLatest: 'true'
       - name: Deploy production app
         if: ${{ steps.release.outputs.release_created }}
         uses: ./.github/actions/deploy-app
