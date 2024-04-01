@@ -11,13 +11,13 @@ jobs:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' || github.event_name == 'pull_request_target' && github.event.action == 'synchronize' }}
     environment: development
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Download review app artifact
-        uses: actions/download-artifact@v4
+      - name: Download workflow artifact
+        uses: dawidd6/action-download-artifact@v3.1.4
         with:
-          name: open-review-app 
+          workflow: pull_request.yaml
           github-token: ${{ secrets.GH_PAT }}
+          pr: ${{github.event.pull_request.number}}
+          name: open-review-app
       - name: Read tag of review app to close
         id: review-app-to-close
         run: |
