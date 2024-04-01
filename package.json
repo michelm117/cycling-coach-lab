@@ -1,6 +1,11 @@
 {
+  "scripts": {
+    "cypress": "CYPRESS_APP_VERSION=1.2.0 npx cypress run"
+  },
   "devDependencies": {
+    "cypress": "^13.7.1",
     "daisyui": "^4.7.2",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.3"
   }
 }
