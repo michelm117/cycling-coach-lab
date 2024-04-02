@@ -35,9 +35,9 @@ run: generate
 
 ## start: build and run project with hot reload
 .PHONY: start
-start: generate
+start:
 	@docker compose --env-file=.env -f deployments/docker-compose.dev.yml up -d
-	@air & npx tailwindcss -c tailwind.config.js -o assets/styles.css --minify --watch
+	@air
 
 
 ## update: update project dependencies

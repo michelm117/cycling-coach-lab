@@ -1,3 +1,4 @@
+tmp
 .tmp
 *_templ.go
 postgres/
@@ -8,3 +9,4 @@ main
 deployments/cycling-coach-lab/charts/*
 cypress/screenshots
 cypress/videos
+yarn.lock
