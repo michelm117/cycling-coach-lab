@@ -15,8 +15,7 @@ init:
 	@echo "Initializing project..."
 	@templ generate
 	@go mod tidy
-	@npm install -D tailwindcss
-	@npm install -D daisyui@latest
+	@npm install
 
 
 ## generate: generate static files

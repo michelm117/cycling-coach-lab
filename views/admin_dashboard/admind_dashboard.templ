@@ -15,7 +15,7 @@ func buildUserJSON(user *model.User) string {
 }
 
 templ UserTable(users []*model.User) {
-	<div id="users" hx-swap-oob="true" class="overflow-x-auto h-full">
+	<div id="users" hx-swap-oob="true" class="overflow-x-auto">
 		<table class="table">
 			<!-- head -->
 			<thead>
