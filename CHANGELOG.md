@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.5.0...v1.5.1) (2024-04-03)
+
+
+### Bug Fixes
+
+* add pa token to download artifacts ([8176b55](https://github.com/michelm117/cycling-coach-lab/commit/8176b55e57d0997976ff67dbaadc3cafd61ffa6c))
+* make base layout mobile friendly ([9add360](https://github.com/michelm117/cycling-coach-lab/commit/9add360a523af511d00caf23ca2b6f7e122b41de))
+* only use latest tag on release ([8f2be0f](https://github.com/michelm117/cycling-coach-lab/commit/8f2be0fbda2fb2a7fc20f3ded1b8701e8bf36360))
+* use third party extension to download artifacts ([eabed5c](https://github.com/michelm117/cycling-coach-lab/commit/eabed5ce8f28288db3494c1e0997287957c71a10))
+
 ## [1.5.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.4.0...v1.5.0) (2024-04-01)
 
 
