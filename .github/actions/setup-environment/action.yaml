@@ -18,7 +18,7 @@ runs:
         commit_hash=$(git rev-parse --short "$GITHUB_SHA")
         echo "commit_hash: "${commit_hash}
         echo "commit_hash=$commit_hash" >> $GITHUB_OUTPUT
-        tag=pre-$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-zA-Z0-9]/-/g')
+        tag=dev-$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-zA-Z0-9]/-/g')
         echo "tag: "${tag}
         echo "tag=$tag" >> $GITHUB_OUTPUT
         url=https://${tag}.${{ inputs.base_url }}

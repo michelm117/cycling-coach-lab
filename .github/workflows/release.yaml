@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  release:
+  release-prod:
     environment:
       name: production
       url: https://ccl.newtri-science.michel.lu
@@ -21,6 +21,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+        run: echo ${{ steps.release.outputs.release_created }} > release_created.txt 
+      - name: Upload tag name artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release_created
+          path: release_created.txt
       - name: Checkout repository
         # these if statements ensure that a publication only occurs when a new release is created
         if: ${{ steps.release.outputs.release_created }}
@@ -52,3 +58,96 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         run: |
           .ci/wait_for_version_change.sh ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }} "https://ccl.newtri-science.michel.lu"
+
+  deploy-release:
+    name: Deploy release app
+    needs: [release-prod]
+    environment:
+      name: development
+      url: https://rls.newtri-science.michel.lu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workflow artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release_created
+      - name: Read artifacts
+        id: release
+        run: |
+          release_created=$(cat release_created.txt)
+          echo "release_createdtag=$release_created"
+          echo "release_created=$release_created" >> $GITHUB_OUTPUT
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        if: ${{ !steps.release.outputs.release_created }}
+      - name: Generate environment
+        if: ${{ !steps.release.outputs.release_created }}
+        run: |
+          version=$(jq -r '.["."]' .release-please-manifest.json)
+          echo "version=pre-${version}" >> GITHUB_ENV
+      - name: Build and push docker image
+        if: ${{ !steps.release.outputs.release_created }}
+        uses: ./.github/actions/build-push-docker-image
+        with:
+          tag: ${{ env.version }}
+          docker_user: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Deploy review app
+        if: ${{ !steps.release.outputs.release_created }}
+        uses: ./.github/actions/deploy-app
+        with:
+          tag: ${{ env.version }}
+          subDomain: rls 
+          name: rls
+          version: ${{ env.version }}
+          token: ${{ secrets.GH_PAT }}
+          tlsName: ccl-rls-${{ steps.generate_environment.outputs.tag }}-tls
+          persistence: false
+      - name: Wait for release deployment
+        if: ${{ !steps.release.outputs.release_created }}
+        run: |
+          .ci/wait_for_version_change.sh ${{ env.version }} https://rls.newtri-science.michel.lu
+
+  cypress-run:
+    name: Run integration tests against release app
+    needs: [deploy-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workflow artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release_created
+      - name: Read artifacts
+        id: release
+        run: |
+          release_created=$(cat release_created.txt)
+          echo "release_created=$release_created"
+          echo "release_created=$release_created" >> $GITHUB_OUTPUT
+          version=$(jq -r '.["."]' .release-please-manifest.json)
+          echo "version=pre-${version}" >> GITHUB_ENV
+      - name: Checkout repository
+        if: ${{ !steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+      - name: Install Cypress dependencies
+        if: ${{ !steps.release.outputs.release_created }}
+        run: npm install cypress
+      - name: Cypress run
+        if: ${{ !steps.release.outputs.release_created }}
+        uses: cypress-io/github-action@v6.6.1
+        with:
+          cache-key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        env:
+          CYPRESS_BASE_URL: https://rls.newtri-science.michel.lu
+          CYPRESS_APP_VERSION: ${{ env.version }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !steps.release.outputs.release_created }} && failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: ${{ !steps.release.outputs.release_created }} && failure()
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
