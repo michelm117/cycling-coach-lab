@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	_ "github.com/jackc/pgx/stdlib"
 
@@ -39,14 +40,63 @@ func TestMain(m *testing.M) {
 
 }
 
-func TestCountUsers(t *testing.T) {
+func TestGetById(t *testing.T) {
 	repo := services.NewUserService(DB, nil)
-	count, err := repo.Count()
+	// Search for user to get his id
+	user, err := repo.GetByEmail("admin@example.com")
+	if err != nil {
+		t.Errorf("Error while trying to get user by name: %s", err)
+	}
+
+	id := user.ID
+	user, err = repo.GetById(id)
+	if err != nil {
+		t.Errorf("Error while trying to get user by ID: %s", err)
+	}
+
+	if user == nil {
+		t.Errorf("User not found")
+	}
+}
+
+func TestGetByEmail(t *testing.T) {
+	repo := services.NewUserService(DB, nil)
+	user, err := repo.GetByEmail("test@test.de")
+	if err != nil {
+		t.Errorf("Error while trying to get user by email: %s", err)
+	}
+	if user == nil {
+		t.Errorf("User not found")
+	}
+}
+
+func TestUserWithEmailNotFound(t *testing.T) {
+	repo := services.NewUserService(DB, nil)
+	user, err := repo.GetByEmail("foo")
+	if user != nil {
+		t.Errorf("User should not be found")
+	}
+	if err == nil {
+		t.Errorf("Error should not be nil")
+	}
+}
+
+func TestGetAllUsers(t *testing.T) {
+	repo := services.NewUserService(DB, nil)
+	expectedSize, err := repo.Count()
 	if err != nil {
 		t.Errorf("Error while trying to count users: %s", err)
 	}
-	if count == 0 {
-		t.Errorf("No users found")
+
+	users, err := repo.GetAllUsers()
+	if err != nil {
+		t.Errorf("Error while trying to get all users: %s", err)
+
+	}
+
+	actualSize := len(users)
+	if actualSize != expectedSize {
+		t.Errorf("actual size %v is not expectedSize %v", actualSize, expectedSize)
 	}
 }
 
@@ -57,8 +107,13 @@ func TestAddUser(t *testing.T) {
 		t.Errorf("Error while trying to count users: %s", err)
 	}
 	u := model.User{
-		Name:  "test",
-		Email: "test@test.de",
+		Firstname:    "first",
+		Lastname:     "last",
+		Email:        "foo@bar.com",
+		DateOfBirth:  time.Now(),
+		Role:         "admin",
+		Status:       "active",
+		PasswordHash: "hash",
 	}
 	user, err := repo.AddUser(u)
 	if err != nil {
@@ -66,7 +121,7 @@ func TestAddUser(t *testing.T) {
 	}
 
 	if user == nil {
-		t.Errorf("Newly added user was not returned: %s", u)
+		t.Errorf("Newly added user was not returned: %v", u)
 	}
 
 	afterSize, err := repo.Count()
@@ -78,24 +133,41 @@ func TestAddUser(t *testing.T) {
 	}
 }
 
-func TestGetByName(t *testing.T) {
+func TestDeleteUser(t *testing.T) {
 	repo := services.NewUserService(DB, nil)
-	user, err := repo.GetByName("user1")
+	expectedSize, err := repo.Count()
+	expectedSize--
 	if err != nil {
-		t.Errorf("Error while trying to get user by name: %s", err)
+		t.Errorf("Error while trying to count users: %s", err)
 	}
-	if user == nil {
-		t.Errorf("User not found")
+
+	err = repo.DeleteUser("jan@ullrich.de")
+	if err != nil {
+		t.Errorf("Error while trying to delete a users: %s", err)
+	}
+
+	actualSize, err := repo.Count()
+	if err != nil {
+		t.Errorf("Error while trying to count users after deleting one: %s", err)
+	}
+
+	if actualSize != expectedSize {
+		t.Errorf("actual size %v is not expectedSize %v", actualSize, expectedSize)
+	}
+
+	err = repo.DeleteUser("jan@ullrich.de")
+	if err != nil {
+		t.Errorf("Deleting an user that does not exists should not throw any errors: %s", err)
 	}
 }
 
-func TestUserWithNameNotFound(t *testing.T) {
+func TestCountUsers(t *testing.T) {
 	repo := services.NewUserService(DB, nil)
-	user, err := repo.GetByName("foo")
-	if user != nil {
-		t.Errorf("User should not be found")
+	count, err := repo.Count()
+	if err != nil {
+		t.Errorf("Error while trying to count users: %s", err)
 	}
-	if err == nil {
-		t.Errorf("Error should not be nil")
+	if count == 0 {
+		t.Errorf("No users found")
 	}
 }

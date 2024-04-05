@@ -15,8 +15,12 @@ import (
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
-func NewMigrator(db *sql.DB, logger *zap.SugaredLogger) (*migrate.Migrate, error) {
-	migrationsPath := path.Join(utils.GetProjectRoot(), "migrations")
+func NewMigrator(
+	db *sql.DB,
+	logger *zap.SugaredLogger,
+	migrationFolder string,
+) (*migrate.Migrate, error) {
+	migrationsPath := path.Join(utils.GetProjectRoot(), migrationFolder)
 	sourceUrl := fmt.Sprintf("file://%s", migrationsPath)
 	if logger != nil {
 		logger.Infof("Looking for migrations in: %s", sourceUrl)

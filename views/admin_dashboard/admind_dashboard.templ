@@ -3,72 +3,73 @@ package admin_dashboard
 import (
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
-	"encoding/json"
+	"github.com/michelm117/cycling-coach-lab/views/components"
+	"fmt"
 )
 
-func buildUserJSON(user *model.User) string {
-	jsonData, err := json.Marshal(user)
-	if err != nil {
-		println("error while marshelling")
-	}
-	return string(jsonData)
-}
-
 templ UserTable(users []*model.User) {
-	<div id="users" hx-swap-oob="true" class="overflow-x-auto">
-		<table class="table">
+	<div id="users" hx-swap-oob="true" class="h-full overflow-x-auto">
+		<table class="table table-auto">
 			<!-- head -->
 			<thead>
 				<tr>
-					<th>
-						<label>
-							<input type="checkbox" class="checkbox"/>
-						</label>
-					</th>
-					<th>Name</th>
-					<th>Email</th>
+					<th>Benutzer</th>
 					<th>Status</th>
-					<th>Registered Since</th>
-					<th></th>
+					<th>Registriert seit</th>
+					<th>Aktionen</th>
 				</tr>
 			</thead>
-			<tbody>
-				for _, user:= range users {
-					<tr>
-						<th>
-							<label>
-								<input type="checkbox" class="checkbox"/>
-							</label>
-						</th>
+			<tbody data-cy="user-table">
+				for i, user:= range users {
+					<tr data-cy="user-row">
 						<td>
 							<div class="flex items-center gap-3">
-								<div class="avatar">
-									<div class="mask mask-squircle w-12 h-12">
-										<img src="https://source.unsplash.com/random/?Profile" alt="Avatar Tailwind CSS Component"/>
-									</div>
-								</div>
+								@components.Avatar(user.Firstname, user.Lastname)
 								<div>
-									<div class="font-bold" id="user-name">{ user.Name }</div>
+									<div class="font-bold" id="user-firstname">
+										{ user.Firstname } { user.Lastname }
+									</div>
+									<div class="text-sm opacity-50" data-cy="user-email" id="user-email">
+										{ user.Email }
+									</div>
 								</div>
 							</div>
 						</td>
 						<td>
-							<div id="user-email">{ user.Email }</div>
-							<br/>
+							<span
+								class={ "indicator-item indicator-middle indicator-center badge",
+                templ.KV("badge-info", user.Status == "active"), 
+                templ.KV("badge-warning", user.Status == "inactive") }
+							>
+								{ user.Status }
+							</span>
 						</td>
-						<th>
-							<span class="indicator-item indicator-middle indicator-center badge badge-secondary">Active</span>
-						</th>
 						<td>2023/12/12</td>
-						<th>
-							<button class="btn btn-ghost btn-xs">details</button>
-						</th>
-						<th>
-							<div hx-ext="path-params">
-								<button class="btn btn-error btn-xs" hx-delete="/users/delete/{email}" hx-vals={ buildUserJSON(user) } hx-target="#users">delete</button>
+						<td class="dropdown dropdown-left overflow-visible">
+							<div data-cy="open-actions" tabindex="0" role="button" class="btn btn-xs btn-ghost">
+								<i class="fa-solid fa-ellipsis-vertical"></i>
 							</div>
-						</th>
+							<ul data-cy="actions" tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box">
+								<li data-cy="action-delete-user" class="text-warning">
+									@templ.Raw(fmt.Sprintf("<a onclick=\"delete_user_modal_%v.showModal()\"><i class=\"fa-solid fa-trash\"></i>Löschen</a>", i))
+								</li>
+							</ul>
+						</td>
 					</tr>
+					<dialog id={ fmt.Sprintf("delete_user_modal_%v", i) } class="modal modal-bottom sm:modal-middle">
+						<div class="modal-box" data-cy="modal-user-delete">
+							<h3 class="font-bold text-lg">Bist du sicher, dass du diesen Benutzer löschen möchtest?</h3>
+							<p class="py-4">Diese Aktion kann nicht rückgängig gemacht werden</p>
+							<div class="modal-action">
+								<form method="dialog">
+									<button data-cy="modal-user-delete-cancel" class="btn">Abbrechen</button>
+									<button data-cy="modal-user-delete-confirm" class="btn btn-warning" hx-delete={ fmt.Sprintf("users/delete/%s", user.Email) } hx-target="#users" hx-target-error="#toasts">
+										Ja, löschen!
+									</button>
+								</form>
+							</div>
+						</div>
+					</dialog>
 				}
 			</tbody>
 		</table>

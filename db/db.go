@@ -27,14 +27,14 @@ func ConnectToDatabase(logger *zap.SugaredLogger) *sql.DB {
 	}
 
 	logger.Info("Creating migrator")
-	migrator, err := NewMigrator(database, logger)
+	migrator, err := NewMigrator(database, logger, "migrations")
 	if err != nil {
-		log.Fatalf("failed to create migrator: %s", err)
+		log.Fatalf("Failed to create migrator: %s", err)
 	}
 
 	logger.Info("Running migrations")
 	if err := migrator.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("failed to run migrations: %s", err)
+		log.Fatalf("Failed to run migrations: %s", err)
 	}
 
 	return database

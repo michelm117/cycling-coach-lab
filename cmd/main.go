@@ -44,7 +44,9 @@ func main() {
 
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	app.Use(middleware.Logger())
-	app.Use(middleware.Recover())
+	if os.Getenv("ENV") == "production" {
+		app.Use(middleware.Recover())
+	}
 
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")

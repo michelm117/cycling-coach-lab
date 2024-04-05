@@ -1,0 +1,52 @@
+package components
+
+import (
+	"fmt"
+	st "strings"
+	"hash/fnv"
+)
+
+func generateSoftHexColor(input string) string {
+	h := fnv.New32a()
+	h.Write([]byte(input))
+	hash := h.Sum32()
+
+	// Convert the hash to RGB values
+	red := (hash & 0xFF0000) >> 16
+	green := (hash & 0x00FF00) >> 8
+	blue := hash & 0x0000FF
+
+	// Soften the color by reducing intensity
+	red = uint32(float64(red) * 0.8)
+	green = uint32(float64(green) * 0.8)
+	blue = uint32(float64(blue) * 0.8)
+
+	// Convert the RGB values to hexadecimal string
+	hexString := fmt.Sprintf("%02X%02X%02X", red, green, blue)
+
+	return "#" + hexString
+}
+
+func acronym(firstname, lastname string) string {
+	first := "?"
+	if len(firstname) > 0 {
+		first = string(firstname[0])
+	}
+	last := "?"
+	if len(lastname) > 0 {
+		last = string(lastname[0])
+	}
+	return fmt.Sprintf("%s%s", st.ToUpper(first), strings.ToUpper(last))
+}
+
+css bgColor(input string) {
+	background-color: { generateSoftHexColor(input) };
+}
+
+templ Avatar(firstname, lastname string) {
+	<div class={ "flex items-center w-10 h-10 rounded-full", bgColor(acronym(firstname, lastname)) }>
+		<span class="mx-auto font-bold text-gray-900">
+			{  acronym(firstname, lastname) }
+		</span>
+	</div>
+}
