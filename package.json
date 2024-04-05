@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "cypress": "CYPRESS_APP_VERSION=1.2.0 npx cypress run"
+    "cypress": "CYPRESS_APP_VERSION=1.2.0 npx cypress run",
+    "cypress:open": "CYPRESS_APP_VERSION=1.2.0 npx cypress open"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@tailwindcss/typography": "0.5.12",
     "cypress": "13.7.1",
     "daisyui": "4.7.2",

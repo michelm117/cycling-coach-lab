@@ -19,6 +19,7 @@ jobs:
         uses: robherley/go-test-action@v0.1.0
         with:
           omitUntestedPackages: true
+          omitPie: true
 
   deploy-review:
     name: Deploy review app

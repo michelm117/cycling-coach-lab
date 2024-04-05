@@ -1,5 +1,9 @@
 package layout
 
+import (
+	"github.com/michelm117/cycling-coach-lab/views/components"
+)
+
 templ BaseLayout() {
 	<!DOCTYPE html>
 	<html data-theme="light">
@@ -18,6 +22,9 @@ templ BaseLayout() {
           width: auto!important; 
           overflow-x: hidden!important;
           margin: 0;
+        }
+        #main-content {
+          max-height: 92vh;
         }
       </style>
 			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
@@ -47,12 +54,15 @@ templ BaseLayout() {
 		<body class="font-sans">
 			<div class="drawer w-full h-full lg:drawer-open">
 				<input id="drawer" type="checkbox" class="drawer-toggle"/>
-				<div class="drawer-content w-full h-full">
+				<div class="drawer-content w-full h-full" hx-ext="response-targets">
 					@Navbar()
 					<!-- Page content here -->
-					<div class="flex-1 flex-row container mx-auto">
-						{ children... }
+					<div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
+						<div class="m-3">
+							{ children... }
+						</div>
 					</div>
+					@Toasts()
 				</div>
 				@Sidebar()
 			</div>
@@ -61,7 +71,7 @@ templ BaseLayout() {
 }
 
 templ Navbar() {
-	<div data-cy="navbar" class="w-full navbar bg-base-300">
+	<div id="navbar" data-cy="navbar" class="w-full navbar bg-base-300">
 		<div class="flex-none lg:hidden">
 			<label for="drawer" aria-label="open sidebar" data-cy="sidebar-open" class="btn btn-square btn-ghost">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -74,13 +84,9 @@ templ Navbar() {
 		</div>
 		<div class="flex-none">
 			<div class="dropdown dropdown-end">
-				<div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-					<div class="w-10 rounded-full">
-						<img
-							alt="Tailwind CSS Navbar component"
-							src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-						/>
-					</div>
+				<div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+					<!-- todo: use logged in user name here-->
+					@components.Avatar("N", "B")
 				</div>
 				<ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200 rounded-box w-52">
 					<li>
@@ -118,4 +124,8 @@ templ Sidebar() {
 			</li>
 		</ul>
 	</div>
+}
+
+templ Toasts() {
+	<div id="toasts" class="toast toast-top toast-start"></div>
 }
