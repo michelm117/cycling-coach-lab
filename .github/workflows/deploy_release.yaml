@@ -1,0 +1,86 @@
+name: Deploy release app
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-release:
+    name: Deploy release app
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: https://rls.newtri-science.michel.lu
+    steps:
+      - name: Set Release version
+        id: release_env
+        run: |
+          version=pre-$(date +%s)
+          echo $version > version.txt
+          echo "version=$version" >> $GITHUB_ENV
+      - name: Upload release version to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: version
+          path: version.txt
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Generate environment
+        run: |
+          version=pre-$(jq -r '.["."]' .release-please-manifest.json)
+          echo "Extracted version: $version"
+      - name: Build and push docker image
+        uses: ./.github/actions/build-push-docker-image
+        with:
+          tag: ${{ env.version }}
+          docker_user: ${{ secrets.DOCKERHUB_USERNAME }}
+          docker_token: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Deploy review app
+        uses: ./.github/actions/deploy-app
+        with:
+          tag: ${{ env.version }}
+          subDomain: rls 
+          name: rls
+          version: ${{ env.version }}
+          token: ${{ secrets.GH_PAT }}
+          tlsName: ccl-rls-tls
+          persistence: false
+      - name: Wait for release deployment
+        run: |
+          .ci/wait_for_version_change.sh ${{ env.version }} https://rls.newtri-science.michel.lu
+
+  cypress-run:
+    name: Run integration tests against release app
+    needs: [deploy-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download version
+        uses: actions/download-artifact@v4
+        with:
+          name: version
+      - name: Read version from the artifacts
+        run: |
+          version=$(cat version.txt)
+          echo "version=$version"
+          echo "version=$version" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Cypress dependencies
+        run: npm install cypress
+      - name: Cypress run
+        uses: cypress-io/github-action@v6.6.1
+        with:
+          cache-key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        env:
+          CYPRESS_BASE_URL: https://rls.newtri-science.michel.lu
+          CYPRESS_APP_VERSION: ${{ env.version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
