@@ -17,6 +17,15 @@ import (
 
 var DB *sql.DB
 
+func getTestUser(userService *services.UserService, t *testing.T) *model.User {
+	// Search for user to get his id
+	user, err := userService.GetByEmail("admin@example.com")
+	if err != nil {
+		t.Errorf("Error while trying to get user by name: %s", err)
+	}
+	return user
+}
+
 func TestMain(m *testing.M) {
 	// Setup test environment
 	ctx := context.Background()
@@ -37,19 +46,13 @@ func TestMain(m *testing.M) {
 
 	// Exit with the exit code from the tests
 	os.Exit(exitCode)
-
 }
 
 func TestGetById(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
-	// Search for user to get his id
-	user, err := repo.GetByEmail("admin@example.com")
-	if err != nil {
-		t.Errorf("Error while trying to get user by name: %s", err)
-	}
+	userService := services.NewUserService(DB, nil)
 
-	id := user.ID
-	user, err = repo.GetById(id)
+	id := getTestUser(userService, t).ID
+	user, err := userService.GetById(id)
 	if err != nil {
 		t.Errorf("Error while trying to get user by ID: %s", err)
 	}
@@ -91,7 +94,6 @@ func TestGetAllUsers(t *testing.T) {
 	users, err := repo.GetAllUsers()
 	if err != nil {
 		t.Errorf("Error while trying to get all users: %s", err)
-
 	}
 
 	actualSize := len(users)
@@ -134,19 +136,20 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
-	expectedSize, err := repo.Count()
+	userService := services.NewUserService(DB, nil)
+	expectedSize, err := userService.Count()
 	expectedSize--
 	if err != nil {
 		t.Errorf("Error while trying to count users: %s", err)
 	}
 
-	err = repo.DeleteUser("jan@ullrich.de")
+	id := getTestUser(userService, t).ID
+	err = userService.DeleteUser(id)
 	if err != nil {
 		t.Errorf("Error while trying to delete a users: %s", err)
 	}
 
-	actualSize, err := repo.Count()
+	actualSize, err := userService.Count()
 	if err != nil {
 		t.Errorf("Error while trying to count users after deleting one: %s", err)
 	}
@@ -155,7 +158,7 @@ func TestDeleteUser(t *testing.T) {
 		t.Errorf("actual size %v is not expectedSize %v", actualSize, expectedSize)
 	}
 
-	err = repo.DeleteUser("jan@ullrich.de")
+	err = userService.DeleteUser(id)
 	if err != nil {
 		t.Errorf("Deleting an user that does not exists should not throw any errors: %s", err)
 	}

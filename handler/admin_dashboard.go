@@ -2,8 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -13,7 +12,6 @@ import (
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/views/admin_dashboard"
-	"github.com/michelm117/cycling-coach-lab/views/utils"
 )
 
 type AdminDashboardHandler struct {
@@ -33,28 +31,20 @@ func (h AdminDashboardHandler) ListUsers(c echo.Context) error {
 	if err != nil {
 		fmt.Println("error when looking for all users:" + err.Error())
 	}
-	return Render(c, admin_dashboard.Index(users), http.StatusOK)
+	return Render(c, admin_dashboard.Index(users))
 }
 
 func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
-	encodedEmail := c.ParamValues()
-	email, err := url.QueryUnescape(string(encodedEmail[0]))
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		msg := fmt.Sprintf("Could not decode url encoded email: '%s'", email)
-		return Render(c, utils.AlertError(msg), http.StatusBadRequest)
+		return Warning("Invalid user id")
 	}
 
-	if err := h.repo.DeleteUser(email); err != nil {
-		msg := fmt.Sprintf("Could not delete user with email '%s'", email)
-		return Render(c, utils.AlertError(msg), http.StatusBadRequest)
+	if err := h.repo.DeleteUser(id); err != nil {
+		return Warning(fmt.Sprintf("Could not delete user with id '%v'", id))
 	}
 
-	users, err := h.repo.GetAllUsers()
-	if err != nil {
-		return Render(c, utils.AlertError(err.Error()), http.StatusBadRequest)
-	}
-
-	return Render(c, admin_dashboard.UserTable(users), http.StatusOK)
+	return Success(c, "User deleted successfully")
 }
 
 func (h AdminDashboardHandler) AddUser(c echo.Context) error {
@@ -70,14 +60,10 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 	// Hashing the password with the default cost of 10
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Internal Server Error")
+		return Warning("Error while hashing password: " + err.Error())
 	}
 
-	if err != nil {
-		return err
-	}
-
-	newUser := model.User{
+	user := model.User{
 		Firstname:    firstname,
 		Lastname:     lastname,
 		DateOfBirth:  dateOfBirth,
@@ -87,11 +73,12 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		Status:       "active",
 	}
 
-	_, err = h.repo.AddUser(newUser)
+	_, err = h.repo.AddUser(user)
 	if err != nil {
 		h.logger.Warnf("Error while adding user: %s", err.Error())
-		return c.String(http.StatusInternalServerError, "Internal Server Error")
+		return Warning("Error while adding user: " + err.Error())
 	}
-	users, _ := h.repo.GetAllUsers()
-	return Render(c, admin_dashboard.UserTable(users), http.StatusOK)
+
+	Success(c, fmt.Sprintf("User '%s' added successfully", user.Email))
+	return Render(c, admin_dashboard.AddUserResponse(&user))
 }
