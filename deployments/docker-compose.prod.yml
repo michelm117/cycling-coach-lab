@@ -33,6 +33,7 @@ services:
       DB_USER: postgres 
       DB_PASSWORD: postgres 
       DB_NAME: postgres 
+      VERSION: latest
     ports:
       - 8080:8080
 

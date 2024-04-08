@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -39,7 +40,13 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	app.Logger.Fatal(app.Start(":" + port))
+
+	address := fmt.Sprintf(":%v", port)
+	if os.Getenv("ENV") == "development" {
+		address = fmt.Sprintf("localhost:%v", port)
+	}
+	logger.Infof("Starting server on %v", address)
+	app.Logger.Fatal(app.Start(address))
 }
 
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
@@ -47,6 +54,7 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	if os.Getenv("ENV") == "production" {
 		app.Use(middleware.Recover())
 	}
+	app.HTTPErrorHandler = customErrorHandler
 
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
@@ -60,9 +68,9 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
 
 	group := app.Group("/users")
-	group.POST("/add", dashboardHandler.AddUser)
 	group.GET("", dashboardHandler.ListUsers)
-	group.DELETE("/delete/*", dashboardHandler.DeleteUser)
+	group.POST("", dashboardHandler.AddUser)
+	group.DELETE("/:id", dashboardHandler.DeleteUser)
 }
 
 func initLogger() *zap.SugaredLogger {
@@ -74,4 +82,26 @@ func initLogger() *zap.SugaredLogger {
 	}
 	defer logger.Sync()
 	return logger.Sugar()
+}
+
+func customErrorHandler(err error, c echo.Context) {
+	// Attempt casting the error as a Toast.
+	te, ok := err.(handler.Toast)
+
+	// If it canot be cast as a Toast, it must be some other error
+	// we did not handle. We will handle it here and return a more
+	// generic error message. We don't want system errors to bleed
+	// through to the user.
+	if !ok {
+		fmt.Println(err)
+		te = handler.Danger("there has been an unexpected error")
+	}
+
+	// If not a success error (weird right) set the HX-Swap header to `none`.
+	if te.Level != handler.SUCCESS {
+		c.Response().Header().Set("HX-Reswap", "none")
+	}
+
+	// Set the HX-Trigger header
+	te.SetHXTriggerHeader(c)
 }

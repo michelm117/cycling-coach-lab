@@ -3,7 +3,7 @@ tmp_dir = "tmp"
 
 [build]
   bin = "./tmp/main"
-  cmd = "templ generate && npx tailwindcss -c tailwind.config.js -o assets/styles.css --minify && go build -o ./tmp/main cmd/main.go"
+  cmd = "templ generate && go build -o ./tmp/main cmd/main.go"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "node_modules", "deployments", "cypress"]
   exclude_file = []

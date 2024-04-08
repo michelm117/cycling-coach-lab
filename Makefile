@@ -38,6 +38,8 @@ start:
 	@docker compose --env-file=.env -f deployments/docker-compose.dev.yml up -d
 	@air
 
+tailwind:
+	@npx tailwindcss -c tailwind.config.js -o assets/styles.css --watch
 
 ## update: update project dependencies
 .PHONY: update
