@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -37,15 +37,13 @@ func (h AdminDashboardHandler) ListUsers(c echo.Context) error {
 }
 
 func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
-	encodedEmail := c.ParamValues()
-	email, err := url.QueryUnescape(string(encodedEmail[0]))
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		msg := fmt.Sprintf("Could not decode url encoded email: '%s'", email)
-		return Render(c, utils.AlertError(msg), http.StatusBadRequest)
+		return err
 	}
 
-	if err := h.repo.DeleteUser(email); err != nil {
-		msg := fmt.Sprintf("Could not delete user with email '%s'", email)
+	if err := h.repo.DeleteUser(id); err != nil {
+		msg := fmt.Sprintf("Could not delete user with id '%v'", id)
 		return Render(c, utils.AlertError(msg), http.StatusBadRequest)
 	}
 
@@ -77,7 +75,7 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		return err
 	}
 
-	newUser := model.User{
+	user := model.User{
 		Firstname:    firstname,
 		Lastname:     lastname,
 		DateOfBirth:  dateOfBirth,
@@ -87,11 +85,11 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		Status:       "active",
 	}
 
-	_, err = h.repo.AddUser(newUser)
+	_, err = h.repo.AddUser(user)
 	if err != nil {
 		h.logger.Warnf("Error while adding user: %s", err.Error())
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
-	users, _ := h.repo.GetAllUsers()
-	return Render(c, admin_dashboard.UserTable(users), http.StatusOK)
+
+	return Render(c, admin_dashboard.Resp(&user), http.StatusOK)
 }

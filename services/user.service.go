@@ -125,10 +125,10 @@ func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 	return &user, nil
 }
 
-func (repo *UserService) DeleteUser(email string) error {
+func (repo *UserService) DeleteUser(id int) error {
 	_, err := repo.db.Exec(
-		"DELETE FROM users WHERE users.email= $1",
-		email,
+		"DELETE FROM users WHERE users.id = $1",
+		id,
 	)
 
 	if err != nil {

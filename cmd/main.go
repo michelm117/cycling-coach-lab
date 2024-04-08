@@ -39,7 +39,8 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	app.Logger.Fatal(app.Start(":" + port))
+
+	app.Logger.Fatal(app.Start("localhost:" + port))
 }
 
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
@@ -60,9 +61,9 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
 
 	group := app.Group("/users")
-	group.POST("/add", dashboardHandler.AddUser)
 	group.GET("", dashboardHandler.ListUsers)
-	group.DELETE("/delete/*", dashboardHandler.DeleteUser)
+	group.POST("", dashboardHandler.AddUser)
+	group.DELETE("/:id", dashboardHandler.DeleteUser)
 }
 
 func initLogger() *zap.SugaredLogger {
