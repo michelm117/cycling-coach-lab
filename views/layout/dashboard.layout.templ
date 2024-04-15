@@ -1,0 +1,19 @@
+package layout
+
+templ DashboardLayout() {
+	@BaseLayout() {
+		<div class="drawer w-full h-full lg:drawer-open">
+			<input id="drawer" type="checkbox" class="drawer-toggle"/>
+			<div class="drawer-content w-full h-full" hx-ext="response-targets">
+				@Navbar()
+				<!-- Page content here -->
+				<div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
+					<div class="m-3">
+						{ children... }
+					</div>
+				</div>
+			</div>
+			@Sidebar()
+		</div>
+	}
+}

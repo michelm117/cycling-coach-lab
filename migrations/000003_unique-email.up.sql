@@ -1,4 +1,5 @@
 -- Drop the table if it exists
+DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS users;
 
 -- Create users table

@@ -29,7 +29,7 @@ func NewAdminDashboardHandler(
 func (h AdminDashboardHandler) ListUsers(c echo.Context) error {
 	users, err := h.repo.GetAllUsers()
 	if err != nil {
-		fmt.Println("error when looking for all users:" + err.Error())
+		return Warning("Error while looking for all users")
 	}
 	return Render(c, admin_dashboard.Index(users))
 }
@@ -75,7 +75,6 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 
 	_, err = h.repo.AddUser(user)
 	if err != nil {
-		h.logger.Warnf("Error while adding user: %s", err.Error())
 		return Warning("Error while adding user: " + err.Error())
 	}
 
