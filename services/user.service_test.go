@@ -21,7 +21,7 @@ func getTestUser(userService *services.UserService, t *testing.T) *model.User {
 	// Search for user to get his id
 	user, err := userService.GetByEmail("admin@example.com")
 	if err != nil {
-		t.Errorf("Error while trying to get user by name: %s", err)
+		t.Errorf("Error while trying to get test user '%s'", err)
 	}
 	return user
 }

@@ -179,7 +179,7 @@ templ AddUserResponse(user *model.User) {
 }
 
 templ Index(users []*model.User) {
-	@layout.BaseLayout() {
+	@layout.DashboardLayout() {
 		<div x-data="{userIdToDelete: null}">
 			@UserTable(users)
 			@AddUserOverlay()

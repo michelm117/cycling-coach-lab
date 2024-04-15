@@ -8,6 +8,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
@@ -49,12 +51,36 @@ func main() {
 	app.Logger.Fatal(app.Start(address))
 }
 
+// Middleware to check if the user is authenticated
+// TODO: move to own package
+func authMiddleware(sessionService services.SessionService) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			browserSession, err := session.Get("cycling-coach-lab", c)
+			if err != nil {
+				return c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
+			}
+
+			sessionID, _ := browserSession.Values["sessionId"].(string)
+			_, err = sessionService.GetUserBySession(sessionID)
+			if err != nil {
+				return c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
+			}
+			return next(c)
+		}
+	}
+}
+
 func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	app.Use(middleware.Logger())
 	if os.Getenv("ENV") == "production" {
 		app.Use(middleware.Recover())
 	}
+
 	app.HTTPErrorHandler = customErrorHandler
+
+	// TODO: use secret key pair instead of hardcoded string
+	app.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
@@ -65,22 +91,32 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	app.GET("/version", utilsHandler.Version)
 
 	userService := services.NewUserService(db, logger)
-	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
+	sessionService := services.NewSessionService(db, logger)
 
-	group := app.Group("/users")
-	group.GET("", dashboardHandler.ListUsers)
-	group.POST("", dashboardHandler.AddUser)
-	group.DELETE("/:id", dashboardHandler.DeleteUser)
+	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
+	usersRoute := app.Group("/users")
+	usersRoute.Use(authMiddleware(*sessionService))
+	usersRoute.POST("", dashboardHandler.AddUser)
+	usersRoute.GET("", dashboardHandler.ListUsers)
+	usersRoute.DELETE("/:id", dashboardHandler.DeleteUser)
+
+	auth := handler.NewAuthHandler(userService, sessionService, logger)
+	authRoute := app.Group("/auth")
+	authRoute.GET("/login", auth.RenderLogin)
+	authRoute.POST("/login", auth.Login)
 }
 
 func initLogger() *zap.SugaredLogger {
 	var logger *zap.Logger
+
 	if os.Getenv("ENV") == "development" {
 		logger, _ = zap.NewDevelopment()
 	} else {
 		logger, _ = zap.NewProduction()
 	}
+
 	defer logger.Sync()
+
 	return logger.Sugar()
 }
 
@@ -93,8 +129,11 @@ func customErrorHandler(err error, c echo.Context) {
 	// generic error message. We don't want system errors to bleed
 	// through to the user.
 	if !ok {
-		fmt.Println(err)
-		te = handler.Danger("there has been an unexpected error")
+		if os.Getenv("ENV") == "development" {
+			te = handler.Danger("there has been an unexpected error:\n" + err.Error())
+		} else {
+			te = handler.Danger("there has been an unexpected error")
+		}
 	}
 
 	// If not a success error (weird right) set the HX-Swap header to `none`.

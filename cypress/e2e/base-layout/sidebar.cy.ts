@@ -2,6 +2,8 @@ describe("Sidebar", () => {
   describe("on mobile", () => {
     beforeEach(() => {
       cy.viewport("iphone-6");
+      console.log("it worked")
+      cy.login("user1@example.com", "1234")
       cy.visit("/");
     });
 
@@ -21,6 +23,7 @@ describe("Sidebar", () => {
   describe("on desktop", () => {
     beforeEach(() => {
       cy.viewport("macbook-15");
+      cy.login("user1@example.com", "1234")
       cy.visit("/");
     });
 
@@ -36,6 +39,7 @@ describe("Sidebar", () => {
   describe("navigation", () => {
     beforeEach(() => {
       cy.viewport("macbook-15");
+      cy.login("user1@example.com", "1234")
       cy.visit("/");
     });
 

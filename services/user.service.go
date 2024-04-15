@@ -130,7 +130,6 @@ func (repo *UserService) DeleteUser(id int) error {
 		"DELETE FROM users WHERE users.id = $1",
 		id,
 	)
-
 	if err != nil {
 		return fmt.Errorf("error while trying to execute query: %s", err)
 	}
