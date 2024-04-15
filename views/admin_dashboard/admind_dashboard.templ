@@ -3,19 +3,19 @@ package admin_dashboard
 import (
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/views/components"
 	"fmt"
 )
 
 templ UserTable(users []*model.User) {
 	<div class="h-full overflow-x-auto">
 		<table class="table table-auto">
-			<!-- head -->
 			<thead>
 				<tr>
 					<th>Benutzer</th>
-					<!--th>Status</th-->
+					<th>Status</th>
 					<th>Registriert seit</th>
-					<!--th>Aktionen</th-->
+					<th>Aktionen</th>
 				</tr>
 			</thead>
 			<tbody id="user-table" data-cy="user-table">
@@ -63,7 +63,7 @@ templ Form() {
 templ UserRow(user *model.User) {
 	<tr id={ fmt.Sprintf("%v", user.ID) } data-cy="user-row">
 		<td>
-			<!---div class="flex items-center gap-3">
+			<div class="flex items-center gap-3">
 				@components.Avatar(user.Firstname, user.Lastname)
 				<div>
 					<div class="font-bold" id="user-firstname">
@@ -73,23 +73,22 @@ templ UserRow(user *model.User) {
 						{ user.Email }
 					</div>
 				</div>
-			</div-->
-			{ user.Email }
+			</div>
 		</td>
-		<!--td>
+		<td>
 			<span
 				class={ "indicator-item indicator-middle indicator-center badge" , templ.KV("badge-info",
       user.Status=="active" ), templ.KV("badge-warning", user.Status=="inactive" ) }
 			>
 				{ user.Status }
 			</span>
-		</td-->
+		</td>
 		<td>2023/12/12</td>
-		<!--td class="dropdown dropdown-left overflow-visible">
+		<td class="dropdown dropdown-left overflow-visible">
 			<div data-cy="open-actions" tabindex="0" role="button" class="btn btn-xs btn-ghost">
 				<i class="fa-solid fa-ellipsis-vertical"></i>
 			</div>
-		</td-->
+		</td>
 	</tr>
 }
 
