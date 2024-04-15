@@ -3,6 +3,8 @@ package handler
 import (
 	"crypto/rand"
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -11,6 +13,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/views/auth"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginPageHandler struct {
@@ -26,7 +29,7 @@ func NewLoginPageHandler(
 }
 
 func (l LoginPageHandler) HandleRenderLogin(c echo.Context) error {
-	return Render(c, auth.Login())
+	return Render(c, auth.Login(), http.StatusOK)
 }
 
 func generateRandomString(length int) (string, error) {
@@ -48,14 +51,15 @@ func generateRandomString(length int) (string, error) {
 func (l LoginPageHandler) HandleLogin(c echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
-	fmt.Println(email)
-	fmt.Println(password)
-	verified, _, err := l.repo.VerifyUserWithPassword(email, password)
+	user, err := l.repo.GetByEmail(email)
 	if err != nil {
 		return err
 	}
-	fmt.Println(verified)
-	if verified {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	fmt.Println(string(hashedPassword))
+	fmt.Println(user.PasswordHash)
+	if err == nil {
 		sess, _ := session.Get("session", c)
 		sess.Options = &sessions.Options{
 			Path: "/",
@@ -63,12 +67,10 @@ func (l LoginPageHandler) HandleLogin(c echo.Context) error {
 			MaxAge:   86400 * 7,
 			HttpOnly: true,
 		}
-		fmt.Println("error weee")
 		sessionId, _ := generateRandomString(255)
-		fmt.Println("error weee")
 		err := l.repo.AddSessionId(email, sessionId)
 		if err != nil {
-			fmt.Println("error weee")
+
 			return err
 		}
 		sess.Values["sessionId"] = sessionId
@@ -77,26 +79,29 @@ func (l LoginPageHandler) HandleLogin(c echo.Context) error {
 		return nil
 	} else {
 		//todo: show the user that the login failed -> set a header and then use alpinejs
-		return Render(c, auth.Login())
+		return Render(c, auth.Login(), http.StatusOK)
 	}
 }
 
 func (l LoginPageHandler) HandleRenderSingUp(c echo.Context) error {
-	return Render(c, auth.Signup())
+	return Render(c, auth.Signup(), http.StatusOK)
 }
 
 func (l LoginPageHandler) HandleSingUp(c echo.Context) error {
-	fmt.Println("hellooo")
+	firstname := c.FormValue("firstname")
+	lastname := c.FormValue("lastname")
 	email := c.FormValue("email")
-	fmt.Println(email)
+	role := c.FormValue("role")
+
+	dateOfBirthStr := c.FormValue("dateOfBirth")
+	dateOfBirth, err := time.Parse("2006-01-02", dateOfBirthStr)
+
 	password := c.FormValue("password")
-	fmt.Println(password)
-	username := c.FormValue("username")
-	fmt.Println(username)
-	ayo := c.FormValue("admin")
-	fmt.Println(ayo)
-	admin := c.FormValue("admin") == "admin"
-	_, err := l.repo.AddUser(model.User{Email: email, Password: password, Name: username, Admin: admin})
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
 	if err != nil {
 		return err
 	}
@@ -108,12 +113,23 @@ func (l LoginPageHandler) HandleSingUp(c echo.Context) error {
 		HttpOnly: true,
 	}
 	sessionId, _ := generateRandomString(255)
-	err = l.repo.AddSessionId(email, sessionId)
+	newUser := model.User{
+		Firstname:    firstname,
+		Lastname:     lastname,
+		DateOfBirth:  dateOfBirth,
+		Email:        email,
+		PasswordHash: string(hashedPassword),
+		Role:         role,
+		Status:       "active",
+		SessionId:    sessionId,
+	}
+	_, err = l.repo.AddUser(newUser)
 	if err != nil {
 		return err
 	}
 	sess.Values["sessionId"] = sessionId
 	sess.Save(c.Request(), c.Response())
+	fmt.Println("redirect!")
 	c.Response().Header().Add("HX-Redirect", "/users")
 	return nil
 }

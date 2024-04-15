@@ -109,7 +109,6 @@ func TestAddUser(t *testing.T) {
 		t.Errorf("Error while trying to count users: %s", err)
 	}
 	u := model.User{
-<<<<<<< HEAD
 		Firstname:    "first",
 		Lastname:     "last",
 		Email:        "foo@bar.com",
@@ -117,12 +116,6 @@ func TestAddUser(t *testing.T) {
 		Role:         "admin",
 		Status:       "active",
 		PasswordHash: "hash",
-=======
-		Name:     "test",
-		Email:    "test@test.de",
-		Password: "123",
-		Admin:    false,
->>>>>>> 2181a8c (fix: weird ass typing in test)
 	}
 	user, err := repo.AddUser(u)
 	if err != nil {
@@ -130,11 +123,7 @@ func TestAddUser(t *testing.T) {
 	}
 
 	if user == nil {
-<<<<<<< HEAD
 		t.Errorf("Newly added user was not returned: %v", u)
-=======
-		t.Errorf("Newly added user was not returned")
->>>>>>> 2181a8c (fix: weird ass typing in test)
 	}
 
 	afterSize, err := repo.Count()

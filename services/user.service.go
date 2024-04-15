@@ -48,7 +48,8 @@ func (repo *UserService) GetById(id int) (*model.User, error) {
 }
 
 func (repo *UserService) GetByEmail(email string) (*model.User, error) {
-	row := repo.db.QueryRow("SELECT username, email, password, admin FROM users WHERE users.email = $1", email)
+	row := repo.db.QueryRow("SELECT * FROM users WHERE users.email = $1", email)
+
 	var user model.User
 	err := row.Scan(
 		&user.ID,
@@ -61,6 +62,7 @@ func (repo *UserService) GetByEmail(email string) (*model.User, error) {
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
+		&user.SessionId,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -91,6 +93,7 @@ func (repo *UserService) GetAllUsers() ([]*model.User, error) {
 			&user.Role,
 			&user.CreatedAt,
 			&user.UpdatedAt,
+			&user.SessionId,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error while trying to execute query: %s", err)
@@ -108,7 +111,7 @@ func (repo *UserService) GetAllUsers() ([]*model.User, error) {
 
 func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 	_, err := repo.db.Exec(
-		"INSERT INTO users (email, firstname, lastname, date_of_birth, password_hash, status, role) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		"INSERT INTO users (email, firstname, lastname, date_of_birth, password_hash, status, role, session_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
 		user.Email,
 		user.Firstname,
 		user.Lastname,
@@ -116,6 +119,7 @@ func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 		user.PasswordHash,
 		user.Status,
 		user.Role,
+		user.SessionId,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("user could not be added: %s", err)
@@ -144,4 +148,44 @@ func (repo *UserService) Count() (int, error) {
 		return -1, fmt.Errorf("error while trying to execute query: %s", err)
 	}
 	return count, nil
+}
+
+func (repo *UserService) AddSessionId(email string, sessionId string) error {
+	fmt.Println("error weee")
+	_, err := repo.db.Exec(
+		"UPDATE users SET session_id = $1 WHERE email = $2",
+		sessionId,
+		email,
+	)
+	fmt.Println("AddSessionId")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *UserService) GetUserBySessionId(sessionId string) (*model.User, error) {
+	row := repo.db.QueryRow("SELECT * FROM users WHERE users.session_id = $1", sessionId)
+	var user model.User
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.Firstname,
+		&user.Lastname,
+		&user.DateOfBirth,
+		&user.PasswordHash,
+		&user.Status,
+		&user.Role,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.SessionId,
+	)
+	fmt.Println("AAAAH SESSSION ID FOUND")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, fmt.Errorf("error while trying to execute query: %s", err)
+	}
+	return &user, nil
 }

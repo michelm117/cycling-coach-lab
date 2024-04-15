@@ -9,8 +9,12 @@ templ Signup() {
 				<form id="signupForm" hx-post="/signup" class="space-y-4">
 					<h2 class="text-3xl font-bold text-center">Registrieren</h2>
 					<div class="mb-4">
+						<label class="block text-sm font-semibold text-gray-600">Vorname</label>
+						<input class="w-full input input-bordered" name="firstname" type="text" placeholder="Vorname"/>
+					</div>
+					<div class="mb-4">
 						<label class="block text-sm font-semibold text-gray-600">Name</label>
-						<input class="w-full input input-bordered" name="username" type="text" placeholder="Name"/>
+						<input class="w-full input input-bordered" name="lastname" type="text" placeholder="Name"/>
 					</div>
 					<div class="mb-4">
 						<label class="block text-sm font-semibold text-gray-600">Email</label>
@@ -18,11 +22,19 @@ templ Signup() {
 					</div>
 					<div class="mb-4">
 						<label class="block text-sm font-semibold text-gray-600">Passwort</label>
-						<input class="w-full input input-bordered" name="password" type="password" placeholder="Password"/>
+						<input class="w-full input input-bordered" name="password" type="password" placeholder="Passwort"/>
 					</div>
-					<label class="block text-sm font-semibold text-gray-600">
-						<input type="checkbox" class="checkbox" name="admin" value="admin"/> Trainer
-					</label>
+					<div class="flex flex-col">
+						<label for="role" class="text-sm">Benutzerrole:</label>
+						<select type="role" id="role" data-cy="role" name="role" required class="select select-bordered">
+							<option selected value="athlete">Athlet</option>
+							<option value="admin">Administrator</option>
+						</select>
+					</div>
+					<div class="flex flex-col">
+						<label for="dateOfBirth" class="block text-sm font-semibold text-gray-600">Geburtsdatum:</label>
+						<input class="block text-sm font-semibold text-gray-600" type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required/>
+					</div>
 					<div class="flex items-center justify-between">
 						<button class="btn btn-primary w-full" type="submit">Registrieren</button>
 					</div>

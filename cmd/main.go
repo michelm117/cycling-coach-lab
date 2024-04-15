@@ -56,14 +56,15 @@ func main() {
 func authMiddleware(userService services.UserService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			fmt.Println("aaah")
 			sess, err := session.Get("session", c)
 			if err != nil {
 				return c.Redirect(http.StatusTemporaryRedirect, "/login")
 			}
 			sessionId, _ := sess.Values["sessionId"].(string)
 			fmt.Println("auth: " + sessionId)
-			verified, err := userService.VeryifyUserSessionId(sessionId)
-			if !verified || err != nil {
+			_, err = userService.GetUserBySessionId(sessionId)
+			if err != nil {
 				return c.Redirect(http.StatusTemporaryRedirect, "/login")
 			}
 			return next(c)
