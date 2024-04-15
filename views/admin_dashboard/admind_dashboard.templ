@@ -3,7 +3,7 @@ package admin_dashboard
 import (
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
-	"github.com/michelm117/cycling-coach-lab/views/components"
+	"fmt"
 )
 
 templ UserTable(users []*model.User) {
@@ -13,23 +13,22 @@ templ UserTable(users []*model.User) {
 			<thead>
 				<tr>
 					<th>Benutzer</th>
-					<th>Status</th>
+					<!--th>Status</th-->
 					<th>Registriert seit</th>
-					<th>Aktionen</th>
+					<!--th>Aktionen</th-->
 				</tr>
 			</thead>
 			<tbody id="user-table" data-cy="user-table">
 				for _, user:= range users {
-					@UserRow(user)
+					@UserRow(user, false)
 				}
 			</tbody>
 		</table>
 	</div>
-	@Form()
 }
 
 templ Form() {
-	<form hx-post="/users" method="dialog" class="space-y-4">
+	<form hx-post="/users" class="space-y-4">
 		<div class="flex flex-col">
 			<label for="firstname" class="text-sm">Vorname:</label>
 			<input data-cy="firstname" type="text" id="firstname" name="firstname" required class="input input-bordered"/>
@@ -57,19 +56,16 @@ templ Form() {
 				<option value="admin">Administrator</option>
 			</select>
 		</div>
-		<button
-			data-cy="modal-add-user-submit"
-			type="submit"
-			class="btn btn-primary w-full"
-			onclick="add_user_modal.close()"
-		>Erstellen</button>
+		<button data-cy="modal-add-user-submit" type="submit" class="btn btn-primary w-full">Erstellen</button>
 	</form>
 }
 
-templ UserRow(user *model.User) {
-	<tr data-cy="user-row">
+templ UserRow(user *model.User, isSwapedIn bool) {
+	<tr id={ fmt.Sprintf("%v", user.ID) } data-cy="user-row" if isSwapedIn {
+	hx-swap-oob="beforeend:#user-table"
+}>
 		<td>
-			<div class="flex items-center gap-3">
+			<!---div class="flex items-center gap-3">
 				@components.Avatar(user.Firstname, user.Lastname)
 				<div>
 					<div class="font-bold" id="user-firstname">
@@ -79,115 +75,34 @@ templ UserRow(user *model.User) {
 						{ user.Email }
 					</div>
 				</div>
-			</div>
+			</div-->
+			{ user.Email }
 		</td>
-		<td>
+		<!--td>
 			<span
 				class={ "indicator-item indicator-middle indicator-center badge" , templ.KV("badge-info",
       user.Status=="active" ), templ.KV("badge-warning", user.Status=="inactive" ) }
 			>
 				{ user.Status }
 			</span>
-		</td>
+		</td-->
 		<td>2023/12/12</td>
-		<td class="dropdown dropdown-left overflow-visible">
+		<!--td class="dropdown dropdown-left overflow-visible">
 			<div data-cy="open-actions" tabindex="0" role="button" class="btn btn-xs btn-ghost">
 				<i class="fa-solid fa-ellipsis-vertical"></i>
 			</div>
-			<ul data-cy="actions" tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box">
-				<li data-cy="action-delete-user" class="text-warning">
-					<a><i class="fa-solid fa-trash"></i>Löschen</a>
-				</li>
-			</ul>
-		</td>
+		</td-->
 	</tr>
 }
 
 templ Resp(user *model.User) {
-	<div hx-swap-oob="beforeend:#user-table">
-		@UserRow(user)
-	</div>
+	@UserRow(user, true)
 	@Form()
-}
-
-templ AddUserModal() {
-	<dialog data-cy="modal-user-add" id="add_user_modal" class="modal modal-bottom sm:modal-middle">
-		<div class="modal-box flex flex-col items-center justify-center">
-			<h3 class="font-bold text-xl mb-4 text-center">Benutzer erstellen</h3>
-			<div class="modal-action">
-				<button
-					data-cy="modal-user-add-close"
-					class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2 font-black"
-					onclick="add_user_modal.close()"
-				>
-					<i class="fa-solid fa-x"></i>
-				</button>
-				<form hx-post="/users" method="dialog" hx-target-5*="#toasts" hx-target="#add_user_modal" class="space-y-4">
-					<div class="flex flex-col">
-						<label for="firstname" class="text-sm">Vorname:</label>
-						<input
-							data-cy="firstname"
-							type="text"
-							id="firstname"
-							name="firstname"
-							required
-							class="input input-bordered"
-						/>
-					</div>
-					<div class="flex flex-col">
-						<label for="lastname" class="text-sm">Nachname:</label>
-						<input type="text" id="lastname" data-cy="lastname" name="lastname" required class="input input-bordered"/>
-					</div>
-					<div class="flex flex-col">
-						<label for="lastname" class="text-sm">Geburtsdatum:</label>
-						<input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required/>
-					</div>
-					<div class="flex flex-col">
-						<label for="email" class="text-sm">Email:</label>
-						<input type="email" id="email" data-cy="email" name="email" required class="input input-bordered"/>
-					</div>
-					<div class="flex flex-col">
-						<label for="password" class="text-sm">Passwort:</label>
-						<input
-							type="password"
-							id="password"
-							data-cy="password"
-							name="password"
-							required
-							class="input input-bordered"
-						/>
-					</div>
-					<div class="flex flex-col">
-						<label for="role" class="text-sm">Benutzerrole:</label>
-						<select type="role" id="role" data-cy="role" name="role" required class="select select-bordered">
-							<option selected value="athlete">Athlet</option>
-							<option value="admin">Administrator</option>
-						</select>
-					</div>
-					<button
-						data-cy="modal-add-user-submit"
-						type="submit"
-						class="btn btn-primary w-full"
-						onclick="add_user_modal.close()"
-					>Erstellen</button>
-				</form>
-			</div>
-		</div>
-	</dialog>
 }
 
 templ Index(users []*model.User) {
 	@layout.BaseLayout() {
 		@UserTable(users)
-		@AddUserModal()
-		<div
-			data-cy="open-add-user-modal"
-			class="tooltip flex-1 absolute bottom-10 md:bottom-20 right-10 md:right-20"
-			data-tip="Benutzer hinzufügen"
-		>
-			<button data-cy="modal-add-user-cancel" class="btn btn-circle btn-accent" onclick="add_user_modal.showModal()">
-				<i class="fa-solid fa-plus"></i>
-			</button>
-		</div>
+		@Form()
 	}
 }
