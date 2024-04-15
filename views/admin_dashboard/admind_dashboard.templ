@@ -20,7 +20,7 @@ templ UserTable(users []*model.User) {
 			</thead>
 			<tbody id="user-table" data-cy="user-table">
 				for _, user:= range users {
-					@UserRow(user, false)
+					@UserRow(user)
 				}
 			</tbody>
 		</table>
@@ -60,10 +60,8 @@ templ Form() {
 	</form>
 }
 
-templ UserRow(user *model.User, isSwapedIn bool) {
-	<tr id={ fmt.Sprintf("%v", user.ID) } data-cy="user-row" if isSwapedIn {
-	hx-swap-oob="beforeend:#user-table"
-}>
+templ UserRow(user *model.User) {
+	<tr id={ fmt.Sprintf("%v", user.ID) } data-cy="user-row">
 		<td>
 			<!---div class="flex items-center gap-3">
 				@components.Avatar(user.Firstname, user.Lastname)
@@ -96,7 +94,9 @@ templ UserRow(user *model.User, isSwapedIn bool) {
 }
 
 templ Resp(user *model.User) {
-	@UserRow(user, true)
+	<tbody id="user-table" data-cy="user-table" hx-swap-oob="beforeend:#user-table">
+		@UserRow(user)
+	</tbody>
 	@Form()
 }
 
