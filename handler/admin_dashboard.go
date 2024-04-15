@@ -47,12 +47,7 @@ func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
 		return Render(c, utils.AlertError(msg), http.StatusBadRequest)
 	}
 
-	users, err := h.repo.GetAllUsers()
-	if err != nil {
-		return Render(c, utils.AlertError(err.Error()), http.StatusBadRequest)
-	}
-
-	return Render(c, admin_dashboard.UserTable(users), http.StatusOK)
+	return Render(c, admin_dashboard.DeleteUserResponse(id), http.StatusOK)
 }
 
 func (h AdminDashboardHandler) AddUser(c echo.Context) error {
@@ -87,5 +82,5 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	return Render(c, admin_dashboard.Resp(&user), http.StatusOK)
+	return Render(c, admin_dashboard.AddUserResponse(&user), http.StatusOK)
 }
