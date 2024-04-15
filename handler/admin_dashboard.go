@@ -71,10 +71,6 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	if err != nil {
-		return err
-	}
-
 	user := model.User{
 		Firstname:    firstname,
 		Lastname:     lastname,

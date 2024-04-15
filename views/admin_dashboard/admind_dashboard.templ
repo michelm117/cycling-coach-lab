@@ -28,36 +28,54 @@ templ UserTable(users []*model.User) {
 }
 
 templ Form() {
-	<form hx-post="/users" class="space-y-4">
-		<div class="flex flex-col">
-			<label for="firstname" class="text-sm">Vorname:</label>
-			<input data-cy="firstname" type="text" id="firstname" name="firstname" required class="input input-bordered"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="lastname" class="text-sm">Nachname:</label>
-			<input type="text" id="lastname" data-cy="lastname" name="lastname" required class="input input-bordered"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="lastname" class="text-sm">Geburtsdatum:</label>
-			<input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required/>
-		</div>
-		<div class="flex flex-col">
-			<label for="email" class="text-sm">Email:</label>
-			<input type="email" id="email" data-cy="email" name="email" required class="input input-bordered"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="password" class="text-sm">Passwort:</label>
-			<input type="password" id="password" data-cy="password" name="password" required class="input input-bordered"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="role" class="text-sm">Benutzerrole:</label>
-			<select type="role" id="role" data-cy="role" name="role" required class="select select-bordered">
-				<option selected value="athlete">Athlet</option>
-				<option value="admin">Administrator</option>
-			</select>
-		</div>
-		<button data-cy="modal-add-user-submit" type="submit" class="btn btn-primary w-full">Erstellen</button>
-	</form>
+	<div id="add-user-modal-wrapper">
+		<dialog id="add_user_modal" class="modal modal-bottom sm:modal-middle">
+			<div class="modal-box block p-6 leading-6">
+				<h3 class="font-bold text-lg">Benutzer hinzufügen</h3>
+				<div class="flex flex-col justify-center mt-6">
+					<form
+						hx-post="/users"
+						method="dialog"
+						class="w-full space-y-4"
+						hx-target="#add-user-modal-wrapper"
+						hx-swap="outerHTML"
+					>
+						<div class="grid sm:grid-cols-2 gap-4 mt-6">
+							<div class="flex flex-col">
+								<label for="firstname" class="text-sm">Vorname:</label>
+								<input data-cy="firstname" type="text" id="firstname" name="firstname" class="input input-bordered"/>
+							</div>
+							<div class="flex flex-col">
+								<label for="lastname" class="text-sm">Nachname:</label>
+								<input type="text" id="lastname" data-cy="lastname" name="lastname" class="input input-bordered"/>
+							</div>
+						</div>
+						<div class="flex flex-col mt-6">
+							<label for="lastname" class="text-sm">Geburtsdatum:</label>
+							<input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth"/>
+						</div>
+						<div class="flex flex-col mt-6">
+							<label for="email" class="text-sm">Email:</label>
+							<input type="email" id="email" data-cy="email" name="email" class="input input-bordered"/>
+						</div>
+						<div class="flex flex-col mt-6">
+							<label for="password" class="text-sm">Passwort:</label>
+							<input type="password" id="password" data-cy="password" name="password" class="input input-bordered"/>
+						</div>
+						<div class="flex flex-col mt-6">
+							<label for="role" class="text-sm">Benutzerrole:</label>
+							<select type="role" id="role" data-cy="role" name="role" class="select select-bordered">
+								<option selected value="athlete">Athlet</option>
+								<option value="admin">Administrator</option>
+							</select>
+						</div>
+						<button data-cy="modal-add-user-submit" type="submit" class="btn btn-primary w-full mt-6">Erstellen</button>
+					</form>
+				</div>
+			</div>
+		</dialog>
+		<button class="btn" onclick="add_user_modal.showModal()">open modal</button>
+	</div>
 }
 
 templ UserRow(user *model.User) {
