@@ -1,0 +1,29 @@
+package auth
+
+templ Login() {
+	<!DOCTYPE html>
+	<html data-theme="dim">
+		@AuthHead()
+		<body class="bg-gray-100 flex items-center justify-center h-screen">
+			<div class="rounded bg-white shadow-lg p-8 max-w-md w-full">
+				<form id="loginForm" hx-post="/login" class="space-y-4">
+					<h2 class="text-3xl font-bold text-center">Login</h2>
+					<label class="block text-sm font-semibold text-gray-600">Email</label>
+					<input class="w-full input input-bordered" name="email" type="text" placeholder="Email"/>
+					<label class="block text-sm font-semibold text-gray-600">Passwort</label>
+					<input class="w-full input input-bordered" name="password" type="password" placeholder="Password"/>
+					<div class="flex items-center justify-between">
+						<button class="btn btn-primary w-full" type="submit">Anmelden</button>
+					</div>
+					<div class="text-center">
+						<a class="text-blue-500 hover:underline" href="https://www.youtube.com/watch?v=4cDhUUjZ1G4">Passwort vergessen?</a>
+					</div>
+				</form>
+				<div class="text-center">
+					<span class="text-gray-600">Noch keinen Account?</span>
+					<a class="text-blue-500 hover:underline" href="/signup">Registrieren</a>
+				</div>
+			</div>
+		</body>
+	</html>
+}
