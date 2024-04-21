@@ -47,7 +47,7 @@ func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
 		return Render(c, utils.AlertError(msg), http.StatusBadRequest)
 	}
 
-	return Render(c, admin_dashboard.DeleteUserResponse(id), http.StatusOK)
+	return nil
 }
 
 func (h AdminDashboardHandler) AddUser(c echo.Context) error {
