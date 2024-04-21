@@ -2,10 +2,12 @@
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./**/*.html", "./**/*.templ", "./**/*.go",],
+  content: ["./**/*.html", "./**/*.templ", "./**/*.go"],
   theme: {
     extend: {},
   },
+  mode: "jit",
+  purge: ["./**/*.html", "./**/*.templ"],
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
     themes: [
@@ -43,4 +45,4 @@ module.exports = {
       "sunset",
     ],
   },
-}
+};
