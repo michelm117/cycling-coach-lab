@@ -28,18 +28,20 @@ make init
 
 3. Setup you `.env` file. See [.env.template](.env.template)
 
-## Running the Project
-You can run the project in two ways:
+## Local Development
+To run the server and watch for file changes simultaneously, follow these steps:
 
-
-### Using Go
-- This command will start the server on port 3000.
+1. Open two separate terminal tabs.
+2. In the first tab, start the server on port 3000 with the following command:
 ```sh
 make start
 ```
-- This command will start the server with hot reload on port 3000.
+3. In the second tab, generate the styles.css file by watching for file changes:
+```sh
+make tailwind
+```
 
-### Using Docker
+## Run App using Docker
 1. First, build the Docker image:
 ```sh
 make docker-build
