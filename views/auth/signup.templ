@@ -1,11 +1,13 @@
 package auth
 
+import (
+	"github.com/michelm117/cycling-coach-lab/views/layout"
+)
+
 templ Signup() {
-	<!DOCTYPE html>
-	<html data-theme="dim">
-		@AuthHead()
-		<body class="bg-blue-100 flex items-center justify-center h-screen">
-			<div class="rounded bg-white shadow-lg p-8 max-w-md w-full">
+	@layout.BaseLayout() {
+		<div class="flex items-center justify-center h-screen">
+			<div class="rounded bg-base-200 shadow-lg p-8 max-w-md w-full">
 				<form id="signupForm" hx-post="/signup" class="space-y-4">
 					<h2 class="text-3xl font-bold text-center">Registrieren</h2>
 					<div class="mb-4">
@@ -33,7 +35,14 @@ templ Signup() {
 					</div>
 					<div class="flex flex-col">
 						<label for="dateOfBirth" class="block text-sm font-semibold text-gray-600">Geburtsdatum:</label>
-						<input class="block text-sm font-semibold text-gray-600" type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required/>
+						<input
+							class="block text-sm font-semibold text-gray-600"
+							type="date"
+							id="dateOfBirth"
+							data-cy="dateOfBirth"
+							name="dateOfBirth"
+							required
+						/>
 					</div>
 					<div class="flex items-center justify-between">
 						<button class="btn btn-primary w-full" type="submit">Registrieren</button>
@@ -44,6 +53,6 @@ templ Signup() {
 					<a class="text-blue-500 hover:underline" href="/login">Anmelden</a>
 				</div>
 			</div>
-		</body>
-	</html>
+		</div>
+	}
 }

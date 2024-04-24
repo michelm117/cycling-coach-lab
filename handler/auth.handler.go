@@ -3,7 +3,6 @@ package handler
 import (
 	"crypto/rand"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -29,7 +28,7 @@ func NewLoginPageHandler(
 }
 
 func (l LoginPageHandler) HandleRenderLogin(c echo.Context) error {
-	return Render(c, auth.Login(), http.StatusOK)
+	return Render(c, auth.Login())
 }
 
 func generateRandomString(length int) (string, error) {
@@ -63,14 +62,13 @@ func (l LoginPageHandler) HandleLogin(c echo.Context) error {
 		sess, _ := session.Get("session", c)
 		sess.Options = &sessions.Options{
 			Path: "/",
-			//todo: this is seven days
+			// todo: this is seven days
 			MaxAge:   86400 * 7,
 			HttpOnly: true,
 		}
 		sessionId, _ := generateRandomString(255)
 		err := l.repo.AddSessionId(email, sessionId)
 		if err != nil {
-
 			return err
 		}
 		sess.Values["sessionId"] = sessionId
@@ -78,13 +76,12 @@ func (l LoginPageHandler) HandleLogin(c echo.Context) error {
 		c.Response().Header().Add("HX-Redirect", "/users")
 		return nil
 	} else {
-		//todo: show the user that the login failed -> set a header and then use alpinejs
-		return Render(c, auth.Login(), http.StatusOK)
+		return Warning("Invalid credentials")
 	}
 }
 
 func (l LoginPageHandler) HandleRenderSingUp(c echo.Context) error {
-	return Render(c, auth.Signup(), http.StatusOK)
+	return Render(c, auth.Signup())
 }
 
 func (l LoginPageHandler) HandleSingUp(c echo.Context) error {
@@ -99,16 +96,13 @@ func (l LoginPageHandler) HandleSingUp(c echo.Context) error {
 	password := c.FormValue("password")
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "Internal Server Error")
+		return Warning("Internal Server Error")
 	}
 
-	if err != nil {
-		return err
-	}
 	sess, _ := session.Get("session", c)
 	sess.Options = &sessions.Options{
 		Path: "/",
-		//todo: this is seven days
+		// todo: this is seven days
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
 	}
