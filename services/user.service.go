@@ -62,7 +62,6 @@ func (repo *UserService) GetByEmail(email string) (*model.User, error) {
 		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-		&user.SessionId,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -93,7 +92,6 @@ func (repo *UserService) GetAllUsers() ([]*model.User, error) {
 			&user.Role,
 			&user.CreatedAt,
 			&user.UpdatedAt,
-			&user.SessionId,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error while trying to execute query: %s", err)
@@ -111,7 +109,7 @@ func (repo *UserService) GetAllUsers() ([]*model.User, error) {
 
 func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 	_, err := repo.db.Exec(
-		"INSERT INTO users (email, firstname, lastname, date_of_birth, password_hash, status, role, session_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+		"INSERT INTO users (email, firstname, lastname, date_of_birth, password_hash, status, role) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		user.Email,
 		user.Firstname,
 		user.Lastname,
@@ -119,7 +117,6 @@ func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 		user.PasswordHash,
 		user.Status,
 		user.Role,
-		user.SessionId,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("user could not be added: %s", err)
@@ -133,7 +130,6 @@ func (repo *UserService) DeleteUser(id int) error {
 		"DELETE FROM users WHERE users.id = $1",
 		id,
 	)
-
 	if err != nil {
 		return fmt.Errorf("error while trying to execute query: %s", err)
 	}
