@@ -56,28 +56,28 @@ func (l LoginPageHandler) HandleLogin(c echo.Context) error {
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
-	fmt.Println(string(hashedPassword))
-	fmt.Println(user.PasswordHash)
-	if err == nil {
-		sess, _ := session.Get("session", c)
-		sess.Options = &sessions.Options{
-			Path: "/",
-			// todo: this is seven days
-			MaxAge:   86400 * 7,
-			HttpOnly: true,
-		}
-		sessionId, _ := generateRandomString(255)
-		err := l.repo.AddSessionId(email, sessionId)
-		if err != nil {
-			return err
-		}
-		sess.Values["sessionId"] = sessionId
-		sess.Save(c.Request(), c.Response())
-		c.Response().Header().Add("HX-Redirect", "/users")
-		return nil
-	} else {
+	if err != nil {
 		return Warning("Invalid credentials")
 	}
+	fmt.Println(string(hashedPassword))
+	fmt.Println(user.PasswordHash)
+	sess, _ := session.Get("session", c)
+	sess.Options = &sessions.Options{
+		Path: "/",
+		// todo: this is seven days
+		MaxAge:   86400 * 7,
+		HttpOnly: true,
+	}
+	// Todo: use uuid by postgres
+	sessionId, _ := generateRandomString(255)
+	err = l.repo.AddSessionId(email, sessionId)
+	if err != nil {
+		return err
+	}
+	sess.Values["sessionId"] = sessionId
+	sess.Save(c.Request(), c.Response())
+	c.Response().Header().Add("HX-Redirect", "/users")
+	return nil
 }
 
 func (l LoginPageHandler) HandleRenderSingUp(c echo.Context) error {

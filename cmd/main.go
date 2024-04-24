@@ -56,7 +56,6 @@ func main() {
 func authMiddleware(userService services.UserService) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			fmt.Println("aaah")
 			sess, err := session.Get("session", c)
 			if err != nil {
 				return c.Redirect(http.StatusTemporaryRedirect, "/login")
@@ -79,6 +78,8 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	}
 
 	app.HTTPErrorHandler = customErrorHandler
+
+	// Todo: use secret key pair instead of hardcoded string
 	app.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 
 	app.GET("/", func(c echo.Context) error {
