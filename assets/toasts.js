@@ -6,7 +6,8 @@ const onMakeToast = async (e) => {
   const message = e.detail.message;
 
   // Add toast to the queue
-  toasts.push({ level, message });
+  //toasts.push({ level, message });
+  window.toast(message, { type: level });
 
   // If the toast queue is not running, start it
   if (!isToastQueueRunning) {

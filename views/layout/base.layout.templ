@@ -14,7 +14,7 @@ templ BaseLayout() {
             window.toast = function(message, options = {}){
                 let description = '';
                 let type = 'default';
-                let position = 'top-center';
+                let position = 'top-right';
                 let html = '';
                 if(typeof options.description != 'undefined') description = options.description;
                 if(typeof options.type != 'undefined') type = options.type;
@@ -287,7 +287,7 @@ templ ToastNotifications() {
                     let burnToast = document.getElementById( this.toasts[3].id );
                     burnToast.style.zIndex = 70;
                     if(this.expanded){
-                        burnToastPosition = topToast.getBoundingClientRect().height + 
+                        burnoastPosition = topToast.getBoundingClientRect().height + 
                                                 this.paddingBetweenToasts + 
                                                 middleToast.getBoundingClientRect().height + 
                                                 this.paddingBetweenToasts + 
