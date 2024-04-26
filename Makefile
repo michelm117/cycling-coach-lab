@@ -25,12 +25,22 @@ generate:
 	@templ generate 
 	@npx tailwindcss -o assets/styles.css --minify
 
+generate-dev:
+	@echo "Generating mocks..."
+	@./scripts/generate-mocks.sh
 
 ## run: run local project
 run: generate
 	@echo "Running project..."
 	@go run cmd/main.go
 
+
+## reset database migrations
+.PHONY: reset-db
+reset-db:
+	@echo "Resetting database..."
+	@migrate -path ./migrations/ -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down
+	@migrate -path ./migrations/ -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
 
 ## start: build and run project with hot reload
 .PHONY: start
@@ -56,6 +66,25 @@ test: generate
 	@echo "Running tests..."
 	@go test -race -cover ./...
 
+.PHONY: test-coverage
+test-coverage: generate
+	@echo "Running tests with coverage..."
+	@go test -coverprofile ./tmp/cover.out ./...
+	@go tool cover -html=./tmp/cover.out
+
+.PHONY: update-snapshots
+update-snapshots:
+	UPDATE_SNAPS=true go test ./...
+
+.PHONY: cypress
+cypress:
+	@echo "Running cypress tests..."
+	@CYPRESS_APP_VERSION=1.2.0 npx cypress run
+
+.PHONY: cypress-open
+cypress-open:
+	@echo "Running cypress tests..."
+	@CYPRESS_APP_VERSION=1.2.0 npx cypress open
 
 ## docker-build: build project into a docker container image
 .PHONY: docker-build

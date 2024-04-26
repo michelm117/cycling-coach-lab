@@ -1,10 +1,4 @@
 describe("Utils handler routes", () => {
-  it("/ should redirect to /users", () => {
-    cy.login("user1@example.com", "1234")
-    cy.visit("/");
-    cy.url().should("include", "/users");
-  });
-
   it("version route should return version", () => {
     cy.request("/version").then((response) => {
       const version = Cypress.env("APP_VERSION");

@@ -23,12 +23,11 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-
-// cypress/support/commands.js
+export {};
 
 Cypress.Commands.add("login", (email, password) => {
-  console.log("it worked");
   cy.session([email, password], () => {
+    cy.log("Logging in");
     cy.request({
       method: "POST",
       url: "/auth/login",
@@ -41,3 +40,43 @@ Cypress.Commands.add("login", (email, password) => {
   });
 });
 
+Cypress.Commands.add(
+  "addUser",
+  (firstname, lastname, email, dateOfBirth, password, role) => {
+    cy.request({
+      method: "POST",
+      url: "/users",
+      form: true,
+      body: {
+        firstname,
+        lastname,
+        email,
+        dateOfBirth,
+        password,
+        role,
+      },
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+    });
+  },
+);
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      /**
+       * Custom command to login
+       * @example cy.login('email', 'password')
+       */
+      login(email: string, password: string): void;
+      addUser(
+        firstName: string,
+        lastName: string,
+        email: string,
+        dateOfBirth: string,
+        password: string,
+        role: string,
+      ): void;
+    }
+  }
+}

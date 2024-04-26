@@ -6,7 +6,7 @@ import (
 )
 
 func CheckForRequiredEnvVars() error {
-	requiredVars := []string{"ENV", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "VERSION"}
+	requiredVars := []string{"ENV", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "VERSION", "SESSION_SECRET"}
 
 	for _, key := range requiredVars {
 		value := os.Getenv(key)

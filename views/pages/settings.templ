@@ -1,0 +1,25 @@
+package pages
+
+import (
+"github.com/michelm117/cycling-coach-lab/model"
+"github.com/michelm117/cycling-coach-lab/views/layout"
+)
+
+templ SettingsIndex(au *model.User) {
+@layout.DashboardLayout(au) {
+<div class="prose">
+  <h1>Einstellungen</h1>
+  <h3>Anwendung zurücksetzen</h3>
+  <p>
+    Wenn du die Anwendung zurücksetzt, werden <b>ALLE</b> Daten gelöscht. Dazu gehören alle Benutzer und deren
+    Trainingsdaten. Das betrifft auch
+    deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die Anwendung dann wieder neu einrichten. Bist
+    du sicher, dass du die Anwendung zurücksetzen möchtest?
+  </p>
+  <p>Diese Aktion kann nicht rückgängig gemacht werden. </p>
+  <form hx-post="/settings/reset" hx-swap="none">
+    <button data-cy="reset" type="submit" class="btn btn-warning">Anwendung zurücksetzen</button>
+  </form>
+</div>
+}
+}

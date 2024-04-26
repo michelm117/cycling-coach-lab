@@ -16,6 +16,7 @@ import (
 
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/handler"
+	"github.com/michelm117/cycling-coach-lab/middlewares"
 	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
@@ -28,7 +29,11 @@ func main() {
 
 	logger := initLogger()
 	logger.Infof("Starting server in `%s` mode", os.Getenv("ENV"))
-	db := db.ConnectToDatabase(logger)
+	database := db.ConnectToDatabase(logger)
+	migrator := db.NewMigrator(database, "migrations", logger)
+	if err := migrator.Up(); err != nil {
+		log.Fatal(err)
+	}
 	app := echo.New()
 
 	// Serve static files
@@ -36,7 +41,7 @@ func main() {
 	logger.Infof("Serving static files from: %s", assetsPath)
 	app.Static("/assets", assetsPath)
 
-	Setup(app, db, logger)
+	Setup(app, database, migrator, logger)
 	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -51,36 +56,16 @@ func main() {
 	app.Logger.Fatal(app.Start(address))
 }
 
-// Middleware to check if the user is authenticated
-// TODO: move to own package
-func authMiddleware(sessionService services.SessionService) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			browserSession, err := session.Get("cycling-coach-lab", c)
-			if err != nil {
-				return c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
-			}
-
-			sessionID, _ := browserSession.Values["sessionId"].(string)
-			_, err = sessionService.GetUserBySession(sessionID)
-			if err != nil {
-				return c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
-			}
-			return next(c)
-		}
-	}
-}
-
-func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
-	app.Use(middleware.Logger())
+func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.SugaredLogger) {
 	if os.Getenv("ENV") == "production" {
+		app.Use(middleware.Logger())
 		app.Use(middleware.Recover())
 	}
 
 	app.HTTPErrorHandler = customErrorHandler
 
-	// TODO: use secret key pair instead of hardcoded string
-	app.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
+	secret := os.Getenv("SESSION_SECRET")
+	app.Use(session.Middleware(sessions.NewCookieStore([]byte(secret))))
 
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
@@ -91,25 +76,35 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	app.GET("/health", utilsHandler.HealthCheck)
 	app.GET("/version", utilsHandler.Version)
 
-	globalSettingsService := services.NewGlobalSettingService(db, logger)
-	userService := services.NewUserService(db, logger)
-	setupHandler := handler.NewSetupHandler(globalSettingsService, userService, logger)
-	sessionService := services.NewSessionService(db, logger)
+	cryptoer := utils.NewCrypto()
+	browserSessionManager := utils.NewBrowserSessionManager()
+	globalSettingsServicer := services.NewGlobalSettingService(db, logger)
+	userServicer := services.NewUserServicer(db, logger)
+	sessionService := services.NewSessionServicer(db, logger)
+	sessionService.ScheduleSessionCleanup()
 
+	setupHandler := handler.NewSetupHandler(globalSettingsServicer, userServicer, cryptoer, logger)
 	app.GET("/setup", setupHandler.RenderSetup)
 	app.POST("/setup", setupHandler.Setup)
 
-	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
+	userManagementHandler := handler.NewUserManagementHandler(userServicer, cryptoer, logger)
 	usersRoute := app.Group("/users")
-	usersRoute.Use(authMiddleware(*sessionService))
-	usersRoute.POST("", dashboardHandler.AddUser)
-	usersRoute.GET("", dashboardHandler.ListUsers)
-	usersRoute.DELETE("/:id", dashboardHandler.DeleteUser)
+	usersRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
+	usersRoute.POST("", userManagementHandler.RenderAddUser)
+	usersRoute.GET("", userManagementHandler.RenderUserTable)
+	usersRoute.DELETE("/:id", userManagementHandler.DeleteUser)
 
-	auth := handler.NewAuthHandler(userService, sessionService, globalSettingsService, logger)
+	authHandler := handler.NewAuthHandler(userServicer, sessionService, globalSettingsServicer, browserSessionManager, cryptoer, logger)
 	authRoute := app.Group("/auth")
-	authRoute.GET("/login", auth.RenderLogin)
-	authRoute.POST("/login", auth.Login)
+	authRoute.GET("/login", authHandler.RenderLogin)
+	authRoute.POST("/login", authHandler.Login)
+	authRoute.POST("/logout", authHandler.Logout)
+
+	settingsHandler := handler.NewSettingsHandler(migrator, logger)
+	settingsRoute := app.Group("/settings")
+	settingsRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
+	settingsRoute.GET("", settingsHandler.RenderSettings)
+	settingsRoute.POST("/reset", settingsHandler.Reset)
 }
 
 func initLogger() *zap.SugaredLogger {
@@ -126,24 +121,22 @@ func initLogger() *zap.SugaredLogger {
 	return logger.Sugar()
 }
 
+// TODO: move to utils/toast.go
 func customErrorHandler(err error, c echo.Context) {
 	// Attempt casting the error as a Toast.
-	te, ok := err.(handler.Toast)
+	te, ok := err.(utils.Toast)
 
 	// If it canot be cast as a Toast, it must be some other error
 	// we did not handle. We will handle it here and return a more
 	// generic error message. We don't want system errors to bleed
 	// through to the user.
 	if !ok {
-		if os.Getenv("ENV") == "development" {
-			te = handler.Danger("there has been an unexpected error:\n" + err.Error())
-		} else {
-			te = handler.Danger("there has been an unexpected error")
-		}
+		te = utils.Danger("there has been an unexpected error")
+		fmt.Println("Unexpected error:", err.Error())
 	}
 
 	// If not a success error (weird right) set the HX-Swap header to `none`.
-	if te.Level != handler.SUCCESS {
+	if te.Level != utils.SUCCESS {
 		c.Response().Header().Set("HX-Reswap", "none")
 	}
 

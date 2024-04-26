@@ -23,6 +23,7 @@ This is a Go project that uses the [Echo](https://echo.labstack.com) framework f
 ```sh
 go install github.com/cosmtrek/air@latest
 go install github.com/a-h/templ/cmd/templ@latest
+go install go.uber.org/mock/mockgen@latest
 make init
 ```
 
@@ -60,6 +61,21 @@ This command will start the server on port 8080.
 To run the unit tests:
 ```sh
 make test
+```
+
+To get test coverage:
+```sh
+make test-coverage
+```
+
+To generate mocks:
+```sh
+make generate-dev
+```
+
+To update snapshots:
+```sh
+make update-snapshots
 ```
 
 

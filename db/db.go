@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/golang-migrate/migrate/v4"
+	// "github.com/golang-migrate/migrate/v4"
 	_ "github.com/jackc/pgx/stdlib"
 	"go.uber.org/zap"
 )
@@ -26,16 +26,19 @@ func ConnectToDatabase(logger *zap.SugaredLogger) *sql.DB {
 		log.Fatalf("Error while pinging to db cause: %s", err.Error())
 	}
 
-	logger.Info("Creating migrator")
-	migrator, err := NewMigrator(database, logger, "migrations")
-	if err != nil {
-		log.Fatalf("Failed to create migrator: %s", err)
-	}
+	// logger.Info("Creating migrator")
+	// if err := migrator.Up(); err != nil && err != migrate.ErrNoChange {
+	// 	log.Fatalf("Failed to run migrations: %s", err)
+	// }
+	// // migrator, err := NewMigrator(database, logger, "migrations")
+	// if err != nil {
+	// 	log.Fatalf("Failed to create migrator: %s", err)
+	// }
 
-	logger.Info("Running migrations")
-	if err := migrator.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatalf("Failed to run migrations: %s", err)
-	}
+	// logger.Info("Running migrations")
+	// if err := migrator.Up(); err != nil && err != migrate.ErrNoChange {
+	// 	log.Fatalf("Failed to run migrations: %s", err)
+	// }
 
 	return database
 }

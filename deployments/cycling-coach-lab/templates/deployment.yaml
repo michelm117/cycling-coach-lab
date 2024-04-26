@@ -80,6 +80,8 @@ spec:
             {{- end }}
             - name: VERSION
               value: {{ .Values.version | quote }}
+            - name: SESSION_SECRET
+              value: {{ .Values.sessionSecret | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
