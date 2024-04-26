@@ -1,0 +1,49 @@
+package pages
+
+import (
+	"github.com/michelm117/cycling-coach-lab/views/layout"
+)
+
+templ Setup() {
+	@layout.BaseLayout() {
+		<div class="flex items-center justify-center h-full">
+			<div class="rounded bg-base-200 shadow-lg p-8 max-w-md w-full">
+				<form id="signupForm" hx-post="/setup" class="space-y-4">
+					<h2 class="text-3xl font-bold text-center">Cycling Coach Lab</h2>
+					<h2 class="text-2xl font-bold text-center">Application Setup</h2>
+					<p>Bitte fülle die folgenden Felder aus, um den Admin Account zu erstellen.</p>
+					<div class="mb-4">
+						<label class="block text-sm font-semibold text-gray-600">Vorname</label>
+						<input class="w-full input input-bordered" name="firstname" type="text" placeholder="Vorname"/>
+					</div>
+					<div class="mb-4">
+						<label class="block text-sm font-semibold text-gray-600">Name</label>
+						<input class="w-full input input-bordered" name="lastname" type="text" placeholder="Name"/>
+					</div>
+					<div class="mb-4">
+						<label class="block text-sm font-semibold text-gray-600">Email</label>
+						<input class="w-full input input-bordered" name="email" type="email" placeholder="Email"/>
+					</div>
+					<div class="mb-4">
+						<label class="block text-sm font-semibold text-gray-600">Passwort</label>
+						<input class="w-full input input-bordered" name="password" type="password" placeholder="Passwort"/>
+					</div>
+					<div class="flex flex-col">
+						<label for="dateOfBirth" class="block text-sm font-semibold text-gray-600">Geburtsdatum:</label>
+						<input
+							class="block text-sm font-semibold text-gray-600"
+							type="date"
+							id="dateOfBirth"
+							data-cy="dateOfBirth"
+							name="dateOfBirth"
+							required
+						/>
+					</div>
+					<div class="flex items-center justify-between">
+						<button class="btn btn-primary w-full" type="submit">Registrieren</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	}
+}

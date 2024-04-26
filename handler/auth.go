@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/michelm117/cycling-coach-lab/services"
-	views "github.com/michelm117/cycling-coach-lab/views/auth"
+	"github.com/michelm117/cycling-coach-lab/views/pages"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -18,25 +19,32 @@ const (
 )
 
 type AuthHandler struct {
-	userService    *services.UserService
-	sessionService *services.SessionService
-	logger         *zap.SugaredLogger
+	userService          *services.UserService
+	sessionService       *services.SessionService
+	globalSettingService *services.GlobalSettingService
+	logger               *zap.SugaredLogger
 }
 
 func NewAuthHandler(
 	userService *services.UserService,
 	sessionService *services.SessionService,
+	globalSettingService *services.GlobalSettingService,
 	logger *zap.SugaredLogger,
 ) AuthHandler {
 	return AuthHandler{
-		userService:    userService,
-		sessionService: sessionService,
-		logger:         logger,
+		userService:          userService,
+		sessionService:       sessionService,
+		globalSettingService: globalSettingService,
+		logger:               logger,
 	}
 }
 
 func (h AuthHandler) RenderLogin(c echo.Context) error {
-	return Render(c, views.Login())
+	if !h.globalSettingService.IsAppInitialized() {
+		return c.Redirect(http.StatusTemporaryRedirect, "/setup")
+	}
+
+	return Render(c, pages.Login())
 }
 
 func (h AuthHandler) Login(c echo.Context) error {

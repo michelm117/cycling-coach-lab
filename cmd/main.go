@@ -86,12 +86,18 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
 	})
 
+	// Health check and version endpoints
 	utilsHandler := handler.NewUtilsHandler(db)
 	app.GET("/health", utilsHandler.HealthCheck)
 	app.GET("/version", utilsHandler.Version)
 
+	globalSettingsService := services.NewGlobalSettingService(db, logger)
 	userService := services.NewUserService(db, logger)
+	setupHandler := handler.NewSetupHandler(globalSettingsService, userService, logger)
 	sessionService := services.NewSessionService(db, logger)
+
+	app.GET("/setup", setupHandler.RenderSetup)
+	app.POST("/setup", setupHandler.Setup)
 
 	dashboardHandler := handler.NewAdminDashboardHandler(userService, logger)
 	usersRoute := app.Group("/users")
@@ -100,7 +106,7 @@ func Setup(app *echo.Echo, db *sql.DB, logger *zap.SugaredLogger) {
 	usersRoute.GET("", dashboardHandler.ListUsers)
 	usersRoute.DELETE("/:id", dashboardHandler.DeleteUser)
 
-	auth := handler.NewAuthHandler(userService, sessionService, logger)
+	auth := handler.NewAuthHandler(userService, sessionService, globalSettingsService, logger)
 	authRoute := app.Group("/auth")
 	authRoute.GET("/login", auth.RenderLogin)
 	authRoute.POST("/login", auth.Login)

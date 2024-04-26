@@ -31,8 +31,8 @@ func NewGlobalSettingService(db *sql.DB, logger *zap.SugaredLogger) *GlobalSetti
 
 func (s *GlobalSettingService) Create(setting *model.GlobalSetting) error {
 	query := `
-		INSERT INTO Configuration.GlobalSettings(SectionName, SettingName, SettingValue, SettingType)
-		VALUES (?, ?, ?, ?)
+		INSERT INTO globalSettings(SectionName, SettingName, SettingValue, SettingType)
+		VALUES ($1, $2, $3, $4)
 	`
 	_, err := s.db.Exec(query,
 		strings.ToLower(setting.SectionName),
@@ -49,8 +49,8 @@ func (s *GlobalSettingService) Create(setting *model.GlobalSetting) error {
 func (s *GlobalSettingService) GetBySectionAndName(sectionName, settingName string) (interface{}, error) {
 	query := `
 		SELECT SectionName, SettingName, SettingValue, SettingType
-		FROM Configuration.GlobalSettings
-		WHERE SectionName = ? AND SettingName = ?
+		FROM globalSettings
+		WHERE SectionName = $1 AND SettingName = $2
 	`
 	row := s.db.QueryRow(query, sectionName, settingName)
 	setting := &model.GlobalSetting{}
@@ -100,4 +100,14 @@ func (s *GlobalSettingService) IsAppInitialized() bool {
 		return false
 	}
 	return val.(bool)
+}
+
+func (s *GlobalSettingService) InitializeApp() error {
+	setting := &model.GlobalSetting{
+		SectionName:  "app",
+		SettingName:  "initialized",
+		SettingValue: "true",
+		SettingType:  booleanSetting,
+	}
+	return s.Create(setting)
 }

@@ -11,7 +11,7 @@ import (
 
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/services"
-	"github.com/michelm117/cycling-coach-lab/views/admin_dashboard"
+	"github.com/michelm117/cycling-coach-lab/views/pages"
 )
 
 type AdminDashboardHandler struct {
@@ -31,7 +31,7 @@ func (h AdminDashboardHandler) ListUsers(c echo.Context) error {
 	if err != nil {
 		return Warning("Error while looking for all users")
 	}
-	return Render(c, admin_dashboard.Index(users))
+	return Render(c, pages.Index(users))
 }
 
 func (h AdminDashboardHandler) DeleteUser(c echo.Context) error {
@@ -79,5 +79,5 @@ func (h AdminDashboardHandler) AddUser(c echo.Context) error {
 	}
 
 	Success(c, fmt.Sprintf("User '%s' added successfully", user.Email))
-	return Render(c, admin_dashboard.AddUserResponse(&user))
+	return Render(c, pages.AddUserResponse(&user))
 }

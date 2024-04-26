@@ -17,4 +17,4 @@ CREATE TABLE globalSettings
     SettingType SMALLINT DEFAULT 0
 );
 
-INSERT INTO globalSettings (SectionName, SettingName, SettingValue, SettingType) VALUES ('APP', 'setup_completed', 'false', 2);
+INSERT INTO globalSettings (SectionName, SettingName, SettingValue, SettingType) VALUES ('APP', 'initialized', 'false', 2);
