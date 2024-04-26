@@ -1,169 +1,71 @@
-package admin_dashboard
+package handler_test
 
 import (
-	"github.com/michelm117/cycling-coach-lab/model"
-	"github.com/michelm117/cycling-coach-lab/views/layout"
-	"github.com/michelm117/cycling-coach-lab/views/components"
-	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
+
+	"github.com/michelm117/cycling-coach-lab/handler"
+	"github.com/michelm117/cycling-coach-lab/mocks"
+	"github.com/michelm117/cycling-coach-lab/test_utils"
 )
 
-templ UserTable(users []*model.User) {
-	<div class="h-full overflow-auto">
-		<table class="table table-auto">
-			<thead>
-				<tr>
-					<th>Benutzer</th>
-					<th>Status</th>
-					<th>Registriert seit</th>
-					<th>Aktionen</th>
-				</tr>
-			</thead>
-			<tbody id="user-table" data-cy="user-table">
-				for _, user:= range users {
-					@UserRow(user)
-				}
-			</tbody>
-		</table>
-	</div>
+func TestRenderSetup(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mg := mocks.NewMockGlobalSettingServicer(ctrl)
+
+	t.Run("App already initialized", func(t *testing.T) {
+		mg.EXPECT().IsAppInitialized().Return(true)
+
+		handler := handler.NewSetupHandler(mg, nil, nil)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/setup", nil)
+		rec := httptest.NewRecorder()
+		c := echo.New().NewContext(req, rec)
+
+		// Call the handler
+		assert.NoError(t, handler.RenderSetup(c))
+		assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	})
+
+	t.Run("App not initialized", func(t *testing.T) {
+		mg.EXPECT().IsAppInitialized().Return(false)
+
+		handler := handler.NewSetupHandler(mg, nil, nil)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/setup", nil)
+		rec := httptest.NewRecorder()
+		c := echo.New().NewContext(req, rec)
+
+		// Call the handler
+		assert.NoError(t, handler.RenderSetup(c))
+		assert.Equal(t, http.StatusOK, rec.Code)
+		test_utils.MakeSnapshot(t, rec.Body.String())
+	})
 }
 
-templ AddUserDialog() {
-	<div id="add-user-modal-wrapper">
-		<dialog id="add_user_modal" class="modal modal-bottom sm:modal-middle">
-			<div class="modal-box block p-6 leading-6">
-				<h3 class="font-bold text-lg">Benutzer hinzufügen</h3>
-				<div class="flex flex-col justify-center mt-6"></div>
-				@AddUserForm()
-			</div>
-		</dialog>
-		<button class="btn btn-circle absolute right-20 bottom-20" onclick="add_user_modal.showModal()">
-			<i class="fa-solid fa-plus"></i>
-		</button>
-	</div>
-}
+func TestSetup(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mg := mocks.NewMockGlobalSettingServicer(ctrl)
 
-templ AddUserForm() {
-	<form hx-post="/users" method="dialog" class="w-full space-y-4">
-		<div class="grid sm:grid-cols-2 gap-4">
-			<div class="flex flex-col">
-				<label for="firstname" class="text-sm">Vorname:</label>
-				<input data-cy="firstname" type="text" id="firstname" name="firstname" class="input input-bordered"/>
-			</div>
-			<div class="flex flex-col">
-				<label for="lastname" class="text-sm">Nachname:</label>
-				<input type="text" id="lastname" data-cy="lastname" name="lastname" class="input input-bordered"/>
-			</div>
-		</div>
-		<div class="flex flex-col">
-			<label for="lastname" class="text-sm">Geburtsdatum:</label>
-			<input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="email" class="text-sm">Email:</label>
-			<input type="email" id="email" data-cy="email" name="email" class="input input-bordered"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="password" class="text-sm">Passwort:</label>
-			<input type="password" id="password" data-cy="password" name="password" class="input input-bordered"/>
-		</div>
-		<div class="flex flex-col">
-			<label for="role" class="text-sm">Benutzerrole:</label>
-			<select type="role" id="role" data-cy="role" name="role" class="select select-bordered">
-				<option selected value="athlete">Athlet</option>
-				<option value="admin">Administrator</option>
-			</select>
-		</div>
-		<button data-cy="modal-add-user-submit" type="submit" class="btn btn-primary w-full mt-6">Erstellen</button>
-	</form>
-}
+	t.Run("App already initialized", func(t *testing.T) {
+		mg.EXPECT().IsAppInitialized().Return(true)
 
-templ UserRow(user *model.User) {
-	<tr id={ fmt.Sprintf("%v", user.ID) } data-cy="user-row">
-		<td>
-			<div class="flex items-center gap-3">
-				@components.Avatar(user.Firstname, user.Lastname)
-				<div>
-					<div class="font-bold" id="user-firstname">
-						{ user.Firstname } { user.Lastname }
-					</div>
-					<div class="text-sm opacity-50" data-cy="user-email" id="user-email">
-						{ user.Email }
-					</div>
-				</div>
-			</div>
-		</td>
-		<td>
-			<span
-				class={ "indicator-item indicator-middle indicator-center badge" , templ.KV("badge-info",
-      user.Status=="active" ), templ.KV("badge-warning", user.Status=="inactive" ) }
-			>
-				{ user.Status }
-			</span>
-		</td>
-		<td>2023/12/12</td>
-		<td class="dropdown dropdown-left overflow-visible">
-			<div data-cy="open-actions" tabindex="0" role="button" class="btn m-1 btn-xs btn-ghost" d>
-				<i class="fa-solid fa-ellipsis-vertical"></i>
-			</div>
-			<ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-52">
-				<li onclick="confirm_user_deletion_modal.showModal()" @click={ fmt.Sprintf("userIdToDelete=%v", user.ID) }>
-					<a>Löschen</a>
-				</li>
-				<li><a>Item 2</a></li>
-			</ul>
-		</td>
-	</tr>
-}
+		handler := handler.NewSetupHandler(mg, nil, nil)
 
-templ AddUserResponse(user *model.User) {
-	<tbody id="user-table" data-cy="user-table" hx-swap-oob="beforeend:#user-table">
-		@UserRow(user)
-	</tbody>
-	@AddUserForm()
-}
+		// Create a request
+		req := httptest.NewRequest(http.MethodPost, "/setup", nil)
+		rec := httptest.NewRecorder()
+		c := echo.New().NewContext(req, rec)
 
-templ DeleteUserResponse(user *model.User) {
-	<tbody id="user-table" data-cy="user-table" hx-swap-oob="#2"></tbody>
-}
-
-templ ConfirmDeleteUserModal() {
-	<dialog id="confirm_user_deletion_modal" class="modal modal-bottom sm:modal-middle z-50">
-		<div class="modal-box">
-			<h3 class="font-bold text-lg">Bist du sicher, dass du diesen Benutzer löschen möchtest?</h3>
-			<p class="py-4">Diese Aktion kann nicht rückgängig gemacht werden</p>
-			<div class="modal-action">
-				<form method="dialog">
-					<button data-cy="modal-user-delete-cancel" class="btn">Abbrechen</button>
-					<button
-						data-cy="modal-user-delete-confirm"
-						class="btn btn-warning"
-						hx-delete="/users/2"
-						hx-target="closest tr"
-						hx-swap="outerHTML"
-					>
-						Ja, löschen!
-					</button>
-				</form>
-			</div>
-		</div>
-	</dialog>
-}
-
-templ Index(users []*model.User) {
-	@layout.BaseLayout() {
-		<div x-data="{userIdToDelete: null}">
-			@UserTable(users)
-			@AddUserDialog()
-			@ConfirmDeleteUserModal()
-		</div>
-		<button
-			data-cy="modal-user-delete-confirm"
-			class="btn btn-warning"
-			hx-delete="/users/3"
-			hx-target="#1"
-			hx-swap="outerHTML"
-		>
-			Ja, löschen!
-		</button>
-	}
+		// Call the handler
+		assert.NoError(t, handler.RenderSetup(c))
+		assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+	})
 }

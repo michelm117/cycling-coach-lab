@@ -1,9 +1,11 @@
-describe("Sidebar", () => {
-  describe("on mobile", () => {
+import users from "../../fixtures/users.json";
+
+describe("Dashboard Sidebar", () => {
+  const testSidebarMobile = () => {
     beforeEach(() => {
       cy.viewport("iphone-6");
-      console.log("it worked")
-      cy.login("user1@example.com", "1234")
+      const { email, password } = users.createdAdmin;
+      cy.login(email, password);
       cy.visit("/");
     });
 
@@ -18,12 +20,13 @@ describe("Sidebar", () => {
       cy.get('[data-cy="sidebar-overlay"]').click();
       cy.get('[data-cy="sidebar"]').should("not.be.visible");
     });
-  });
+  };
 
-  describe("on desktop", () => {
+  const testSidebarDesktop = () => {
     beforeEach(() => {
       cy.viewport("macbook-15");
-      cy.login("user1@example.com", "1234")
+      const { email, password } = users.createdAdmin;
+      cy.login(email, password);
       cy.visit("/");
     });
 
@@ -34,12 +37,13 @@ describe("Sidebar", () => {
     it("should not be able to close", () => {
       cy.get('[data-cy="sidebar-open"]').should("not.be.visible");
     });
-  });
+  };
 
-  describe("navigation", () => {
+  const testSidebarNavigation = () => {
     beforeEach(() => {
       cy.viewport("macbook-15");
-      cy.login("user1@example.com", "1234")
+      const { email, password } = users.createdAdmin;
+      cy.login(email, password);
       cy.visit("/");
     });
 
@@ -47,5 +51,11 @@ describe("Sidebar", () => {
       cy.get('[data-cy="sidebar-user-management"]').click();
       cy.url().should("eq", Cypress.config().baseUrl + "/users");
     });
-  });
+  };
+
+  describe("on mobile", testSidebarMobile);
+
+  describe("on desktop", testSidebarDesktop);
+
+  describe("navigation", testSidebarNavigation);
 });

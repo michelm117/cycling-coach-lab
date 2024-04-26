@@ -7,33 +7,36 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/services"
+	"github.com/michelm117/cycling-coach-lab/utils"
 	"github.com/michelm117/cycling-coach-lab/views/pages"
 
 	"go.uber.org/zap"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type SetupHandler struct {
-	globalSettingService *services.GlobalSettingService
-	userService          *services.UserService
-	logger               *zap.SugaredLogger
+	globalSettingServicer services.GlobalSettingServicer
+	userServicer          services.UserServicer
+	cryptoer              utils.Cryptoer
+	logger                *zap.SugaredLogger
 }
 
 func NewSetupHandler(
-	globalSettingService *services.GlobalSettingService,
-	userService *services.UserService,
+	globalSettingService services.GlobalSettingServicer,
+	userService services.UserServicer,
+	cryptoer utils.Cryptoer,
 	logger *zap.SugaredLogger,
 ) SetupHandler {
 	return SetupHandler{
-		globalSettingService: globalSettingService,
-		userService:          userService,
-		logger:               logger,
+		globalSettingServicer: globalSettingService,
+		userServicer:          userService,
+		cryptoer:              cryptoer,
+		logger:                logger,
 	}
 }
 
 func (h SetupHandler) Setup(c echo.Context) error {
-	if h.globalSettingService.IsAppInitialized() {
-		return Warning("App already initialized")
+	if h.globalSettingServicer.IsAppInitialized() {
+		return utils.Warning("App already initialized")
 	}
 
 	firstname := c.FormValue("firstname")
@@ -43,13 +46,13 @@ func (h SetupHandler) Setup(c echo.Context) error {
 	dateOfBirthStr := c.FormValue("dateOfBirth")
 	dateOfBirth, err := time.Parse("2006-01-02", dateOfBirthStr)
 	if err != nil {
-		return Warning("Invalid date of birth")
+		return utils.Warning("Invalid date of birth")
 	}
 
 	password := c.FormValue("password")
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := h.cryptoer.GenerateFromPassword([]byte(password))
 	if err != nil {
-		return Warning("Internal server error")
+		return utils.Warning("Internal server error")
 	}
 
 	u := model.User{
@@ -61,19 +64,24 @@ func (h SetupHandler) Setup(c echo.Context) error {
 		Status:       "active",
 		PasswordHash: string(hashedPassword),
 	}
-	_, err = h.userService.AddUser(u)
+
+	_, err = h.userServicer.AddUser(u)
 	if err != nil {
-		return Warning("Internal server error")
+		h.logger.Error(err)
+		return utils.Warning("Internal server error")
 	}
 
-	h.globalSettingService.InitializeApp()
+	err = h.globalSettingServicer.InitializeApp()
+	if err != nil {
+		return utils.Warning("Internal server error")
+	}
 
 	c.Response().Header().Add("HX-Redirect", "/auth/login")
 	return nil
 }
 
 func (h SetupHandler) RenderSetup(c echo.Context) error {
-	if !h.globalSettingService.IsAppInitialized() {
+	if !h.globalSettingServicer.IsAppInitialized() {
 		return Render(c, pages.Setup())
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/users")

@@ -1,0 +1,91 @@
+package handler_test
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
+	"go.uber.org/zap/zaptest"
+
+	"github.com/michelm117/cycling-coach-lab/handler"
+	"github.com/michelm117/cycling-coach-lab/mocks"
+	"github.com/michelm117/cycling-coach-lab/model"
+	"github.com/michelm117/cycling-coach-lab/test_utils"
+)
+
+func TestRenderSettingspage(t *testing.T) {
+	au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com"}
+	handler := handler.NewSettingsHandler(nil, nil)
+
+	// Create a request
+	req := httptest.NewRequest(http.MethodGet, "/settings", nil)
+	rec := httptest.NewRecorder()
+	c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+
+	// Call the handler
+	assert.NoError(t, handler.RenderSettings(c))
+	assert.Equal(t, http.StatusOK, rec.Code)
+	test_utils.MakeSnapshot(t, rec.Body.String())
+}
+
+func TestReset(t *testing.T) {
+	logger := zaptest.NewLogger(t).Sugar()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mm := mocks.NewMockMigrator(ctrl)
+
+	t.Run("Not authorized", func(t *testing.T) {
+		au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com", Role: "athlete"}
+		handler := handler.NewSettingsHandler(nil, logger)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/settings/reset", nil)
+		rec := httptest.NewRecorder()
+		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+
+		// Call the handler
+		assert.ErrorContains(t, handler.Reset(c), "You are not authorized to access this page")
+		assert.Equal(t, http.StatusOK, rec.Code)
+		test_utils.MakeSnapshot(t, rec.Body.String())
+	})
+
+	t.Run("migrator error", func(t *testing.T) {
+		au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com", Role: "admin"}
+
+		mm.EXPECT().Reset().Return(assert.AnError)
+
+		handler := handler.NewSettingsHandler(mm, logger)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/settings/reset", nil)
+		rec := httptest.NewRecorder()
+		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+
+		// Call the handler
+		assert.Error(t, handler.Reset(c))
+		assert.Equal(t, http.StatusOK, rec.Code)
+		test_utils.MakeSnapshot(t, rec.Body.String())
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com", Role: "admin"}
+
+		mm.EXPECT().Reset().Return(nil)
+
+		handler := handler.NewSettingsHandler(mm, logger)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/settings/reset", nil)
+		rec := httptest.NewRecorder()
+		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+
+		// Call the handler
+		assert.NoError(t, handler.Reset(c))
+		assert.Equal(t, http.StatusOK, rec.Code)
+		test_utils.MakeSnapshot(t, rec.Body.String())
+	})
+}

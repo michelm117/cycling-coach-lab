@@ -17,7 +17,7 @@ import (
 )
 
 type TestDatabase struct {
-	Db        *sql.DB
+	DB        *sql.DB
 	Url       string
 	Container testcontainers.Container
 }
@@ -52,19 +52,13 @@ func CreateTestContainer(ctx context.Context) TestDatabase {
 		log.Fatalf("failed to open database: %s", err)
 	}
 
-	logger.Info("Creating migrator")
-	migrator, err := DB.NewMigrator(db, nil, "testdata")
-	if err != nil {
-		log.Fatalf("failed to create migrator: %s", err)
-	}
-
-	logger.Info("Running migrations")
+	migrator := DB.NewMigrator(db, "testdata", logger.Sugar())
 	if err := migrator.Up(); err != nil {
 		log.Fatalf("failed to run migrations: %s", err)
 	}
 
 	return TestDatabase{
-		Db:        db,
+		DB:        db,
 		Url:       dbURL,
 		Container: container,
 	}

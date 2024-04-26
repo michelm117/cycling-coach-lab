@@ -9,12 +9,21 @@ import (
 	"github.com/michelm117/cycling-coach-lab/model"
 )
 
+type UserServicer interface {
+	GetById(id int) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
+	GetAllUsers() ([]*model.User, error)
+	AddUser(user model.User) (*model.User, error)
+	DeleteUser(id int) error
+	DeleteAllUsers() error
+	Count() (int, error)
+}
 type UserService struct {
 	db     *sql.DB
 	logger *zap.SugaredLogger
 }
 
-func NewUserService(db *sql.DB, logger *zap.SugaredLogger) *UserService {
+func NewUserServicer(db *sql.DB, logger *zap.SugaredLogger) UserServicer {
 	return &UserService{
 		db:     db,
 		logger: logger,
@@ -38,12 +47,8 @@ func (repo *UserService) GetById(id int) (*model.User, error) {
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("user with id '%d' not found", id)
-		}
-		return nil, fmt.Errorf("error while trying to execute query: %s", err)
+		return nil, err
 	}
-
 	return &user, nil
 }
 
@@ -64,10 +69,7 @@ func (repo *UserService) GetByEmail(email string) (*model.User, error) {
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("User with email '%s' not found", email)
-		}
-		return nil, fmt.Errorf("error while trying to execute query: %s", err)
+		return nil, err
 	}
 	return &user, nil
 }
@@ -94,13 +96,13 @@ func (repo *UserService) GetAllUsers() ([]*model.User, error) {
 			&user.UpdatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("error while trying to execute query: %s", err)
+			return nil, err
 		}
 		users = append(users, &user)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error while trying to execute query: %s", err)
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -119,9 +121,8 @@ func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 		user.Role,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("user could not be added: %s", err)
+		return nil, err
 	}
-
 	return &user, nil
 }
 
@@ -132,6 +133,14 @@ func (repo *UserService) DeleteUser(id int) error {
 	)
 	if err != nil {
 		return fmt.Errorf("error while trying to execute query: %s", err)
+	}
+	return nil
+}
+
+func (repo *UserService) DeleteAllUsers() error {
+	_, err := repo.db.Exec("DELETE FROM users")
+	if err != nil {
+		return err
 	}
 	return nil
 }

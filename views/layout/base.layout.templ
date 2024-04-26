@@ -1,9 +1,5 @@
 package layout
 
-import (
-	"github.com/michelm117/cycling-coach-lab/views/components"
-)
-
 templ BaseLayout() {
 	<!DOCTYPE html>
 	<html data-theme="dark-light">
@@ -19,12 +15,9 @@ templ Head() {
 	<head>
 		<title>Cycling Coach Lab</title>
 		<meta charset="utf-8"/>
+		<meta name="robots" content="noindex"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"/>
 		<meta name="htmx-config" content='{"useTemplateFragments":true}'/>
-		<link
-			rel="icon"
-			href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚴</text></svg>"
-		/>
 		<link rel="stylesheet" href="/assets/styles.css"/>
 		<link rel="stylesheet" href="/assets/base.css"/>
 		<!-- htmx -->
@@ -54,67 +47,4 @@ templ Head() {
 		<script src="https://kit.fontawesome.com/e219cbc312.js" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	</head>
-}
-
-templ Navbar() {
-	<div id="navbar" data-cy="navbar" class="w-full navbar bg-base-300">
-		<div class="flex-none lg:hidden">
-			<label for="drawer" aria-label="open sidebar" data-cy="sidebar-open" class="btn btn-square btn-ghost">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					class="inline-block w-6 h-6 stroke-current"
-				>
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-				</svg>
-			</label>
-		</div>
-		<div class="flex-1 px-2 mx-2">
-			<div class="lg:hidden">
-				Cycling coach lab
-			</div>
-		</div>
-		<div class="flex-none">
-			<div class="dropdown dropdown-end">
-				<div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-					<!-- TODO: use logged in user name here-->
-					@components.Avatar("N", "B")
-				</div>
-				<ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200 rounded-box w-52">
-					<li>
-						<a class="justify-between">
-							Profile
-							<span class="badge">New</span>
-						</a>
-					</li>
-					<li><a>Settings</a></li>
-					<li><a>Logout</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-}
-
-templ Sidebar() {
-	<div data-cy="sidebar" class="drawer-side">
-		<label for="drawer" aria-label="close sidebar" data-cy="sidebar-overlay" class="drawer-overlay"></label>
-		<ul class="menu p-4 md:min-w-72 min-h-full bg-base-300">
-			<!-- Sidebar content here -->
-			<h2 class="prose p4 mx-2 my-1 hidden lg:block">
-				Cycling coach lab
-			</h2>
-			<li class="mt-2">
-				<h2 class="menu-title">Administration</h2>
-				<ul>
-					<li>
-						<a data-cy="sidebar-user-management" href="/users">
-							<div class="fa-solid fa-users"></div>
-							Benutzerverwaltung
-						</a>
-					</li>
-				</ul>
-			</li>
-		</ul>
-	</div>
 }

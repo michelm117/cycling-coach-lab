@@ -2,45 +2,48 @@ package handler
 
 import (
 	"net/http"
-	"os"
 
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/michelm117/cycling-coach-lab/services"
-	"github.com/michelm117/cycling-coach-lab/views/pages"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/bcrypt"
+
+	"github.com/michelm117/cycling-coach-lab/services"
+	"github.com/michelm117/cycling-coach-lab/utils"
+	"github.com/michelm117/cycling-coach-lab/views/pages"
 )
 
 const (
-	sessionMaxAgeSeconds = 86400 * 7
-	sessionCookieName    = "cycling-coach-lab"
+	sessionCookieName = "cycling-coach-lab"
 )
 
 type AuthHandler struct {
-	userService          *services.UserService
-	sessionService       *services.SessionService
-	globalSettingService *services.GlobalSettingService
-	logger               *zap.SugaredLogger
+	userServicer          services.UserServicer
+	sessionServicer       services.SessionServicer
+	globalSettingServicer services.GlobalSettingServicer
+	browserSessionManager utils.BrowserSessionManager
+	crptoer               utils.Cryptoer
+	logger                *zap.SugaredLogger
 }
 
 func NewAuthHandler(
-	userService *services.UserService,
-	sessionService *services.SessionService,
-	globalSettingService *services.GlobalSettingService,
+	userServicer services.UserServicer,
+	sessionServicer services.SessionServicer,
+	globalSettingServicer services.GlobalSettingServicer,
+	browserSessionManager utils.BrowserSessionManager,
+	crptoer utils.Cryptoer,
 	logger *zap.SugaredLogger,
 ) AuthHandler {
 	return AuthHandler{
-		userService:          userService,
-		sessionService:       sessionService,
-		globalSettingService: globalSettingService,
-		logger:               logger,
+		userServicer:          userServicer,
+		sessionServicer:       sessionServicer,
+		globalSettingServicer: globalSettingServicer,
+		browserSessionManager: browserSessionManager,
+		crptoer:               crptoer,
+		logger:                logger,
 	}
 }
 
 func (h AuthHandler) RenderLogin(c echo.Context) error {
-	if !h.globalSettingService.IsAppInitialized() {
+	if !h.globalSettingServicer.IsAppInitialized() {
 		return c.Redirect(http.StatusTemporaryRedirect, "/setup")
 	}
 
@@ -51,40 +54,46 @@ func (h AuthHandler) Login(c echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 
-	// Retrieve user by email
-	user, err := h.userService.GetByEmail(email)
+	user, err := h.userServicer.GetByEmail(email)
 	if err != nil {
-		return Warning("Invalid credentials")
+		h.logger.Error(err)
+		return utils.Warning("Invalid credentials")
 	}
 
-	// Compare password hash
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return Warning("Invalid credentials")
+	if user.Status != "active" {
+		return utils.Warning("Invalid credentials")
 	}
 
-	// Get the session
-	browserSession, _ := session.Get(sessionCookieName, c)
-
-	// Configure session options
-	browserSession.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   sessionMaxAgeSeconds,
-		HttpOnly: true,
-		Secure:   os.Getenv("ENV") != "development",
+	if err := h.crptoer.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		return utils.Warning("Invalid credentials")
 	}
 
-	// Save session ID
-	sessionID, err := h.sessionService.SaveSession(user.ID)
+	// Save session ID in the database and in the browser session
+	sessionID, err := h.sessionServicer.SaveSession(user.ID)
 	if err != nil {
-		return Warning("Invalid credentials")
+		h.logger.Error(err)
+		return utils.Warning("Invalid credentials")
 	}
-	browserSession.Values["sessionId"] = sessionID
 
-	if err := browserSession.Save(c.Request(), c.Response()); err != nil {
-		return Warning("Invalid credentials")
+	if err = h.browserSessionManager.SaveSession(c, sessionID); err != nil {
+		h.logger.Error(err)
+		return utils.Warning("Invalid credentials")
 	}
 
 	c.Response().Header().Add("HX-Redirect", "/users")
+	return nil
+}
 
+func (h AuthHandler) Logout(c echo.Context) error {
+	sessionID, err := h.browserSessionManager.DeleteSession(c)
+	if err != nil {
+		return utils.Warning("Internal server error")
+	}
+
+	if err := h.sessionServicer.DeleteSession(sessionID); err != nil {
+		return utils.Warning("Internal server error")
+	}
+
+	c.Response().Header().Add("HX-Redirect", "/auth/login")
 	return nil
 }

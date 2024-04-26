@@ -17,12 +17,21 @@ const (
 	booleanSetting = 2
 )
 
+type GlobalSettingServicer interface {
+	Create(setting *model.GlobalSetting) error
+	GetBySectionAndName(sectionName, settingName string) (interface{}, error)
+	ParseSettingsValue(settingType int, settingValue string) (interface{}, error)
+	IsAppInitialized() bool
+	InitializeApp() error
+	DeleteAllGlobalSettings() error
+}
+
 type GlobalSettingService struct {
 	db     *sql.DB
 	logger *zap.SugaredLogger
 }
 
-func NewGlobalSettingService(db *sql.DB, logger *zap.SugaredLogger) *GlobalSettingService {
+func NewGlobalSettingService(db *sql.DB, logger *zap.SugaredLogger) GlobalSettingServicer {
 	return &GlobalSettingService{
 		db:     db,
 		logger: logger,
@@ -30,18 +39,24 @@ func NewGlobalSettingService(db *sql.DB, logger *zap.SugaredLogger) *GlobalSetti
 }
 
 func (s *GlobalSettingService) Create(setting *model.GlobalSetting) error {
+	if setting.SettingType < 0 || setting.SettingType > 2 {
+		return fmt.Errorf("invalid setting type: %d", setting.SettingType)
+	}
+
 	query := `
-		INSERT INTO globalSettings(SectionName, SettingName, SettingValue, SettingType)
-		VALUES ($1, $2, $3, $4)
+    INSERT INTO globalSettings(SectionName, SettingName, SettingValue, SettingType)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (SectionName, SettingName) DO UPDATE
+        SET SettingValue = EXCLUDED.SettingValue,
+            SettingType = EXCLUDED.SettingType
 	`
 	_, err := s.db.Exec(query,
-		strings.ToLower(setting.SectionName),
-		strings.ToLower(setting.SettingName),
+		setting.SectionName,
+		setting.SettingName,
 		setting.SettingValue,
 		setting.SettingType)
 	if err != nil {
-		s.logger.Errorw("Failed to create global setting", "error", err)
-		return fmt.Errorf("failed to create global setting: %w", err)
+		return fmt.Errorf("failed to create/update global setting: %w", err)
 	}
 	return nil
 }
@@ -52,14 +67,13 @@ func (s *GlobalSettingService) GetBySectionAndName(sectionName, settingName stri
 		FROM globalSettings
 		WHERE SectionName = $1 AND SettingName = $2
 	`
-	row := s.db.QueryRow(query, sectionName, settingName)
+	row := s.db.QueryRow(query, strings.ToLower(sectionName), strings.ToLower(settingName))
 	setting := &model.GlobalSetting{}
 	err := row.Scan(&setting.SectionName, &setting.SettingName, &setting.SettingValue, &setting.SettingType)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("global setting with section '%s' and name '%s' not found", sectionName, settingName)
 		}
-		s.logger.Errorw("Failed to get global setting", "error", err)
 		return nil, fmt.Errorf("failed to get global setting: %w", err)
 	}
 
@@ -77,19 +91,16 @@ func (s *GlobalSettingService) ParseSettingsValue(settingType int, settingValue 
 	case integerSetting:
 		value, err := strconv.Atoi(settingValue)
 		if err != nil {
-			s.logger.Errorf("Failed to parse setting %s of type %d", settingValue, settingType)
 			return nil, fmt.Errorf("failed to parse setting %s of type %d", settingValue, settingType)
 		}
 		return value, nil
 	case booleanSetting:
 		value, err := strconv.ParseBool(settingValue)
 		if err != nil {
-			s.logger.Errorf("Failed to parse setting %s of type %d", settingValue, settingType)
 			return nil, fmt.Errorf("failed to parse setting %s of type %d", settingValue, settingType)
 		}
 		return value, nil
 	default:
-		s.logger.Errorf("Unknown setting type '%d' for setting %s", settingType, settingValue)
 		return false, fmt.Errorf("Unknown setting type '%d' for setting %s", settingType, settingValue)
 	}
 }
@@ -107,6 +118,21 @@ func (s *GlobalSettingService) InitializeApp() error {
 		SectionName:  "app",
 		SettingName:  "initialized",
 		SettingValue: "true",
+		SettingType:  booleanSetting,
+	}
+	return s.Create(setting)
+}
+
+func (s *GlobalSettingService) DeleteAllGlobalSettings() error {
+	_, err := s.db.Exec("DELETE FROM globalSettings")
+	if err != nil {
+		return fmt.Errorf("failed to delete all global settings: %w", err)
+	}
+
+	setting := &model.GlobalSetting{
+		SectionName:  "app",
+		SettingName:  "initialized",
+		SettingValue: "false",
 		SettingType:  booleanSetting,
 	}
 	return s.Create(setting)

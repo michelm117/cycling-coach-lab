@@ -9,6 +9,7 @@ import (
 	"time"
 
 	_ "github.com/jackc/pgx/stdlib"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/services"
@@ -17,11 +18,11 @@ import (
 
 var DB *sql.DB
 
-func getTestUser(userService *services.UserService, t *testing.T) *model.User {
+func getTestUser(userService services.UserServicer, t *testing.T) *model.User {
 	// Search for user to get his id
 	user, err := userService.GetByEmail("admin@example.com")
 	if err != nil {
-		t.Errorf("Error while trying to get test user '%s'", err)
+		t.Errorf("Error while trying to get user by name: %s", err)
 	}
 	return user
 }
@@ -32,7 +33,7 @@ func TestMain(m *testing.M) {
 	testDb := test_utils.CreateTestContainer(ctx)
 	container := testDb.Container
 
-	DB = testDb.Db
+	DB = testDb.DB
 
 	// Run the actual tests
 	exitCode := m.Run()
@@ -49,65 +50,45 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetById(t *testing.T) {
-	userService := services.NewUserService(DB, nil)
+	userService := services.NewUserServicer(DB, nil)
 
 	id := getTestUser(userService, t).ID
 	user, err := userService.GetById(id)
-	if err != nil {
-		t.Errorf("Error while trying to get user by ID: %s", err)
-	}
-
-	if user == nil {
-		t.Errorf("User not found")
-	}
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
 }
 
 func TestGetByEmail(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
+	repo := services.NewUserServicer(DB, nil)
 	user, err := repo.GetByEmail("test@test.de")
-	if err != nil {
-		t.Errorf("Error while trying to get user by email: %s", err)
-	}
-	if user == nil {
-		t.Errorf("User not found")
-	}
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
 }
 
 func TestUserWithEmailNotFound(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
+	repo := services.NewUserServicer(DB, nil)
 	user, err := repo.GetByEmail("foo")
-	if user != nil {
-		t.Errorf("User should not be found")
-	}
-	if err == nil {
-		t.Errorf("Error should not be nil")
-	}
+	assert.Nil(t, user)
+	assert.NotNil(t, err)
 }
 
 func TestGetAllUsers(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
+	repo := services.NewUserServicer(DB, nil)
 	expectedSize, err := repo.Count()
-	if err != nil {
-		t.Errorf("Error while trying to count users: %s", err)
-	}
+	assert.NoError(t, err)
 
 	users, err := repo.GetAllUsers()
-	if err != nil {
-		t.Errorf("Error while trying to get all users: %s", err)
-	}
+	assert.NoError(t, err)
 
 	actualSize := len(users)
-	if actualSize != expectedSize {
-		t.Errorf("actual size %v is not expectedSize %v", actualSize, expectedSize)
-	}
+	assert.Equal(t, expectedSize, actualSize)
 }
 
 func TestAddUser(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
+	repo := services.NewUserServicer(DB, nil)
 	beforeSize, err := repo.Count()
-	if err != nil {
-		t.Errorf("Error while trying to count users: %s", err)
-	}
+	assert.NoError(t, err)
+
 	u := model.User{
 		Firstname:    "first",
 		Lastname:     "last",
@@ -118,59 +99,35 @@ func TestAddUser(t *testing.T) {
 		PasswordHash: "hash",
 	}
 	user, err := repo.AddUser(u)
-	if err != nil {
-		t.Errorf("Error while trying to add a new user: %s", err)
-	}
-
-	if user == nil {
-		t.Errorf("Newly added user was not returned: %v", u)
-	}
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
 
 	afterSize, err := repo.Count()
-	if err != nil {
-		t.Errorf("Error while trying to count users: %s", err)
-	}
-	if beforeSize+1 != afterSize {
-		t.Errorf("Expected %d users, but got %d", beforeSize+1, afterSize)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, beforeSize+1, afterSize)
 }
 
 func TestDeleteUser(t *testing.T) {
-	userService := services.NewUserService(DB, nil)
+	userService := services.NewUserServicer(DB, nil)
 	expectedSize, err := userService.Count()
-	expectedSize--
-	if err != nil {
-		t.Errorf("Error while trying to count users: %s", err)
-	}
+	expectedSize = expectedSize - 1
+	assert.NoError(t, err)
 
 	id := getTestUser(userService, t).ID
 	err = userService.DeleteUser(id)
-	if err != nil {
-		t.Errorf("Error while trying to delete a users: %s", err)
-	}
+	assert.NoError(t, err)
 
 	actualSize, err := userService.Count()
-	if err != nil {
-		t.Errorf("Error while trying to count users after deleting one: %s", err)
-	}
-
-	if actualSize != expectedSize {
-		t.Errorf("actual size %v is not expectedSize %v", actualSize, expectedSize)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, expectedSize, actualSize)
 
 	err = userService.DeleteUser(id)
-	if err != nil {
-		t.Errorf("Deleting an user that does not exists should not throw any errors: %s", err)
-	}
+	assert.NoError(t, err)
 }
 
 func TestCountUsers(t *testing.T) {
-	repo := services.NewUserService(DB, nil)
+	repo := services.NewUserServicer(DB, nil)
 	count, err := repo.Count()
-	if err != nil {
-		t.Errorf("Error while trying to count users: %s", err)
-	}
-	if count == 0 {
-		t.Errorf("No users found")
-	}
+	assert.NoError(t, err)
+	assert.Greater(t, count, 0)
 }

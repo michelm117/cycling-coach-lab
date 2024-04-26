@@ -1,0 +1,36 @@
+{
+  "admin": {
+    "firstname": "Admin",
+    "lastname": "Admin",
+    "email": "admin@cycling-coach-lab.de",
+    "password": "admin@cycling-coach-lab.de",
+    "role": "admin",
+    "dateOfBirth": "1991-01-01"
+  },
+  "createdAdmin": {
+    "firstname": "Admin",
+    "lastname": "Admin",
+    "email": "created.admin@ccl.de",
+    "password": "created.admin@ccl.de",
+    "role": "admin",
+    "dateOfBirth": "1991-01-01"
+  },
+  "users": [
+    {
+      "firstname": "John",
+      "lastname": "Doe",
+      "email": "john@doe.com",
+      "password": "john@doe.com",
+      "role": "user",
+      "dateOfBirth": "1991-01-01"
+    },
+    {
+      "firstname": "Jane",
+      "lastname": "Doe",
+      "email": "jane@doe.com",
+      "password": "jane@doe.com",
+      "role": "user",
+      "dateOfBirth": "1991-01-01"
+    }
+  ]
+}

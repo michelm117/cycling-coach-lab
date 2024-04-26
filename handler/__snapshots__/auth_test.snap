@@ -1,0 +1,65 @@
+
+[TestRenderLogin - 1]
+<!doctype html><html data-theme="dark-light"><head><title>Cycling Coach Lab</title><meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"><meta name="htmx-config" content="{&#34;useTemplateFragments&#34;:true}"><link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🚴&lt;/text&gt;&lt;/svg&gt;"><link rel="stylesheet" href="/assets/styles.css"><link rel="stylesheet" href="/assets/base.css"><!-- htmx --><script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script><script src="https://unpkg.com/htmx.org/dist/ext/path-params.js"></script><script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script><!-- Alpine Plugins --><script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script><!-- Alpine Core --><script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script><!-- Font Awesome --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/fontawesome.min.css" integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A==" crossorigin="anonymous" referrerpolicy="no-referrer"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/solid.min.css" integrity="sha512-tk4nGrLxft4l30r9ETuejLU0a3d7LwMzj0eXjzc16JQj+5U1IeVoCuGLObRDc3+eQMUcEQY1RIDPGvuA7SNQ2w==" crossorigin="anonymous" referrerpolicy="no-referrer"><script src="https://kit.fontawesome.com/e219cbc312.js" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script></head><body class="font-sans"><div class="flex items-center justify-center h-full"><div class="rounded bg-base-200 shadow-lg p-8 max-w-md w-full"><form id="loginForm" hx-post="/auth/login" class="space-y-4"><h2 class="text-3xl font-bold text-center">Login</h2><label class="block text-sm font-semibold text-gray-600">Email</label> <input class="w-full input input-bordered" name="email" type="text" placeholder="Email"> <label class="block text-sm font-semibold text-gray-600">Passwort</label> <input class="w-full input input-bordered" name="password" type="password" placeholder="Password"><div class="flex items-center justify-between"><button class="btn btn-primary w-full" type="submit">Anmelden</button></div><div class="text-center"><a class="text-blue-500 hover:underline" href="https://www.youtube.com/watch?v=4cDhUUjZ1G4">Passwort vergessen?</a></div></form></div></div><script defer src="/assets/toasts.js" type="text/javascript"></script></body></html>
+---
+
+[TestRenderLogin/AppInitialized - 1]
+<!doctype html>
+<html data-theme="dark-light">
+  <head>
+    <title>
+      Cycling Coach Lab
+    </title>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <meta name="htmx-config" content="{&#34;useTemplateFragments&#34;:true}">
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/base.css">
+    <!-- htmx -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/path-params.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
+    <!-- Alpine Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine Core -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/fontawesome.min.css" integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/solid.min.css" integrity="sha512-tk4nGrLxft4l30r9ETuejLU0a3d7LwMzj0eXjzc16JQj+5U1IeVoCuGLObRDc3+eQMUcEQY1RIDPGvuA7SNQ2w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://kit.fontawesome.com/e219cbc312.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body class="font-sans">
+    <div class="flex items-center justify-center h-full">
+      <div class="rounded bg-base-200 shadow-lg p-8 max-w-md w-full">
+        <form id="loginForm" hx-post="/auth/login" class="space-y-4">
+          <h2 class="text-3xl font-bold text-center">
+            Login
+          </h2>
+          <label class="block text-sm font-semibold text-gray-600">
+            Email
+          </label>
+          <input class="w-full input input-bordered" name="email" type="text" placeholder="Email">
+          <label class="block text-sm font-semibold text-gray-600">
+            Passwort
+          </label>
+          <input class="w-full input input-bordered" name="password" type="password" placeholder="Password">
+          <div class="flex items-center justify-between">
+            <button class="btn btn-primary w-full" type="submit">
+              Anmelden
+            </button>
+          </div>
+          <div class="text-center">
+            <a class="text-blue-500 hover:underline" href="https://www.youtube.com/watch?v=4cDhUUjZ1G4">
+              Passwort vergessen?
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script defer src="/assets/toasts.js" type="text/javascript"></script>
+  </body>
+</html>
+---
