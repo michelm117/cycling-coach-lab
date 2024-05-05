@@ -15,14 +15,14 @@ templ SettingsView(theme string) {
 			<div class="card bg-base-200  prose w-full lg:w-fit">
 				<div class="card-body">
 					<h3 class="card-title">Theme auswählen</h3>
-					<form hx-post="/settings/theme" hx-swap="none">
+					<form data-cy="theme-switcher" hx-post="/settings/theme">
 						<div class="form-control">
 							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Default</span>
-								if theme == "dark-light" {
-									<input type="radio" name="theme" class="radio theme-controller" value="dark-light" checked/>
+								<span class="label-text">Light</span>
+								if theme == "light" {
+									<input type="radio" name="theme" class="radio theme-controller" value="light" checked/>
 								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="dark-light"/>
+									<input type="radio" name="theme" class="radio theme-controller" value="light"/>
 								}
 							</label>
 						</div>
@@ -38,31 +38,41 @@ templ SettingsView(theme string) {
 						</div>
 						<div class="form-control">
 							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Cyberpunk</span>
-								if theme == "cyberpunk" {
-									<input type="radio" name="theme" class="radio theme-controller" value="cyberpunk" checked/>
+								<span class="label-text">Corporate</span>
+								if theme == "corporate" {
+									<input type="radio" name="theme" class="radio theme-controller" value="corporate" checked/>
 								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="cyberpunk"/>
+									<input type="radio" name="theme" class="radio theme-controller" value="corporate"/>
 								}
 							</label>
 						</div>
 						<div class="form-control">
 							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Valentine</span>
-								if theme == "valentine" {
-									<input type="radio" name="theme" class="radio theme-controller" value="valentine" checked/>
+								<span class="label-text">Dracula</span>
+								if theme == "dracula" {
+									<input type="radio" name="theme" class="radio theme-controller" value="dracula" checked/>
 								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="valentine"/>
+									<input type="radio" name="theme" class="radio theme-controller" value="dracula"/>
 								}
 							</label>
 						</div>
 						<div class="form-control">
 							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Aqua</span>
-								if theme == "aqua" {
-									<input type="radio" name="theme" class="radio theme-controller" value="aqua" checked/>
+								<span class="label-text">Nord</span>
+								if theme == "nord" {
+									<input type="radio" name="theme" class="radio theme-controller" value="nord" checked/>
 								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="aqua"/>
+									<input type="radio" name="theme" class="radio theme-controller" value="nord"/>
+								}
+							</label>
+						</div>
+						<div class="form-control">
+							<label class="label cursor-pointer gap-4">
+								<span class="label-text">Dark</span>
+								if theme == "dark" {
+									<input type="radio" name="theme" class="radio theme-controller" value="dark" checked/>
+								} else {
+									<input type="radio" name="theme" class="radio theme-controller" value="dark"/>
 								}
 							</label>
 						</div>
