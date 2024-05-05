@@ -18,7 +18,6 @@ type SessionServicer interface {
 	SaveSession(userID int) (string, error)
 	DeleteSession(sessionID string) error
 	DeleteExpiredSessions() error
-	DeleteAllSessions() error
 	ScheduleSessionCleanup()
 }
 
@@ -165,12 +164,4 @@ func (s *SessionService) GetByUserID(userID int) ([]model.Session, error) {
 		sessions = append(sessions, session)
 	}
 	return sessions, nil
-}
-
-func (s *SessionService) DeleteAllSessions() error {
-	_, err := s.db.Exec("DELETE FROM sessions")
-	if err != nil {
-		return fmt.Errorf("error while trying to delete all sessions:\n%s", err)
-	}
-	return nil
 }

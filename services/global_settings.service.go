@@ -23,7 +23,6 @@ type GlobalSettingServicer interface {
 	ParseSettingsValue(settingType int, settingValue string) (interface{}, error)
 	IsAppInitialized() bool
 	InitializeApp() error
-	DeleteAllGlobalSettings() error
 }
 
 type GlobalSettingService struct {
@@ -118,21 +117,6 @@ func (s *GlobalSettingService) InitializeApp() error {
 		SectionName:  "app",
 		SettingName:  "initialized",
 		SettingValue: "true",
-		SettingType:  booleanSetting,
-	}
-	return s.Create(setting)
-}
-
-func (s *GlobalSettingService) DeleteAllGlobalSettings() error {
-	_, err := s.db.Exec("DELETE FROM globalSettings")
-	if err != nil {
-		return fmt.Errorf("failed to delete all global settings: %w", err)
-	}
-
-	setting := &model.GlobalSetting{
-		SectionName:  "app",
-		SettingName:  "initialized",
-		SettingValue: "false",
 		SettingType:  booleanSetting,
 	}
 	return s.Create(setting)

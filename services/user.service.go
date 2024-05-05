@@ -15,7 +15,6 @@ type UserServicer interface {
 	GetAllUsers() ([]*model.User, error)
 	AddUser(user model.User) (*model.User, error)
 	DeleteUser(id int) error
-	DeleteAllUsers() error
 	Count() (int, error)
 }
 type UserService struct {
@@ -133,14 +132,6 @@ func (repo *UserService) DeleteUser(id int) error {
 	)
 	if err != nil {
 		return fmt.Errorf("error while trying to execute query: %s", err)
-	}
-	return nil
-}
-
-func (repo *UserService) DeleteAllUsers() error {
-	_, err := repo.db.Exec("DELETE FROM users")
-	if err != nil {
-		return err
 	}
 	return nil
 }
