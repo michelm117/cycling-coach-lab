@@ -82,7 +82,7 @@ func (h SetupHandler) Setup(c echo.Context) error {
 
 func (h SetupHandler) RenderSetup(c echo.Context) error {
 	if !h.globalSettingServicer.IsAppInitialized() {
-		return Render(c, pages.Setup())
+		return Render(c, pages.Setup(GetTheme(c)))
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/users")
 }

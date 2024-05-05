@@ -47,7 +47,7 @@ func (h AuthHandler) RenderLogin(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/setup")
 	}
 
-	return Render(c, pages.Login())
+	return Render(c, pages.Login(GetTheme(c)))
 }
 
 func (h AuthHandler) Login(c echo.Context) error {
