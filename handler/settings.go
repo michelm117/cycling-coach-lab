@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
@@ -27,7 +29,7 @@ func NewSettingsHandler(
 
 func (h *SettingsHandler) RenderSettings(c echo.Context) error {
 	au := c.(model.AuthenticatedContext).User
-	return Render(c, pages.SettingsIndex(au))
+	return Render(c, pages.SettingsIndex(au, GetTheme(c)))
 }
 
 func (h *SettingsHandler) Reset(c echo.Context) error {
@@ -43,4 +45,16 @@ func (h *SettingsHandler) Reset(c echo.Context) error {
 	}
 
 	return utils.Success(c, "Anwendung erfolgreich zurückgesetzt")
+}
+
+func (h *SettingsHandler) SetTheme(c echo.Context) error {
+	theme := c.FormValue("theme")
+
+	cookie := new(http.Cookie)
+	cookie.Name = "theme"
+	cookie.Value = theme
+	cookie.Path = "/"
+	c.SetCookie(cookie)
+
+	return utils.Success(c, "Theme erfolgreich geändert")
 }

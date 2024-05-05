@@ -1,25 +1,97 @@
 package pages
 
 import (
-"github.com/michelm117/cycling-coach-lab/model"
-"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/model"
+	"github.com/michelm117/cycling-coach-lab/views/layout"
 )
 
-templ SettingsIndex(au *model.User) {
-@layout.DashboardLayout(au) {
-<div class="prose">
-  <h1>Einstellungen</h1>
-  <h3>Anwendung zurücksetzen</h3>
-  <p>
-    Wenn du die Anwendung zurücksetzt, werden <b>ALLE</b> Daten gelöscht. Dazu gehören alle Benutzer und deren
-    Trainingsdaten. Das betrifft auch
-    deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die Anwendung dann wieder neu einrichten. Bist
-    du sicher, dass du die Anwendung zurücksetzen möchtest?
-  </p>
-  <p>Diese Aktion kann nicht rückgängig gemacht werden. </p>
-  <form hx-post="/settings/reset" hx-swap="none">
-    <button data-cy="reset" type="submit" class="btn btn-warning">Anwendung zurücksetzen</button>
-  </form>
-</div>
-}
+templ SettingsIndex(au *model.User, theme string) {
+	@layout.DashboardLayout(au, theme) {
+		<div class="flex flex-col gap-6">
+			<div class="prose">
+				<h1>Einstellungen</h1>
+			</div>
+			<!-- Theme selection -->
+			<div class="flex flex-wrap gap-6">
+				<div class="card bg-base-200  prose w-full lg:w-fit">
+					<div class="card-body">
+						<h3 class="card-title">Theme auswählen</h3>
+						<form hx-post="/settings/theme" hx-swap="none">
+							<div class="form-control">
+								<label class="label cursor-pointer gap-4">
+									<span class="label-text">Default</span>
+									if theme == "dark-light" {
+										<input type="radio" name="theme" class="radio theme-controller" value="dark-light" checked/>
+									} else {
+										<input type="radio" name="theme" class="radio theme-controller" value="dark-light"/>
+									}
+								</label>
+							</div>
+							<div class="form-control">
+								<label class="label cursor-pointer gap-4">
+									<span class="label-text">Retro</span>
+									if theme == "retro" {
+										<input type="radio" name="theme" class="radio theme-controller" value="retro" checked/>
+									} else {
+										<input type="radio" name="theme" class="radio theme-controller" value="retro"/>
+									}
+								</label>
+							</div>
+							<div class="form-control">
+								<label class="label cursor-pointer gap-4">
+									<span class="label-text">Cyberpunk</span>
+									if theme == "cyberpunk" {
+										<input type="radio" name="theme" class="radio theme-controller" value="cyberpunk" checked/>
+									} else {
+										<input type="radio" name="theme" class="radio theme-controller" value="cyberpunk"/>
+									}
+								</label>
+							</div>
+							<div class="form-control">
+								<label class="label cursor-pointer gap-4">
+									<span class="label-text">Valentine</span>
+									if theme == "valentine" {
+										<input type="radio" name="theme" class="radio theme-controller" value="valentine" checked/>
+									} else {
+										<input type="radio" name="theme" class="radio theme-controller" value="valentine"/>
+									}
+								</label>
+							</div>
+							<div class="form-control">
+								<label class="label cursor-pointer gap-4">
+									<span class="label-text">Aqua</span>
+									if theme == "aqua" {
+										<input type="radio" name="theme" class="radio theme-controller" value="aqua" checked/>
+									} else {
+										<input type="radio" name="theme" class="radio theme-controller" value="aqua"/>
+									}
+								</label>
+							</div>
+							<div class="card-actions justify-end">
+								<button data-cy="save-theme" type="submit" class="btn">Bestätigen</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- Reset application -->
+				<div class="card bg-warning text-warning-content prose">
+					<div class="card-body">
+						<h3 class="card-title text-black">
+							Anwendung zurücksetzen
+							<i class="fas fa-exclamation-triangle"></i>
+						</h3>
+						<p>
+							Wenn du die Anwendung zurücksetzt, werden <b>ALLE</b> Daten gelöscht. Dazu gehören alle Benutzer und deren
+							Trainingsdaten. Das betrifft auch deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die
+							Anwendung dann wieder neu einrichten. Bist du sicher, dass du die Anwendung zurücksetzen möchtest?
+						</p>
+						<p>Diese Aktion kann nicht rückgängig gemacht werden. </p>
+						<form class="card-actions justify-end" hx-post="/settings/reset" hx-swap="none">
+							<button data-cy="reset" type="submit" class="btn btn-error">Anwendung zurücksetzen</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
 }

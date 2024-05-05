@@ -4,8 +4,8 @@ import (
 	"github.com/michelm117/cycling-coach-lab/views/layout"
 )
 
-templ Login() {
-	@layout.BaseLayout() {
+templ Login(theme string) {
+	@layout.BaseLayout(theme) {
 		<div class="flex items-center justify-center h-full">
 			<div class="rounded bg-base-200 shadow-lg p-8 max-w-md w-full">
 				<form id="loginForm" hx-post="/auth/login" class="space-y-4">

@@ -1,14 +1,24 @@
 package layout
 
-templ BaseLayout() {
+templ BaseLayout(theme string) {
 	<!DOCTYPE html>
-	<html data-theme="dark-light">
-		@Head()
-		<body class="font-sans">
-			{ children... }
-			<script defer src="/assets/toasts.js" type="text/javascript"></script>
-		</body>
-	</html>
+	if theme != "" {
+		<html data-theme={ theme }>
+			@Head()
+			<body class="font-sans">
+				{ children... }
+				<script defer src="/assets/toasts.js" type="text/javascript"></script>
+			</body>
+		</html>
+	} else {
+		<html data-theme="dark-light">
+			@Head()
+			<body class="font-sans">
+				{ children... }
+				<script defer src="/assets/toasts.js" type="text/javascript"></script>
+			</body>
+		</html>
+	}
 }
 
 templ Head() {

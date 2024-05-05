@@ -37,7 +37,7 @@ func (h UserManagementHandler) RenderUserTable(c echo.Context) error {
 	if err != nil {
 		return utils.Warning("Could not retrieve users")
 	}
-	return Render(c, pages.UserManagementIndex(au, users))
+	return Render(c, pages.UserManagementIndex(au, GetTheme(c), users))
 }
 
 func (h UserManagementHandler) DeleteUser(c echo.Context) error {

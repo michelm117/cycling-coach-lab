@@ -44,9 +44,9 @@ css bgColor(input string) {
 }
 
 templ Avatar(firstname, lastname string) {
-	<div class={ "flex items-center w-10 h-10 rounded-full", bgColor(acronym(firstname, lastname)) }>
+	<div class={ "flex items-center w-10 h-10 rounded-full" , bgColor(acronym(firstname, lastname)) }>
 		<span class="mx-auto font-bold text-gray-900">
-			{  acronym(firstname, lastname) }
+			{ acronym(firstname, lastname) }
 		</span>
 	</div>
 }

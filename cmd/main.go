@@ -67,6 +67,20 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	secret := os.Getenv("SESSION_SECRET")
 	app.Use(session.Middleware(sessions.NewCookieStore([]byte(secret))))
 
+	// middleware that check if theme cookie is set and set the theme in the context
+	// TODO: move to middlewares/theme.go
+	app.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			themeCookie, err := c.Cookie("theme")
+			if err == nil {
+				c.Set("theme", themeCookie.Value)
+			} else {
+				c.Set("theme", "dark-light")
+			}
+			return next(c)
+		}
+	})
+
 	app.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
 	})
@@ -105,6 +119,7 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	settingsRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
 	settingsRoute.GET("", settingsHandler.RenderSettings)
 	settingsRoute.POST("/reset", settingsHandler.Reset)
+	settingsRoute.POST("/theme", settingsHandler.SetTheme)
 }
 
 func initLogger() *zap.SugaredLogger {

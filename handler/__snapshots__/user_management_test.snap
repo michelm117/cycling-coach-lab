@@ -395,7 +395,7 @@
         </div>
         <!-- Page content here -->
         <div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
-          <div class="m-3">
+          <div class="w-full h-full p-6">
             <div x-data="{userIdToDelete: null}">
               <div class="h-full overflow-auto">
                 <table class="table table-auto">
