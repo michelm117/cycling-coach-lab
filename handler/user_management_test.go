@@ -18,7 +18,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/test_utils"
 )
 
-func TestRenderUserTable(t *testing.T) {
+func TestRenderUserManagementPage(t *testing.T) {
 	au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com"}
 
 	ctrl := gomock.NewController(t)
@@ -38,7 +38,7 @@ func TestRenderUserTable(t *testing.T) {
 		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
 
 		// Call the handler
-		assert.ErrorContains(t, handler.RenderUserTable(c), "Could not retrieve users")
+		assert.ErrorContains(t, handler.RenderUserManagementPage(c), "Could not retrieve users")
 		assert.Equal(t, http.StatusOK, rec.Code)
 		test_utils.MakeSnapshot(t, rec.Body.String())
 	})
@@ -58,7 +58,50 @@ func TestRenderUserTable(t *testing.T) {
 		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
 
 		// Call the handler
-		assert.NoError(t, handler.RenderUserTable(c))
+		assert.NoError(t, handler.RenderUserManagementPage(c))
+		assert.Equal(t, http.StatusOK, rec.Code)
+		test_utils.MakeSnapshot(t, rec.Body.String())
+	})
+}
+
+func TestRenderUserManagementView(t *testing.T) {
+	au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com"}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	us := mocks.NewMockUserServicer(ctrl)
+
+	t.Run("Error", func(t *testing.T) {
+		us.EXPECT().GetAllUsers().Return(nil, assert.AnError)
+
+		handler := handler.NewUserManagementHandler(us, nil, nil)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/users/view", nil)
+		rec := httptest.NewRecorder()
+		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+
+		// Call the handler
+		assert.ErrorContains(t, handler.RenderUserManagementView(c), "Could not retrieve users")
+		assert.Equal(t, http.StatusOK, rec.Code)
+		test_utils.MakeSnapshot(t, rec.Body.String())
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		users := []*model.User{
+			{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com"},
+			{ID: 2, Firstname: "Jane", Lastname: "Doe", Email: "jane@doe.com"},
+		}
+		us.EXPECT().GetAllUsers().Return(users, nil)
+
+		handler := handler.NewUserManagementHandler(us, nil, nil)
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/users/view", nil)
+		rec := httptest.NewRecorder()
+		c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+
+		// Call the handler
+		assert.NoError(t, handler.RenderUserManagementView(c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 		test_utils.MakeSnapshot(t, rec.Body.String())
 	})

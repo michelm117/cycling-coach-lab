@@ -184,11 +184,15 @@ templ AddUserResponse(user *model.User) {
 	@AddUserForm()
 }
 
-templ UserManagementIndex(au *model.User, theme string, users []*model.User) {
+templ UserManagementView(au *model.User, users []*model.User) {
+	<div x-data="{userIdToDelete: null}">
+		@UserTable(au, users)
+		@AddUserOverlay()
+	</div>
+}
+
+templ UserManagementPage(au *model.User, theme string, users []*model.User) {
 	@layout.DashboardLayout(au, theme) {
-		<div x-data="{userIdToDelete: null}">
-			@UserTable(au, users)
-			@AddUserOverlay()
-		</div>
+		@UserManagementView(au, users)
 	}
 }

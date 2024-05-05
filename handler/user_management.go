@@ -30,14 +30,24 @@ func NewUserManagementHandler(
 	return UserManagementHandler{userServicer: userServicer, cryptoer: cryptoer, logger: logger}
 }
 
-func (h UserManagementHandler) RenderUserTable(c echo.Context) error {
+func (h UserManagementHandler) RenderUserManagementPage(c echo.Context) error {
 	au := c.(model.AuthenticatedContext).User
 
 	users, err := h.userServicer.GetAllUsers()
 	if err != nil {
 		return utils.Warning("Could not retrieve users")
 	}
-	return Render(c, pages.UserManagementIndex(au, GetTheme(c), users))
+	return Render(c, pages.UserManagementPage(au, GetTheme(c), users))
+}
+
+func (h UserManagementHandler) RenderUserManagementView(c echo.Context) error {
+	au := c.(model.AuthenticatedContext).User
+
+	users, err := h.userServicer.GetAllUsers()
+	if err != nil {
+		return utils.Warning("Could not retrieve users")
+	}
+	return Render(c, pages.UserManagementView(au, users))
 }
 
 func (h UserManagementHandler) DeleteUser(c echo.Context) error {
