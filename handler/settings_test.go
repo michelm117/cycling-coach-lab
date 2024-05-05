@@ -3,6 +3,7 @@ package handler_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -88,4 +89,26 @@ func TestReset(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		test_utils.MakeSnapshot(t, rec.Body.String())
 	})
+}
+
+func TestSetTheme(t *testing.T) {
+
+	handler := handler.NewSettingsHandler(nil, nil)
+
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("theme=aqua"))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+	rec := httptest.NewRecorder()
+
+	c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec)}
+
+	err := handler.SetTheme(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	cookie := rec.Result().Cookies()[0]
+	assert.Equal(t, "theme", cookie.Name)
+	assert.Equal(t, "aqua", cookie.Value)
+	assert.Equal(t, "/", cookie.Path)
+	test_utils.MakeSnapshot(t, rec.Body.String())
 }
