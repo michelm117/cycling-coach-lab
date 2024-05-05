@@ -48,7 +48,8 @@ func (h *SettingsHandler) Reset(c echo.Context) error {
 		return utils.Danger(err.Error())
 	}
 
-	return utils.Success(c, "Anwendung erfolgreich zurückgesetzt")
+	c.Response().Header().Add("HX-Redirect", "/auth/login")
+	return nil
 }
 
 func (h *SettingsHandler) SetTheme(c echo.Context) error {

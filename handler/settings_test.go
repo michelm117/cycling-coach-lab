@@ -101,6 +101,7 @@ func TestReset(t *testing.T) {
 		// Call the handler
 		assert.NoError(t, handler.Reset(c))
 		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, "/auth/login", rec.Header().Get("HX-Redirect"))
 		test_utils.MakeSnapshot(t, rec.Body.String())
 	})
 }
