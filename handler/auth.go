@@ -56,7 +56,6 @@ func (h AuthHandler) Login(c echo.Context) error {
 
 	user, err := h.userServicer.GetByEmail(email)
 	if err != nil {
-		h.logger.Error(err)
 		return utils.Warning("Invalid credentials")
 	}
 

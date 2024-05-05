@@ -5,7 +5,7 @@
 
 [TestRenderLogin/AppInitialized - 1]
 <!doctype html>
-<html data-theme="dark-light">
+<html data-theme="dark">
   <head>
     <title>
       Cycling Coach Lab

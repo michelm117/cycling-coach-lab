@@ -75,7 +75,7 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 			if err == nil {
 				c.Set("theme", themeCookie.Value)
 			} else {
-				c.Set("theme", "dark-light")
+				c.Set("theme", "dark")
 			}
 			return next(c)
 		}

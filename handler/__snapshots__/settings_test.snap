@@ -1,7 +1,7 @@
 
 [TestRenderSettingspage - 1]
 <!doctype html>
-<html data-theme="dark-light">
+<html data-theme="dark">
   <head>
     <title>
       Cycling Coach Lab
@@ -67,7 +67,7 @@
                   </a>
                 </li>
                 <li>
-                  <a>
+                  <a data-cy="settings" hx-trigger="click" hx-get="/settings/view" hx-target="#dashboard-view">
                     Settings
                   </a>
                 </li>
@@ -82,7 +82,7 @@
         </div>
         <!-- Page content here -->
         <div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
-          <div class="w-full h-full p-6">
+          <div id="dashboard-view" class="w-full h-full p-6">
             <div class="flex flex-col gap-6">
               <div class="prose">
                 <h1>
@@ -96,13 +96,13 @@
                     <h3 class="card-title">
                       Theme auswählen
                     </h3>
-                    <form hx-post="/settings/theme" hx-swap="none">
+                    <form data-cy="theme-switcher" hx-post="/settings/theme">
                       <div class="form-control">
                         <label class="label cursor-pointer gap-4">
                           <span class="label-text">
-                            Default
+                            Light
                           </span>
-                          <input type="radio" name="theme" class="radio theme-controller" value="dark-light" checked>
+                          <input type="radio" name="theme" class="radio theme-controller" value="light">
                         </label>
                       </div>
                       <div class="form-control">
@@ -116,25 +116,33 @@
                       <div class="form-control">
                         <label class="label cursor-pointer gap-4">
                           <span class="label-text">
-                            Cyberpunk
+                            Corporate
                           </span>
-                          <input type="radio" name="theme" class="radio theme-controller" value="cyberpunk">
+                          <input type="radio" name="theme" class="radio theme-controller" value="corporate">
                         </label>
                       </div>
                       <div class="form-control">
                         <label class="label cursor-pointer gap-4">
                           <span class="label-text">
-                            Valentine
+                            Dracula
                           </span>
-                          <input type="radio" name="theme" class="radio theme-controller" value="valentine">
+                          <input type="radio" name="theme" class="radio theme-controller" value="dracula">
                         </label>
                       </div>
                       <div class="form-control">
                         <label class="label cursor-pointer gap-4">
                           <span class="label-text">
-                            Aqua
+                            Nord
                           </span>
-                          <input type="radio" name="theme" class="radio theme-controller" value="aqua">
+                          <input type="radio" name="theme" class="radio theme-controller" value="nord">
+                        </label>
+                      </div>
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Dark
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="dark" checked>
                         </label>
                       </div>
                       <div class="card-actions justify-end">
@@ -204,4 +212,302 @@
 
 [TestSetTheme - 1]
 
+---
+
+[TestRenderSettingsPage - 1]
+<!doctype html>
+<html data-theme="dark">
+  <head>
+    <title>
+      Cycling Coach Lab
+    </title>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <meta name="htmx-config" content="{&#34;useTemplateFragments&#34;:true}">
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/base.css">
+    <!-- htmx -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/path-params.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
+    <!-- Alpine Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine Core -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/fontawesome.min.css" integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/solid.min.css" integrity="sha512-tk4nGrLxft4l30r9ETuejLU0a3d7LwMzj0eXjzc16JQj+5U1IeVoCuGLObRDc3+eQMUcEQY1RIDPGvuA7SNQ2w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://kit.fontawesome.com/e219cbc312.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body class="font-sans">
+    <div class="drawer w-full h-full lg:drawer-open">
+      <input id="drawer" type="checkbox" class="drawer-toggle">
+      <div class="drawer-content w-full h-full" hx-ext="response-targets">
+        <div id="navbar" data-cy="navbar" class="w-full navbar bg-base-300">
+          <div class="flex-none lg:hidden">
+            <label for="drawer" aria-label="open sidebar" data-cy="sidebar-open" class="btn btn-square btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </label>
+          </div>
+          <div class="flex-1 px-2 mx-2">
+            <div class="lg:hidden">
+              Cycling coach lab
+            </div>
+          </div>
+          <div class="flex-none">
+            <div data-cy="open-navbar-action-menu" class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                <!-- TODO: use logged in user name here-->
+                <style type="text/css">
+                  .bgColor_807e{background-color:#C01C15;}
+                </style>
+                <div class="flex items-center w-10 h-10 rounded-full bgColor_807e">
+                  <span class="mx-auto font-bold text-gray-900">
+                    JD
+                  </span>
+                </div>
+              </div>
+              <ul data-cy="navbar-action-menu" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200 rounded-box w-52">
+                <li>
+                  <a class="justify-between">
+                    Profile
+                    <span class="badge">
+                      New
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a data-cy="settings" hx-trigger="click" hx-get="/settings/view" hx-target="#dashboard-view">
+                    Settings
+                  </a>
+                </li>
+                <li>
+                  <a data-cy="logout" hx-trigger="click" hx-post="/auth/logout">
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- Page content here -->
+        <div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
+          <div id="dashboard-view" class="w-full h-full p-6">
+            <div class="flex flex-col gap-6">
+              <div class="prose">
+                <h1>
+                  Einstellungen
+                </h1>
+              </div>
+              <!-- Theme selection -->
+              <div class="flex flex-wrap gap-6">
+                <div class="card bg-base-200  prose w-full lg:w-fit">
+                  <div class="card-body">
+                    <h3 class="card-title">
+                      Theme auswählen
+                    </h3>
+                    <form data-cy="theme-switcher" hx-post="/settings/theme">
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Light
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="light">
+                        </label>
+                      </div>
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Retro
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="retro">
+                        </label>
+                      </div>
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Corporate
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="corporate">
+                        </label>
+                      </div>
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Dracula
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="dracula">
+                        </label>
+                      </div>
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Nord
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="nord">
+                        </label>
+                      </div>
+                      <div class="form-control">
+                        <label class="label cursor-pointer gap-4">
+                          <span class="label-text">
+                            Dark
+                          </span>
+                          <input type="radio" name="theme" class="radio theme-controller" value="dark" checked>
+                        </label>
+                      </div>
+                      <div class="card-actions justify-end">
+                        <button data-cy="save-theme" type="submit" class="btn">
+                          Bestätigen
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <!-- Reset application -->
+                <div class="card bg-warning text-warning-content prose">
+                  <div class="card-body">
+                    <h3 class="card-title text-black">
+                      Anwendung zurücksetzen
+                      <i class="fas fa-exclamation-triangle"></i>
+                    </h3>
+                    <p>
+                      Wenn du die Anwendung zurücksetzt, werden
+                      <b>
+                        ALLE
+                      </b>
+                      Daten gelöscht. Dazu gehören alle Benutzer und deren Trainingsdaten. Das betrifft auch deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die Anwendung dann wieder neu einrichten. Bist du sicher, dass du die Anwendung zurücksetzen möchtest?
+                    </p>
+                    <p>
+                      Diese Aktion kann nicht rückgängig gemacht werden.
+                    </p>
+                    <form class="card-actions justify-end" hx-post="/settings/reset" hx-swap="none">
+                      <button data-cy="reset" type="submit" class="btn btn-error">
+                        Anwendung zurücksetzen
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-cy="sidebar" class="drawer-side">
+        <label for="drawer" aria-label="close sidebar" data-cy="sidebar-overlay" class="drawer-overlay"></label>
+        <ul class="menu p-4 md:min-w-72 min-h-full bg-base-300">
+          <!-- Sidebar content here -->
+          <h2 class="prose p4 mx-2 my-1 hidden lg:block">
+            Cycling coach lab
+          </h2>
+          <li class="mt-2"></li>
+        </ul>
+      </div>
+    </div>
+    <script defer src="/assets/toasts.js" type="text/javascript"></script>
+  </body>
+</html>
+---
+
+[TestRenderSettingsView - 1]
+<div class="flex flex-col gap-6">
+  <div class="prose">
+    <h1>
+      Einstellungen
+    </h1>
+  </div>
+  <!-- Theme selection -->
+  <div class="flex flex-wrap gap-6">
+    <div class="card bg-base-200  prose w-full lg:w-fit">
+      <div class="card-body">
+        <h3 class="card-title">
+          Theme auswählen
+        </h3>
+        <form data-cy="theme-switcher" hx-post="/settings/theme">
+          <div class="form-control">
+            <label class="label cursor-pointer gap-4">
+              <span class="label-text">
+                Light
+              </span>
+              <input type="radio" name="theme" class="radio theme-controller" value="light">
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="label cursor-pointer gap-4">
+              <span class="label-text">
+                Retro
+              </span>
+              <input type="radio" name="theme" class="radio theme-controller" value="retro">
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="label cursor-pointer gap-4">
+              <span class="label-text">
+                Corporate
+              </span>
+              <input type="radio" name="theme" class="radio theme-controller" value="corporate">
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="label cursor-pointer gap-4">
+              <span class="label-text">
+                Dracula
+              </span>
+              <input type="radio" name="theme" class="radio theme-controller" value="dracula">
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="label cursor-pointer gap-4">
+              <span class="label-text">
+                Nord
+              </span>
+              <input type="radio" name="theme" class="radio theme-controller" value="nord">
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="label cursor-pointer gap-4">
+              <span class="label-text">
+                Dark
+              </span>
+              <input type="radio" name="theme" class="radio theme-controller" value="dark" checked>
+            </label>
+          </div>
+          <div class="card-actions justify-end">
+            <button data-cy="save-theme" type="submit" class="btn">
+              Bestätigen
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Reset application -->
+    <div class="card bg-warning text-warning-content prose">
+      <div class="card-body">
+        <h3 class="card-title text-black">
+          Anwendung zurücksetzen
+          <i class="fas fa-exclamation-triangle"></i>
+        </h3>
+        <p>
+          Wenn du die Anwendung zurücksetzt, werden
+          <b>
+            ALLE
+          </b>
+          Daten gelöscht. Dazu gehören alle Benutzer und deren Trainingsdaten. Das betrifft auch deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die Anwendung dann wieder neu einrichten. Bist du sicher, dass du die Anwendung zurücksetzen möchtest?
+        </p>
+        <p>
+          Diese Aktion kann nicht rückgängig gemacht werden.
+        </p>
+        <form class="card-actions justify-end" hx-post="/settings/reset" hx-swap="none">
+          <button data-cy="reset" type="submit" class="btn btn-error">
+            Anwendung zurücksetzen
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 ---

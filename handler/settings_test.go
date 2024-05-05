@@ -17,7 +17,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/test_utils"
 )
 
-func TestRenderSettingspage(t *testing.T) {
+func TestRenderSettingsPage(t *testing.T) {
 	au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com"}
 	handler := handler.NewSettingsHandler(nil, nil)
 
@@ -28,6 +28,20 @@ func TestRenderSettingspage(t *testing.T) {
 
 	// Call the handler
 	assert.NoError(t, handler.RenderSettingsPage(c))
+	assert.Equal(t, http.StatusOK, rec.Code)
+	test_utils.MakeSnapshot(t, rec.Body.String())
+}
+
+func TestRenderSettingsView(t *testing.T) {
+	handler := handler.NewSettingsHandler(nil, nil)
+
+	// Create a request
+	req := httptest.NewRequest(http.MethodGet, "/settings/view", nil)
+	rec := httptest.NewRecorder()
+	c := echo.New().NewContext(req, rec)
+
+	// Call the handler
+	assert.NoError(t, handler.RenderSettingsView(c))
 	assert.Equal(t, http.StatusOK, rec.Code)
 	test_utils.MakeSnapshot(t, rec.Body.String())
 }

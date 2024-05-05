@@ -53,12 +53,12 @@ func (h *SettingsHandler) Reset(c echo.Context) error {
 
 func (h *SettingsHandler) SetTheme(c echo.Context) error {
 	theme := c.FormValue("theme")
-
 	cookie := new(http.Cookie)
 	cookie.Name = "theme"
 	cookie.Value = theme
 	cookie.Path = "/"
 	c.SetCookie(cookie)
 
-	return utils.Success(c, "Theme erfolgreich geändert")
+	c.Response().Header().Add("HX-Redirect", "/settings")
+	return nil
 }
