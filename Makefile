@@ -25,7 +25,7 @@ generate:
 	@templ generate 
 	@npx tailwindcss -o assets/styles.css --minify
 
-generate-dev:
+generate-mocks:
 	@echo "Generating mocks..."
 	@./scripts/generate-mocks.sh
 

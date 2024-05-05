@@ -314,7 +314,7 @@
 
 [TestRenderUserTable/Success - 1]
 <!doctype html>
-<html data-theme="dark-light">
+<html data-theme="dark">
   <head>
     <title>
       Cycling Coach Lab
@@ -380,7 +380,7 @@
                   </a>
                 </li>
                 <li>
-                  <a>
+                  <a data-cy="settings" hx-trigger="click" hx-get="/settings/view" hx-target="#dashboard-view">
                     Settings
                   </a>
                 </li>
@@ -395,7 +395,7 @@
         </div>
         <!-- Page content here -->
         <div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
-          <div class="w-full h-full p-6">
+          <div id="dashboard-view" class="w-full h-full p-6">
             <div x-data="{userIdToDelete: null}">
               <div class="h-full overflow-auto">
                 <table class="table table-auto">
@@ -710,4 +710,483 @@
 
 [TestRenderAddUser/error_invalid_date - 1]
 
+---
+
+[TestRenderUserManagementPage/Error - 1]
+
+---
+
+[TestRenderUserManagementPage/Success - 1]
+<!doctype html>
+<html data-theme="dark">
+  <head>
+    <title>
+      Cycling Coach Lab
+    </title>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <meta name="htmx-config" content="{&#34;useTemplateFragments&#34;:true}">
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/base.css">
+    <!-- htmx -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/path-params.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
+    <!-- Alpine Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine Core -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/fontawesome.min.css" integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/solid.min.css" integrity="sha512-tk4nGrLxft4l30r9ETuejLU0a3d7LwMzj0eXjzc16JQj+5U1IeVoCuGLObRDc3+eQMUcEQY1RIDPGvuA7SNQ2w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://kit.fontawesome.com/e219cbc312.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body class="font-sans">
+    <div class="drawer w-full h-full lg:drawer-open">
+      <input id="drawer" type="checkbox" class="drawer-toggle">
+      <div class="drawer-content w-full h-full" hx-ext="response-targets">
+        <div id="navbar" data-cy="navbar" class="w-full navbar bg-base-300">
+          <div class="flex-none lg:hidden">
+            <label for="drawer" aria-label="open sidebar" data-cy="sidebar-open" class="btn btn-square btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </label>
+          </div>
+          <div class="flex-1 px-2 mx-2">
+            <div class="lg:hidden">
+              Cycling coach lab
+            </div>
+          </div>
+          <div class="flex-none">
+            <div data-cy="open-navbar-action-menu" class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                <!-- TODO: use logged in user name here-->
+                <style type="text/css">
+                  .bgColor_807e{background-color:#C01C15;}
+                </style>
+                <div class="flex items-center w-10 h-10 rounded-full bgColor_807e">
+                  <span class="mx-auto font-bold text-gray-900">
+                    JD
+                  </span>
+                </div>
+              </div>
+              <ul data-cy="navbar-action-menu" tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-200 rounded-box w-52">
+                <li>
+                  <a class="justify-between">
+                    Profile
+                    <span class="badge">
+                      New
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a data-cy="settings" hx-trigger="click" hx-get="/settings/view" hx-target="#dashboard-view">
+                    Settings
+                  </a>
+                </li>
+                <li>
+                  <a data-cy="logout" hx-trigger="click" hx-post="/auth/logout">
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- Page content here -->
+        <div id="main-content" class="flex-1 flex-row container mx-auto overflow-y-auto">
+          <div id="dashboard-view" class="w-full h-full p-6">
+            <div x-data="{userIdToDelete: null}">
+              <div class="h-full overflow-auto">
+                <table class="table table-auto">
+                  <thead>
+                    <tr>
+                      <th>
+                        Benutzer
+                      </th>
+                      <th>
+                        Status
+                      </th>
+                      <th>
+                        Registriert seit
+                      </th>
+                      <th>
+                        Aktionen
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="user-table" data-cy="user-table">
+                    <tr id="user_row_1" data-cy="user-row">
+                      <td>
+                        <div class="flex items-center gap-3">
+                          <div class="flex items-center w-10 h-10 rounded-full bgColor_807e">
+                            <span class="mx-auto font-bold text-gray-900">
+                              JD
+                            </span>
+                          </div>
+                          <div>
+                            <div class="font-bold" id="user-firstname">
+                              John Doe
+                            </div>
+                            <div class="text-sm opacity-50" data-cy="user-email" id="user-email">
+                              john@doe.com
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="indicator-item indicator-middle indicator-center badge"></span>
+                      </td>
+                      <td>
+                        2023/12/12
+                      </td>
+                      <td class="dropdown dropdown-left overflow-visible">
+                        <div data-cy="open-actions" tabindex="0" role="button" class="btn m-1 btn-xs btn-ghost">
+                          <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <ul data-cy="actions" tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+                          <li class="text-warning disabled">
+                            <a>
+                              <i class="fa-solid fa-trash"></i>
+                              Löschen
+                            </a>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
+                    <tr id="user_row_2" data-cy="user-row">
+                      <td>
+                        <div class="flex items-center gap-3">
+                          <div class="flex items-center w-10 h-10 rounded-full bgColor_807e">
+                            <span class="mx-auto font-bold text-gray-900">
+                              JD
+                            </span>
+                          </div>
+                          <div>
+                            <div class="font-bold" id="user-firstname">
+                              Jane Doe
+                            </div>
+                            <div class="text-sm opacity-50" data-cy="user-email" id="user-email">
+                              jane@doe.com
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="indicator-item indicator-middle indicator-center badge"></span>
+                      </td>
+                      <td>
+                        2023/12/12
+                      </td>
+                      <td class="dropdown dropdown-left overflow-visible">
+                        <div data-cy="open-actions" tabindex="0" role="button" class="btn m-1 btn-xs btn-ghost">
+                          <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </div>
+                        <ul data-cy="actions" tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+                          <li data-cy="action-delete-user" hx-delete="/users/2" hx-trigger="deleteUser" hx-target="closest tr" class="text-warning" hx-swap="outerHTML" onClick="Swal.fire(
+          {
+            title: &#39;Bist du sicher, dass du den Benutzer löschen möchtest?&#39;, 
+            text:&#39;Diese Aktion kann nicht rückgängig gemacht werden!&#39;,
+            icon: &#39;warning&#39;,
+            showCancelButton: true,
+            confirmButtonText: &#39;Ja, löschen!&#39;,
+            cancelButtonText: &#39;Abbrechen&#39;
+          }).then(({ isConfirmed }) =&gt; {
+            if(isConfirmed) {
+              htmx.trigger(this, &#39;deleteUser&#39;);
+            } 
+        })">
+                            <a>
+                              <i class="fa-solid fa-trash"></i>
+                              Löschen
+                            </a>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div id="add-user-overlay" x-data="{ OpenAddUserOverlay: false }" x-trap="OpenAddUserOverlay" @keyup.esc="OpenAddUserOverlay = false" :@closeOverlay="OpenAddUserOverlay = false">
+                <div class="fixed left-[calc(-50vw+50%)] top-0 bottom-0 h-fill w-full bg-gray-900 bg-opacity-50 z-40" x-show="OpenAddUserOverlay" x-cloak @click="OpenAddUserOverlay = !OpenAddUserOverlay"></div>
+                <div data-cy="add-user-overlay" class="fixed bottom-0 left-[calc(-50vw+50%)] md:left-auto md:right-0 w-screen md:w-fit h-full bg-base-100 rounded-lg shadow-lg z-50" x-show="OpenAddUserOverlay" x-cloak x-transition.duration.300ms>
+                  <button data-cy="add-user-overlay-close" class="btn btn-ghost absolute top-2 right-4" @click="OpenAddUserOverlay = false">
+                    <i class="fa-solid fa-times"></i>
+                  </button>
+                  <div class="flex flex-col items-center p-4 h-full">
+                    <h3 class="font-bold text-lg">
+                      Benutzer hinzufügen
+                    </h3>
+                    <div class="flex flex-col justify-center mt-6"></div>
+                    <form hx-post="/users" class="flex flex-col justify-between w-full h-full flex-1 space-y-4 mb-4" x-init="OpenAddUserOverlay = false">
+                      <div class="flex-1 overflow-y-auto max-h-[calc(50vh)]">
+                        <div class="grid sm:grid-cols-2 gap-4">
+                          <div class="flex flex-col">
+                            <label for="firstname" class="text-sm">
+                              Vorname:
+                            </label>
+                            <input data-cy="firstname" type="text" id="firstname" name="firstname" class="input input-bordered" required>
+                          </div>
+                          <div class="flex flex-col">
+                            <label for="lastname" class="text-sm">
+                              Nachname:
+                            </label>
+                            <input type="text" id="lastname" data-cy="lastname" name="lastname" class="input input-bordered" required>
+                          </div>
+                        </div>
+                        <div class="flex flex-col">
+                          <label for="lastname" class="text-sm">
+                            Geburtsdatum:
+                          </label>
+                          <input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required>
+                        </div>
+                        <div class="flex flex-col">
+                          <label for="email" class="text-sm">
+                            Email:
+                          </label>
+                          <input type="email" id="email" data-cy="email" name="email" class="input input-bordered" required>
+                        </div>
+                        <div class="flex flex-col">
+                          <label for="password" class="text-sm">
+                            Passwort:
+                          </label>
+                          <input type="password" id="password" data-cy="password" name="password" class="input input-bordered" required>
+                        </div>
+                        <div class="flex flex-col">
+                          <label for="role" class="text-sm">
+                            Benutzerrole:
+                          </label>
+                          <select type="role" id="role" data-cy="role" name="role" class="select select-bordered">
+                            <option selected value="athlete">
+                              Athlet
+                            </option>
+                            <option value="admin">
+                              Administrator
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                      <button data-cy="add-user-overlay-submit" type="submit" class="btn btn-primary w-full mt-6">
+                        Erstellen
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <button data-cy="open-add-user-overlay" class="btn btn-circle btn-primary absolute right-10 bottom-10 md:right-20 md:bottom-20" @click="OpenAddUserOverlay = !OpenAddUserOverlay">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-cy="sidebar" class="drawer-side">
+        <label for="drawer" aria-label="close sidebar" data-cy="sidebar-overlay" class="drawer-overlay"></label>
+        <ul class="menu p-4 md:min-w-72 min-h-full bg-base-300">
+          <!-- Sidebar content here -->
+          <h2 class="prose p4 mx-2 my-1 hidden lg:block">
+            Cycling coach lab
+          </h2>
+          <li class="mt-2"></li>
+        </ul>
+      </div>
+    </div>
+    <script defer src="/assets/toasts.js" type="text/javascript"></script>
+  </body>
+</html>
+---
+
+[TestRenderUserManagementView/Error - 1]
+
+---
+
+[TestRenderUserManagementView/Success - 1]
+<div x-data="{userIdToDelete: null}">
+  <div class="h-full overflow-auto">
+    <table class="table table-auto">
+      <thead>
+        <tr>
+          <th>
+            Benutzer
+          </th>
+          <th>
+            Status
+          </th>
+          <th>
+            Registriert seit
+          </th>
+          <th>
+            Aktionen
+          </th>
+        </tr>
+      </thead>
+      <tbody id="user-table" data-cy="user-table">
+        <tr id="user_row_1" data-cy="user-row">
+          <td>
+            <div class="flex items-center gap-3">
+              <style type="text/css">
+                .bgColor_807e{background-color:#C01C15;}
+              </style>
+              <div class="flex items-center w-10 h-10 rounded-full bgColor_807e">
+                <span class="mx-auto font-bold text-gray-900">
+                  JD
+                </span>
+              </div>
+              <div>
+                <div class="font-bold" id="user-firstname">
+                  John Doe
+                </div>
+                <div class="text-sm opacity-50" data-cy="user-email" id="user-email">
+                  john@doe.com
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="indicator-item indicator-middle indicator-center badge"></span>
+          </td>
+          <td>
+            2023/12/12
+          </td>
+          <td class="dropdown dropdown-left overflow-visible">
+            <div data-cy="open-actions" tabindex="0" role="button" class="btn m-1 btn-xs btn-ghost">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+            <ul data-cy="actions" tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+              <li class="text-warning disabled">
+                <a>
+                  <i class="fa-solid fa-trash"></i>
+                  Löschen
+                </a>
+              </li>
+            </ul>
+          </td>
+        </tr>
+        <tr id="user_row_2" data-cy="user-row">
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center w-10 h-10 rounded-full bgColor_807e">
+                <span class="mx-auto font-bold text-gray-900">
+                  JD
+                </span>
+              </div>
+              <div>
+                <div class="font-bold" id="user-firstname">
+                  Jane Doe
+                </div>
+                <div class="text-sm opacity-50" data-cy="user-email" id="user-email">
+                  jane@doe.com
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="indicator-item indicator-middle indicator-center badge"></span>
+          </td>
+          <td>
+            2023/12/12
+          </td>
+          <td class="dropdown dropdown-left overflow-visible">
+            <div data-cy="open-actions" tabindex="0" role="button" class="btn m-1 btn-xs btn-ghost">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+            <ul data-cy="actions" tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+              <li data-cy="action-delete-user" hx-delete="/users/2" hx-trigger="deleteUser" hx-target="closest tr" class="text-warning" hx-swap="outerHTML" onClick="Swal.fire(
+          {
+            title: &#39;Bist du sicher, dass du den Benutzer löschen möchtest?&#39;, 
+            text:&#39;Diese Aktion kann nicht rückgängig gemacht werden!&#39;,
+            icon: &#39;warning&#39;,
+            showCancelButton: true,
+            confirmButtonText: &#39;Ja, löschen!&#39;,
+            cancelButtonText: &#39;Abbrechen&#39;
+          }).then(({ isConfirmed }) =&gt; {
+            if(isConfirmed) {
+              htmx.trigger(this, &#39;deleteUser&#39;);
+            } 
+        })">
+                <a>
+                  <i class="fa-solid fa-trash"></i>
+                  Löschen
+                </a>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="add-user-overlay" x-data="{ OpenAddUserOverlay: false }" x-trap="OpenAddUserOverlay" @keyup.esc="OpenAddUserOverlay = false" :@closeOverlay="OpenAddUserOverlay = false">
+    <div class="fixed left-[calc(-50vw+50%)] top-0 bottom-0 h-fill w-full bg-gray-900 bg-opacity-50 z-40" x-show="OpenAddUserOverlay" x-cloak @click="OpenAddUserOverlay = !OpenAddUserOverlay"></div>
+    <div data-cy="add-user-overlay" class="fixed bottom-0 left-[calc(-50vw+50%)] md:left-auto md:right-0 w-screen md:w-fit h-full bg-base-100 rounded-lg shadow-lg z-50" x-show="OpenAddUserOverlay" x-cloak x-transition.duration.300ms>
+      <button data-cy="add-user-overlay-close" class="btn btn-ghost absolute top-2 right-4" @click="OpenAddUserOverlay = false">
+        <i class="fa-solid fa-times"></i>
+      </button>
+      <div class="flex flex-col items-center p-4 h-full">
+        <h3 class="font-bold text-lg">
+          Benutzer hinzufügen
+        </h3>
+        <div class="flex flex-col justify-center mt-6"></div>
+        <form hx-post="/users" class="flex flex-col justify-between w-full h-full flex-1 space-y-4 mb-4" x-init="OpenAddUserOverlay = false">
+          <div class="flex-1 overflow-y-auto max-h-[calc(50vh)]">
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div class="flex flex-col">
+                <label for="firstname" class="text-sm">
+                  Vorname:
+                </label>
+                <input data-cy="firstname" type="text" id="firstname" name="firstname" class="input input-bordered" required>
+              </div>
+              <div class="flex flex-col">
+                <label for="lastname" class="text-sm">
+                  Nachname:
+                </label>
+                <input type="text" id="lastname" data-cy="lastname" name="lastname" class="input input-bordered" required>
+              </div>
+            </div>
+            <div class="flex flex-col">
+              <label for="lastname" class="text-sm">
+                Geburtsdatum:
+              </label>
+              <input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required>
+            </div>
+            <div class="flex flex-col">
+              <label for="email" class="text-sm">
+                Email:
+              </label>
+              <input type="email" id="email" data-cy="email" name="email" class="input input-bordered" required>
+            </div>
+            <div class="flex flex-col">
+              <label for="password" class="text-sm">
+                Passwort:
+              </label>
+              <input type="password" id="password" data-cy="password" name="password" class="input input-bordered" required>
+            </div>
+            <div class="flex flex-col">
+              <label for="role" class="text-sm">
+                Benutzerrole:
+              </label>
+              <select type="role" id="role" data-cy="role" name="role" class="select select-bordered">
+                <option selected value="athlete">
+                  Athlet
+                </option>
+                <option value="admin">
+                  Administrator
+                </option>
+              </select>
+            </div>
+          </div>
+          <button data-cy="add-user-overlay-submit" type="submit" class="btn btn-primary w-full mt-6">
+            Erstellen
+          </button>
+        </form>
+      </div>
+    </div>
+    <button data-cy="open-add-user-overlay" class="btn btn-circle btn-primary absolute right-10 bottom-10 md:right-20 md:bottom-20" @click="OpenAddUserOverlay = !OpenAddUserOverlay">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </div>
+</div>
 ---
