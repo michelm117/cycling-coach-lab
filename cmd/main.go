@@ -117,7 +117,8 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	settingsHandler := handler.NewSettingsHandler(migrator, logger)
 	settingsRoute := app.Group("/settings")
 	settingsRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
-	settingsRoute.GET("", settingsHandler.RenderSettings)
+	settingsRoute.GET("", settingsHandler.RenderSettingsIndex)
+	settingsRoute.GET("/view", settingsHandler.RenderSettingsDashboard)
 	settingsRoute.POST("/reset", settingsHandler.Reset)
 	settingsRoute.POST("/theme", settingsHandler.SetTheme)
 }

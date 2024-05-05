@@ -27,9 +27,13 @@ func NewSettingsHandler(
 	}
 }
 
-func (h *SettingsHandler) RenderSettings(c echo.Context) error {
+func (h *SettingsHandler) RenderSettingsPage(c echo.Context) error {
 	au := c.(model.AuthenticatedContext).User
-	return Render(c, pages.SettingsIndex(au, GetTheme(c)))
+	return Render(c, pages.SettingsPage(au, GetTheme(c)))
+}
+
+func (h *SettingsHandler) RenderSettingsView(c echo.Context) error {
+	return Render(c, pages.SettingsView(GetTheme(c)))
 }
 
 func (h *SettingsHandler) Reset(c echo.Context) error {

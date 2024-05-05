@@ -27,7 +27,7 @@ func TestRenderSettingspage(t *testing.T) {
 	c := model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
 
 	// Call the handler
-	assert.NoError(t, handler.RenderSettings(c))
+	assert.NoError(t, handler.RenderSettingsPage(c))
 	assert.Equal(t, http.StatusOK, rec.Code)
 	test_utils.MakeSnapshot(t, rec.Body.String())
 }
@@ -92,7 +92,6 @@ func TestReset(t *testing.T) {
 }
 
 func TestSetTheme(t *testing.T) {
-
 	handler := handler.NewSettingsHandler(nil, nil)
 
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("theme=aqua"))
