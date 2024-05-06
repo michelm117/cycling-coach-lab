@@ -10,6 +10,7 @@ describe("App Setup", () => {
     cy.get("input[name=lastname]").type(lastname);
     cy.get("input[name=email]").type(email);
     cy.get("input[name=password]").type(password);
+    cy.get("input[name=confirmPassword]").type(password);
     cy.get("input[name=dateOfBirth]").type(dateOfBirth);
 
     cy.get("button[type=submit]").click();

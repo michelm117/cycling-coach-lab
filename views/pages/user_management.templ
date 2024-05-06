@@ -164,6 +164,17 @@ templ AddUserForm() {
 				<input type="password" id="password" data-cy="password" name="password" class="input input-bordered" required/>
 			</div>
 			<div class="flex flex-col">
+				<label for="password" class="text-sm">Passwort wiederholen:</label>
+				<input
+					type="password"
+					id="confirmPassword"
+					data-cy="confirmPassword"
+					name="confirmPassword"
+					class="input input-bordered"
+					required
+				/>
+			</div>
+			<div class="flex flex-col">
 				<label for="role" class="text-sm">Benutzerrole:</label>
 				<select type="role" id="role" data-cy="role" name="role" class="select select-bordered">
 					<option selected value="athlete">Athlet</option>

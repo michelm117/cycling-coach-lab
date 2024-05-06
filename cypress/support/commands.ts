@@ -53,6 +53,7 @@ Cypress.Commands.add(
         email,
         dateOfBirth,
         password,
+        confirmPassword: password,
         role,
       },
     }).then((response) => {

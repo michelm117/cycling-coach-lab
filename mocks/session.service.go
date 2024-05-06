@@ -54,20 +54,6 @@ func (mr *MockSessionServicerMockRecorder) AuthenticateUserBySessionID(sessionID
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthenticateUserBySessionID", reflect.TypeOf((*MockSessionServicer)(nil).AuthenticateUserBySessionID), sessionID)
 }
 
-// DeleteAllSessions mocks base method.
-func (m *MockSessionServicer) DeleteAllSessions() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAllSessions")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteAllSessions indicates an expected call of DeleteAllSessions.
-func (mr *MockSessionServicerMockRecorder) DeleteAllSessions() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllSessions", reflect.TypeOf((*MockSessionServicer)(nil).DeleteAllSessions))
-}
-
 // DeleteExpiredSessions mocks base method.
 func (m *MockSessionServicer) DeleteExpiredSessions() error {
 	m.ctrl.T.Helper()

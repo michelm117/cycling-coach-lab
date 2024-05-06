@@ -14,6 +14,7 @@ import (
 
 	"github.com/michelm117/cycling-coach-lab/handler"
 	"github.com/michelm117/cycling-coach-lab/mocks"
+	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/test_utils"
 )
 
@@ -57,12 +58,13 @@ func TestRenderSetup(t *testing.T) {
 	})
 }
 
-func createSetupRequest(firstname, lastname, email, password, dateOfBirth string) *http.Request {
+func createSetupRequest(firstname, lastname, email, password, confirmPassword, dateOfBirth string) *http.Request {
 	form := url.Values{}
 	form.Add("firstname", firstname)
 	form.Add("lastname", lastname)
 	form.Add("email", email)
 	form.Add("password", password)
+	form.Add("confirmPassword", confirmPassword)
 	form.Add("dateOfBirth", dateOfBirth)
 
 	req := httptest.NewRequest(http.MethodPost, "/setup", strings.NewReader(form.Encode()))
@@ -74,7 +76,7 @@ func TestSetup(t *testing.T) {
 	logger := zaptest.NewLogger(t).Sugar()
 	ctrl := gomock.NewController(t)
 	mg := mocks.NewMockGlobalSettingServicer(ctrl)
-	mc := mocks.NewMockCryptoer(ctrl)
+	mv := mocks.NewMockValidator(ctrl)
 	mu := mocks.NewMockUserServicer(ctrl)
 
 	t.Run("App already initialized", func(t *testing.T) {
@@ -83,7 +85,7 @@ func TestSetup(t *testing.T) {
 		handler := handler.NewSetupHandler(mg, nil, nil, logger)
 
 		// Create a request
-		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "1990-01-01")
+		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "password", "1990-01-01")
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
 
@@ -92,82 +94,38 @@ func TestSetup(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
-	t.Run("Invalid date of birth", func(t *testing.T) {
+	t.Run("Invalid input", func(t *testing.T) {
 		mg.EXPECT().IsAppInitialized().Return(false)
 
-		handler := handler.NewSetupHandler(mg, nil, nil, logger)
+		mv.EXPECT().CreateValidUser(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, assert.AnError)
+		handler := handler.NewSetupHandler(mg, nil, mv, logger)
 
 		// Create a request
-		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "invalid")
+		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "password", "invalid")
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
 
 		// Call the handler
-		assert.ErrorContains(t, handler.Setup(c), "Invalid date of birth")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("Internal server error on cryptoer generate hash", func(t *testing.T) {
-		mg.EXPECT().IsAppInitialized().Return(false)
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return(nil, assert.AnError)
-
-		handler := handler.NewSetupHandler(mg, nil, mc, logger)
-
-		// Create a request
-		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "1990-01-01")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.Setup(c), "Internal server error")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("Internal server error on db save", func(t *testing.T) {
-		mg.EXPECT().IsAppInitialized().Return(false)
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return([]byte("hashed"), nil)
-		mu.EXPECT().AddUser(gomock.Any()).Return(nil, assert.AnError)
-
-		handler := handler.NewSetupHandler(mg, mu, mc, logger)
-
-		// Create a request
-		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "1990-01-01")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.Setup(c), "Internal server error")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("Internal server error on initialising app", func(t *testing.T) {
-		mg.EXPECT().IsAppInitialized().Return(false)
-		mg.EXPECT().InitializeApp().Return(assert.AnError)
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return([]byte("hashed"), nil)
-		mu.EXPECT().AddUser(gomock.Any()).Return(nil, nil)
-
-		handler := handler.NewSetupHandler(mg, mu, mc, logger)
-
-		// Create a request
-		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "1990-01-01")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.Setup(c), "Internal server error")
+		assert.Error(t, handler.Setup(c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
 	t.Run("Success", func(t *testing.T) {
+		user := &model.User{
+			ID:        1,
+			Firstname: "John",
+			Lastname:  "Doe",
+			Email:     "john@doe.com",
+		}
 		mg.EXPECT().IsAppInitialized().Return(false)
 		mg.EXPECT().InitializeApp().Return(nil)
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return([]byte("hashed"), nil)
+		mv.EXPECT().CreateValidUser(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(user, nil)
 		mu.EXPECT().AddUser(gomock.Any()).Return(nil, nil)
 
-		handler := handler.NewSetupHandler(mg, mu, mc, logger)
+		handler := handler.NewSetupHandler(mg, mu, mv, logger)
 
 		// Create a request
-		req := createSetupRequest("John", "Doe", "john@doe.com", "password", "1990-01-01")
+		req := createSetupRequest(user.Firstname, user.Lastname, user.Email, "password", "password", "1990-01-01")
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
 

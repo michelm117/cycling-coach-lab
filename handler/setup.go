@@ -2,10 +2,8 @@ package handler
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/utils"
 	"github.com/michelm117/cycling-coach-lab/views/pages"
@@ -16,20 +14,20 @@ import (
 type SetupHandler struct {
 	globalSettingServicer services.GlobalSettingServicer
 	userServicer          services.UserServicer
-	cryptoer              utils.Cryptoer
+	validator             utils.Validator
 	logger                *zap.SugaredLogger
 }
 
 func NewSetupHandler(
 	globalSettingService services.GlobalSettingServicer,
 	userService services.UserServicer,
-	cryptoer utils.Cryptoer,
+	validators utils.Validator,
 	logger *zap.SugaredLogger,
 ) SetupHandler {
 	return SetupHandler{
 		globalSettingServicer: globalSettingService,
 		userServicer:          userService,
-		cryptoer:              cryptoer,
+		validator:             validators,
 		logger:                logger,
 	}
 }
@@ -39,33 +37,20 @@ func (h SetupHandler) Setup(c echo.Context) error {
 		return utils.Warning("App already initialized")
 	}
 
-	firstname := c.FormValue("firstname")
-	lastname := c.FormValue("lastname")
-	email := c.FormValue("email")
-
-	dateOfBirthStr := c.FormValue("dateOfBirth")
-	dateOfBirth, err := time.Parse("2006-01-02", dateOfBirthStr)
+	user, err := h.validator.CreateValidUser(
+		c.FormValue("firstname"),
+		c.FormValue("lastname"),
+		"admin",
+		c.FormValue("email"),
+		c.FormValue("dateOfBirth"),
+		c.FormValue("password"),
+		c.FormValue("confirmPassword"),
+	)
 	if err != nil {
-		return utils.Warning("Invalid date of birth")
+		return utils.Warning(err.Error())
 	}
 
-	password := c.FormValue("password")
-	hashedPassword, err := h.cryptoer.GenerateFromPassword([]byte(password))
-	if err != nil {
-		return utils.Warning("Internal server error")
-	}
-
-	u := model.User{
-		Firstname:    firstname,
-		Lastname:     lastname,
-		Email:        email,
-		DateOfBirth:  dateOfBirth,
-		Role:         "admin",
-		Status:       "active",
-		PasswordHash: string(hashedPassword),
-	}
-
-	_, err = h.userServicer.AddUser(u)
+	_, err = h.userServicer.AddUser(*user)
 	if err != nil {
 		h.logger.Error(err)
 		return utils.Warning("Internal server error")
