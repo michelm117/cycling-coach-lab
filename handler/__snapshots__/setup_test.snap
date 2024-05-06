@@ -75,7 +75,7 @@
             <label for="dateOfBirth" class="block text-sm font-semibold text-gray-600">
               Geburtsdatum:
             </label>
-            <input class="block text-sm font-semibold text-gray-600" type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required>
+            <input class="block text-sm font-semibold text-gray-600" type="date" id="dateOfBirth" name="dateOfBirth" required>
           </div>
           <div class="flex items-center justify-between">
             <button class="btn btn-primary w-full" type="submit">

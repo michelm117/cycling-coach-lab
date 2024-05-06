@@ -49,35 +49,33 @@ templ Navbar(au *model.User) {
 }
 
 templ Sidebar(au *model.User) {
-	<div data-cy="sidebar" class="drawer-side">
+	<div data-cy="sidebar" class="drawer-side z-50">
 		<label for="drawer" aria-label="close sidebar" data-cy="sidebar-overlay" class="drawer-overlay"></label>
-		<ul class="menu p-4 md:min-w-72 min-h-full bg-base-300">
+		<div class="p-4 md:min-w-72 min-h-full bg-slate-400 shadow-lg text-black">
 			<!-- Sidebar content here -->
-			<h2 class="prose p4 mx-2 my-1 hidden lg:block">
+			<h2 class="prose p4 mx-2 my-1 hidden lg:block text-black card-title">
 				Cycling coach lab
 			</h2>
-			<li class="mt-2">
+			<ul class="menu mt-2">
 				if au.Role == "admin" {
 					<div class="px-2 py-1.5 text-sm font-semibold">
 						Administration
 					</div>
-					<ul>
-						<li>
-							<a
-								data-cy="sidebar-user-management"
-								hx-trigger="click"
-								hx-get="/users/view"
-								hx-target="#dashboard-view"
-								hx-replace-url="/users"
-							>
-								<div class="fa-solid fa-users"></div>
-								Benutzerverwaltung
-							</a>
-						</li>
-					</ul>
+					<li>
+						<a
+							data-cy="sidebar-user-management"
+							hx-trigger="click"
+							hx-get="/users/view"
+							hx-target="#dashboard-view"
+							hx-replace-url="/users"
+						>
+							<div class="fa-solid fa-users"></div>
+							Benutzerverwaltung
+						</a>
+					</li>
 				}
-			</li>
-		</ul>
+			</ul>
+		</div>
 	</div>
 }
 
