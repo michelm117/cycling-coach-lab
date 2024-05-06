@@ -94,7 +94,13 @@ templ Sidebar(au *model.User) {
 					<h2 class="menu-title">Administration</h2>
 					<ul>
 						<li>
-							<a data-cy="sidebar-user-management" hx-trigger="click" hx-get="/users/view" hx-target="#dashboard-view">
+							<a
+								data-cy="sidebar-user-management"
+								hx-trigger="click"
+								hx-get="/users/view"
+								hx-target="#dashboard-view"
+								hx-replace-url="/users"
+							>
 								<div class="fa-solid fa-users"></div>
 								Benutzerverwaltung
 							</a>
