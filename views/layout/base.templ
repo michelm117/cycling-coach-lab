@@ -1,24 +1,47 @@
 package layout
 
+import (
+	"github.com/michelm117/cycling-coach-lab/views/components"
+)
+
+func getTheme(theme string) string {
+	if theme == "" {
+		return "dark"
+	}
+	return theme
+}
+
 templ BaseLayout(theme string) {
 	<!DOCTYPE html>
-	if theme != "" {
-		<html data-theme={ theme }>
-			@Head()
-			<body class="font-sans">
-				{ children... }
-				<script defer src="/assets/toasts.js" type="text/javascript"></script>
-			</body>
-		</html>
-	} else {
-		<html data-theme="dark">
-			@Head()
-			<body class="font-sans">
-				{ children... }
-				<script defer src="/assets/toasts.js" type="text/javascript"></script>
-			</body>
-		</html>
-	}
+	<html data-theme={ getTheme(theme) }>
+		@Head()
+		<body
+			class="font-sans"
+			x-init="
+            window.toast = (message, options = {}) => {
+                let description = '';
+                let type = 'default';
+                let position = 'top-right';
+                if(typeof options.description != 'undefined') description = options.description;
+                if(typeof options.type != 'undefined') type = options.type;
+                if(typeof options.position != 'undefined') position = options.position;
+                
+                window.dispatchEvent(new CustomEvent('toast-show', { 
+                    detail : { 
+                      type: type, 
+                      message: message, 
+                      description: description, 
+                      position : position 
+                    }
+                  }
+                ));
+            };
+        "
+		>
+			{ children... }
+			@components.Toasts()
+		</body>
+	</html>
 }
 
 templ Head() {
