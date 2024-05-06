@@ -2,10 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"net/mail"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
@@ -18,16 +15,16 @@ import (
 
 type UserManagementHandler struct {
 	userServicer services.UserServicer
-	cryptoer     utils.Cryptoer
+	validator    utils.Validator
 	logger       *zap.SugaredLogger
 }
 
 func NewUserManagementHandler(
 	userServicer services.UserServicer,
-	cryptoer utils.Cryptoer,
+	validator utils.Validator,
 	logger *zap.SugaredLogger,
 ) UserManagementHandler {
-	return UserManagementHandler{userServicer: userServicer, cryptoer: cryptoer, logger: logger}
+	return UserManagementHandler{userServicer: userServicer, validator: validator, logger: logger}
 }
 
 func (h UserManagementHandler) RenderUserManagementPage(c echo.Context) error {
@@ -64,83 +61,23 @@ func (h UserManagementHandler) DeleteUser(c echo.Context) error {
 }
 
 func (h UserManagementHandler) RenderAddUser(c echo.Context) error {
-	// Validate first name
-	firstname := c.FormValue("firstname")
-	if err := validateNonEmptyStringField("first name", firstname); err != nil {
-		return err
-	}
-
-	// Validate last name
-	lastname := c.FormValue("lastname")
-	if err := validateNonEmptyStringField("last name", lastname); err != nil {
-		return err
-	}
-
-	// Validate role
-	role := c.FormValue("role")
-	if err := validateRole(role); err != nil {
-		return err
-	}
-
-	// Validate email
-	email := c.FormValue("email")
-	if err := validateEmail(email); err != nil {
-		return err
-	}
-
-	// Validate date of birth
-	dateOfBirthStr := c.FormValue("dateOfBirth")
-	dateOfBirth, err := time.Parse("2006-01-02", dateOfBirthStr)
+	user, err := h.validator.CreateValidUser(
+		c.FormValue("firstname"),
+		c.FormValue("lastname"),
+		c.FormValue("role"),
+		c.FormValue("email"),
+		c.FormValue("dateOfBirth"),
+		c.FormValue("password"),
+		c.FormValue("confirmPassword"),
+	)
 	if err != nil {
-		return utils.Warning("Invalid date of birth")
+		return utils.Warning(err.Error())
 	}
 
-	// Validate password
-	password := c.FormValue("password")
-	hashedPassword, err := h.cryptoer.GenerateFromPassword([]byte(password))
-	if err != nil {
+	if _, err := h.userServicer.AddUser(*user); err != nil {
 		return utils.Warning("Could not add user")
 	}
 
-	// Create user object
-	user := model.User{
-		Firstname:    firstname,
-		Lastname:     lastname,
-		DateOfBirth:  dateOfBirth,
-		Email:        strings.ToLower(email),
-		PasswordHash: string(hashedPassword),
-		Role:         role,
-		Status:       "active",
-	}
-
-	// Add user
-	if _, err := h.userServicer.AddUser(user); err != nil {
-		return utils.Warning("Could not add user")
-	}
-
-	// Success response
 	utils.Success(c, fmt.Sprintf("User '%s' added successfully", user.Email))
-	return Render(c, pages.AddUserResponse(&user))
-}
-
-// Validation functions
-func validateNonEmptyStringField(fieldName, value string) error {
-	if value == "" {
-		return utils.Warning("Invalid " + fieldName)
-	}
-	return nil
-}
-
-func validateRole(role string) error {
-	if role != "admin" && role != "user" {
-		return utils.Warning("Invalid role")
-	}
-	return nil
-}
-
-func validateEmail(email string) error {
-	if _, err := mail.ParseAddress(email); err != nil {
-		return utils.Warning("Invalid email")
-	}
-	return nil
+	return Render(c, pages.AddUserResponse(user))
 }

@@ -53,20 +53,6 @@ func (mr *MockGlobalSettingServicerMockRecorder) Create(setting any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockGlobalSettingServicer)(nil).Create), setting)
 }
 
-// DeleteAllGlobalSettings mocks base method.
-func (m *MockGlobalSettingServicer) DeleteAllGlobalSettings() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAllGlobalSettings")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteAllGlobalSettings indicates an expected call of DeleteAllGlobalSettings.
-func (mr *MockGlobalSettingServicerMockRecorder) DeleteAllGlobalSettings() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllGlobalSettings", reflect.TypeOf((*MockGlobalSettingServicer)(nil).DeleteAllGlobalSettings))
-}
-
 // GetBySectionAndName mocks base method.
 func (m *MockGlobalSettingServicer) GetBySectionAndName(sectionName, settingName string) (any, error) {
 	m.ctrl.T.Helper()

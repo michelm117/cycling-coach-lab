@@ -25,12 +25,12 @@ func TestRenderUserManagementPage(t *testing.T) {
 	defer ctrl.Finish()
 
 	us := mocks.NewMockUserServicer(ctrl)
-	mc := mocks.NewMockCryptoer(ctrl)
+	mv := mocks.NewMockValidator(ctrl)
 
 	t.Run("Error", func(t *testing.T) {
 		us.EXPECT().GetAllUsers().Return(nil, assert.AnError)
 
-		handler := handler.NewUserManagementHandler(us, mc, nil)
+		handler := handler.NewUserManagementHandler(us, mv, nil)
 
 		// Create a request
 		req := httptest.NewRequest(http.MethodGet, "/users", nil)
@@ -50,7 +50,7 @@ func TestRenderUserManagementPage(t *testing.T) {
 		}
 		us.EXPECT().GetAllUsers().Return(users, nil)
 
-		handler := handler.NewUserManagementHandler(us, mc, nil)
+		handler := handler.NewUserManagementHandler(us, mv, nil)
 
 		// Create a request
 		req := httptest.NewRequest(http.MethodGet, "/users", nil)
@@ -165,12 +165,13 @@ func TestDeleteUser(t *testing.T) {
 	})
 }
 
-func createAddUserRequest(firstname, lastname, email, password, dateOfBirth, role string) *http.Request {
+func createAddUserRequest(firstname, lastname, email, password, confirmPassword, dateOfBirth, role string) *http.Request {
 	form := url.Values{}
 	form.Add("firstname", firstname)
 	form.Add("lastname", lastname)
 	form.Add("email", email)
 	form.Add("password", password)
+	form.Add("confirmPassword", confirmPassword)
 	form.Add("dateOfBirth", dateOfBirth)
 	form.Add("role", role)
 
@@ -184,96 +185,29 @@ func TestRenderAddUser(t *testing.T) {
 	defer ctrl.Finish()
 
 	us := mocks.NewMockUserServicer(ctrl)
-	mc := mocks.NewMockCryptoer(ctrl)
+	mv := mocks.NewMockValidator(ctrl)
 
 	t.Run("error invalid first name", func(t *testing.T) {
-		handler := handler.NewUserManagementHandler(us, mc, nil)
+		mv.EXPECT().CreateValidUser(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, assert.AnError)
+		handler := handler.NewUserManagementHandler(us, mv, nil)
 
 		// Create a request
-		req := createAddUserRequest("", "Doe", "john@doe.com", "password", "1990-01-01", "admin")
+		req := createAddUserRequest("", "Doe", "john@doe.com", "password", "password", "1990-01-01", "admin")
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
 
 		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Invalid first name")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("error invalid last name", func(t *testing.T) {
-		handler := handler.NewUserManagementHandler(us, mc, nil)
-
-		// Create a request
-		req := createAddUserRequest("John", "", "john@doe.com", "password", "1990-01-01", "admin")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Invalid last name")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("error invalid date", func(t *testing.T) {
-		handler := handler.NewUserManagementHandler(us, mc, nil)
-
-		// Create a request
-		req := createAddUserRequest("John", "Doe", "johne@doe.com", "password", "invalid", "admin")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Invalid date of birth")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("error invalid email", func(t *testing.T) {
-		handler := handler.NewUserManagementHandler(us, mc, nil)
-
-		// Create a request
-		req := createAddUserRequest("John", "Doe", "invalid", "password", "1990-01-01", "admin")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Invalid email")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("error invalid role", func(t *testing.T) {
-		handler := handler.NewUserManagementHandler(us, mc, nil)
-
-		// Create a request
-		req := createAddUserRequest("John", "Doe", "john@doe.com", "password", "1990-01-01", "invalid")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Invalid role")
-		assert.Equal(t, http.StatusOK, rec.Code)
-	})
-
-	t.Run("error cryptoer", func(t *testing.T) {
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return(nil, assert.AnError)
-
-		handler := handler.NewUserManagementHandler(us, mc, nil)
-
-		// Create a request
-		req := createAddUserRequest("John", "Doe", "johne@doe.com", "password", "1990-01-01", "admin")
-		rec := httptest.NewRecorder()
-		c := echo.New().NewContext(req, rec)
-
-		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Could not add user")
+		assert.Error(t, handler.RenderAddUser(c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
 	t.Run("error adding user", func(t *testing.T) {
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return([]byte("hashed"), nil)
 		us.EXPECT().AddUser(gomock.Any()).Return(nil, assert.AnError)
-
-		handler := handler.NewUserManagementHandler(us, mc, nil)
+		mv.EXPECT().CreateValidUser(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&model.User{}, nil)
+		handler := handler.NewUserManagementHandler(us, mv, nil)
 
 		// Create a request
-		req := createAddUserRequest("John", "Doe", "john@doe.com", "password", "1990-01-01", "admin")
+		req := createAddUserRequest("John", "Doe", "john@doe.com", "password", "password", "1990-01-01", "admin")
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
 
@@ -283,13 +217,18 @@ func TestRenderAddUser(t *testing.T) {
 	})
 
 	t.Run("success", func(t *testing.T) {
-		mc.EXPECT().GenerateFromPassword(gomock.Eq([]byte("password"))).Return([]byte("hashed"), nil)
+		user := &model.User{
+			Firstname: "John",
+			Lastname:  "Doe",
+			Email:     "john@doe.com",
+		}
 		us.EXPECT().AddUser(gomock.Any()).Return(&model.User{ID: 1}, nil)
+		mv.EXPECT().CreateValidUser(gomock.Eq("John"), gomock.Eq("Doe"), gomock.Eq("admin"), gomock.Eq("john@doe.com"), gomock.Eq("1990-01-01"), gomock.Eq("password"), gomock.Eq("password")).Return(user, nil)
 
-		handler := handler.NewUserManagementHandler(us, mc, nil)
+		handler := handler.NewUserManagementHandler(us, mv, nil)
 
 		// Create a request
-		req := createAddUserRequest("John", "Doe", "joohn@doe.com", "password", "1990-01-01", "admin")
+		req := createAddUserRequest("John", "Doe", "john@doe.com", "password", "password", "1990-01-01", "admin")
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
 

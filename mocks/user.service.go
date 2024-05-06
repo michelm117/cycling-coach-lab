@@ -69,20 +69,6 @@ func (mr *MockUserServicerMockRecorder) Count() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockUserServicer)(nil).Count))
 }
 
-// DeleteAllUsers mocks base method.
-func (m *MockUserServicer) DeleteAllUsers() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAllUsers")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteAllUsers indicates an expected call of DeleteAllUsers.
-func (mr *MockUserServicerMockRecorder) DeleteAllUsers() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllUsers", reflect.TypeOf((*MockUserServicer)(nil).DeleteAllUsers))
-}
-
 // DeleteUser mocks base method.
 func (m *MockUserServicer) DeleteUser(id int) error {
 	m.ctrl.T.Helper()

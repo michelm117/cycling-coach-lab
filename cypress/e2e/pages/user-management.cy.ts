@@ -17,7 +17,7 @@ describe("User Management", () => {
     ).should("not.exist");
   };
 
-  const deleteUser = (user) => {
+  const deleteUser = (user: any) => {
     cy.addUser(
       user.firstname,
       user.lastname,
@@ -49,7 +49,7 @@ describe("User Management", () => {
       });
   };
 
-  const fillFieldAndCheckValidity = (fieldSelector, value) => {
+  const fillFieldAndCheckValidity = (fieldSelector: string, value: string) => {
     cy.get(fieldSelector + ":invalid").should("have.length", 1);
     cy.get(fieldSelector).type(value);
     cy.get(fieldSelector + ":invalid").should("have.length", 0);
@@ -69,7 +69,9 @@ describe("User Management", () => {
     cy.get("[data-cy=email]").type(email);
     cy.get("[data-cy=email]:invalid").should("have.length", 0);
 
-    fillFieldAndCheckValidity("[data-cy=password]", faker.internet.password());
+    const password = faker.internet.password();
+    fillFieldAndCheckValidity("[data-cy=password]", password);
+    fillFieldAndCheckValidity("[data-cy=confirmPassword]", password);
 
     fillFieldAndCheckValidity(
       "[data-cy=dateOfBirth]",

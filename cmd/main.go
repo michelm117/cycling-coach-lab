@@ -91,13 +91,14 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	app.GET("/version", utilsHandler.Version)
 
 	cryptoer := utils.NewCrypto()
+	validator := utils.NewValidator(cryptoer)
 	browserSessionManager := utils.NewBrowserSessionManager()
 	globalSettingsServicer := services.NewGlobalSettingService(db, logger)
 	userServicer := services.NewUserServicer(db, logger)
 	sessionService := services.NewSessionServicer(db, logger)
 	sessionService.ScheduleSessionCleanup()
 
-	setupHandler := handler.NewSetupHandler(globalSettingsServicer, userServicer, cryptoer, logger)
+	setupHandler := handler.NewSetupHandler(globalSettingsServicer, userServicer, validator, logger)
 	app.GET("/setup", setupHandler.RenderSetup)
 	app.POST("/setup", setupHandler.Setup)
 
@@ -107,7 +108,7 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	authRoute.POST("/login", authHandler.Login)
 	authRoute.POST("/logout", authHandler.Logout)
 
-	userManagementHandler := handler.NewUserManagementHandler(userServicer, cryptoer, logger)
+	userManagementHandler := handler.NewUserManagementHandler(userServicer, validator, logger)
 	usersRoute := app.Group("/users")
 	usersRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
 	usersRoute.GET("", userManagementHandler.RenderUserManagementPage)
