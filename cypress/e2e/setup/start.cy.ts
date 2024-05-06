@@ -3,6 +3,7 @@ import users from "../../fixtures/users.json";
 describe("App Setup", () => {
   it("should setup a new application", () => {
     cy.visit("/setup");
+    cy.url().should("contain", "setup");
 
     const { firstname, lastname, email, dateOfBirth, password } =
       users.createdAdmin;
