@@ -29,8 +29,8 @@ func NewUserServicer(db *sql.DB, logger *zap.SugaredLogger) UserServicer {
 	}
 }
 
-func (repo *UserService) GetById(id int) (*model.User, error) {
-	row := repo.db.QueryRow("SELECT * FROM users WHERE users.id = $1", id)
+func (s *UserService) GetById(id int) (*model.User, error) {
+	row := s.db.QueryRow("SELECT * FROM users WHERE users.id = $1", id)
 
 	var user model.User
 	err := row.Scan(
@@ -51,8 +51,8 @@ func (repo *UserService) GetById(id int) (*model.User, error) {
 	return &user, nil
 }
 
-func (repo *UserService) GetByEmail(email string) (*model.User, error) {
-	row := repo.db.QueryRow("SELECT * FROM users WHERE users.email = $1", email)
+func (s *UserService) GetByEmail(email string) (*model.User, error) {
+	row := s.db.QueryRow("SELECT * FROM users WHERE users.email = $1", email)
 
 	var user model.User
 	err := row.Scan(
@@ -73,8 +73,8 @@ func (repo *UserService) GetByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-func (repo *UserService) GetAllUsers() ([]*model.User, error) {
-	rows, err := repo.db.Query("SELECT * FROM users")
+func (s *UserService) GetAllUsers() ([]*model.User, error) {
+	rows, err := s.db.Query("SELECT * FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("error while trying to execute query: %s", err)
 	}
@@ -108,8 +108,8 @@ func (repo *UserService) GetAllUsers() ([]*model.User, error) {
 	return users, nil
 }
 
-func (repo *UserService) AddUser(user model.User) (*model.User, error) {
-	_, err := repo.db.Exec(
+func (s *UserService) AddUser(user model.User) (*model.User, error) {
+	_, err := s.db.Exec(
 		"INSERT INTO users (email, firstname, lastname, date_of_birth, password_hash, status, role) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		user.Email,
 		user.Firstname,
@@ -125,8 +125,8 @@ func (repo *UserService) AddUser(user model.User) (*model.User, error) {
 	return &user, nil
 }
 
-func (repo *UserService) DeleteUser(id int) error {
-	_, err := repo.db.Exec(
+func (s *UserService) DeleteUser(id int) error {
+	_, err := s.db.Exec(
 		"DELETE FROM users WHERE users.id = $1",
 		id,
 	)
@@ -136,8 +136,8 @@ func (repo *UserService) DeleteUser(id int) error {
 	return nil
 }
 
-func (repo *UserService) Count() (int, error) {
-	row := repo.db.QueryRow("SELECT count(*) FROM users")
+func (s *UserService) Count() (int, error) {
+	row := s.db.QueryRow("SELECT count(*) FROM users")
 	var count int
 	err := row.Scan(&count)
 	if err != nil {
