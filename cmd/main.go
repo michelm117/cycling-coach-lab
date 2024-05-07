@@ -85,6 +85,8 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 		return c.Redirect(http.StatusTemporaryRedirect, "/users")
 	})
 
+	// Initialize Casbin Enforcer
+	enforcer := utils.NewCasbinEnforcer("./casbin/casbin_auth_model.conf", "./casbin/casbin_auth_policy.csv")
 	// Health check and version endpoints
 	utilsHandler := handler.NewUtilsHandler(db)
 	app.GET("/health", utilsHandler.HealthCheck)
@@ -111,6 +113,7 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	userManagementHandler := handler.NewUserManagementHandler(userServicer, validator, logger)
 	usersRoute := app.Group("/users")
 	usersRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
+	usersRoute.Use(middlewares.Autheratziation(enforcer))
 	usersRoute.GET("", userManagementHandler.RenderUserManagementPage)
 	usersRoute.GET("/view", userManagementHandler.RenderUserManagementView)
 	usersRoute.POST("", userManagementHandler.RenderAddUser)
@@ -119,6 +122,7 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	settingsHandler := handler.NewSettingsHandler(migrator, logger)
 	settingsRoute := app.Group("/settings")
 	settingsRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
+	settingsRoute.Use(middlewares.Autheratziation(enforcer))
 	settingsRoute.GET("", settingsHandler.RenderSettingsPage)
 	settingsRoute.GET("/view", settingsHandler.RenderSettingsView)
 	settingsRoute.POST("/reset", settingsHandler.Reset)

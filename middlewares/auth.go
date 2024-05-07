@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/utils"
@@ -30,6 +29,23 @@ func Authentication(sessionService services.SessionServicer, browserSessionManag
 				Context: c,
 			}
 			return next(authenticatedContext)
+		}
+	}
+}
+
+func Autheratziation(enforcer utils.CasbinEnforcer) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			user := c.(model.AuthenticatedContext).User
+			resource := c.Request().URL.Path
+			err := enforcer.Enforce(user.Role, resource, c.Request().Method)
+			if err != nil {
+				te := utils.Danger("You are not allowed to access this!")
+				te.SetHXTriggerHeader(c)
+				c.Response().WriteHeader(http.StatusForbidden)
+				return nil
+			}
+			return next(c)
 		}
 	}
 }

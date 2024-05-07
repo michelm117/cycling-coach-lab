@@ -50,7 +50,7 @@ func TestValidateRole(t *testing.T) {
 			expected: nil,
 		},
 		{
-			role:     "user",
+			role:     "athlete",
 			expected: nil,
 		},
 		{
@@ -123,11 +123,10 @@ func TestValidatePassword(t *testing.T) {
 func TestCreateValidUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-
 	cryptoer := mocks.NewMockCryptoer(ctrl)
-	cryptoer.EXPECT().GenerateFromPassword(gomock.Any()).Return([]byte("hashed"), nil)
 	v := utils.NewValidator(cryptoer)
-
+	cryptoer.EXPECT().GenerateFromPassword(gomock.Any()).Return([]byte("hashed"), nil)
+	cryptoer.EXPECT().GenerateFromPassword(gomock.Any()).Return([]byte("hashed"), nil)
 	testCases := []struct {
 		firstname       string
 		lastname        string
@@ -158,8 +157,17 @@ func TestCreateValidUser(t *testing.T) {
 			confirmPassword: "password",
 			expected:        fmt.Errorf("Invalid first name"),
 		},
+		{
+			firstname:       "athlete",
+			lastname:        "last",
+			role:            "athlete",
+			email:           "john@doe.com",
+			dateOfBirthStr:  "2000-01-01",
+			password:        "password",
+			confirmPassword: "password",
+			expected:        nil,
+		},
 	}
-
 	for _, tc := range testCases {
 		t.Run(tc.firstname, func(t *testing.T) {
 			result, err := v.CreateValidUser(

@@ -1,0 +1,6 @@
+p, admin, *, *
+p, athlete, /users, GET
+p, athlete, /users/*, GET
+p, athlete, /settings, GET
+p, athlete, /settings/*, GET
+p, athlete, /settings/theme, POST
