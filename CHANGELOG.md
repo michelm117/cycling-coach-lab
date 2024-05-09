@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.6.0](https://github.com/michelm117/cycling-coach-lab/compare/v1.5.1...v1.6.0) (2024-05-09)
+
+
+### Features
+
+* add authentication ([1b7dcee](https://github.com/michelm117/cycling-coach-lab/commit/1b7dcee0eda2f42f175acb193ba36cf32d7297ec))
+* add banner to show latest features ([30dd873](https://github.com/michelm117/cycling-coach-lab/commit/30dd87338d905039acb5588050ba6199c8cc2a12))
+* add casbin rbac ([#71](https://github.com/michelm117/cycling-coach-lab/issues/71)) ([c1208e8](https://github.com/michelm117/cycling-coach-lab/commit/c1208e8a0fa4b74c809b22216712d2da78865c06))
+* add password confirm field for user creation ([4c3209b](https://github.com/michelm117/cycling-coach-lab/commit/4c3209b77d5adf039ff53e23c0f337c001e281a2))
+* add setup page for initial app setup ([197c6e5](https://github.com/michelm117/cycling-coach-lab/commit/197c6e530fd778313f353e24fcb828bae90aa810))
+* add themes ([38871d1](https://github.com/michelm117/cycling-coach-lab/commit/38871d13f0602d784d8b19474b5185170bfe6b03))
+* change theme ([bb1f885](https://github.com/michelm117/cycling-coach-lab/commit/bb1f8850ce961a8bc5bd055b46650ba0d5cb8fae))
+* change theme to dim ([fc5a895](https://github.com/michelm117/cycling-coach-lab/commit/fc5a8951961af8d2f23183e922fbb43184018379))
+* exchange admin dashboard ([725a641](https://github.com/michelm117/cycling-coach-lab/commit/725a641dc51256df00957bce8fa88e938a46f830))
+
+
+### Bug Fixes
+
+* add favicon emoji ([31dc1e6](https://github.com/michelm117/cycling-coach-lab/commit/31dc1e63373f86fbb8f8f713476af177e5bcf459))
+* after app reset user is redirected to setup page ([6bcfe17](https://github.com/michelm117/cycling-coach-lab/commit/6bcfe17e0c8f40628b5e3a80de623dd9a8e476d3))
+* imporve toasts ([666a448](https://github.com/michelm117/cycling-coach-lab/commit/666a4480626f749611e4822565a4be1cdf30f25e))
+* improve profile drop down ([a691cf7](https://github.com/michelm117/cycling-coach-lab/commit/a691cf792f99e2aa77cbe857c94eb03743dce863))
+* improve sidebar ([8ceaa52](https://github.com/michelm117/cycling-coach-lab/commit/8ceaa5202c23b47364e43281921ff0cc13f0500f))
+* make overlay form scrollable ([e219e70](https://github.com/michelm117/cycling-coach-lab/commit/e219e70f3d76c3a130841a43d4b4b262803c3d9a))
+* theme switch ([0842c5a](https://github.com/michelm117/cycling-coach-lab/commit/0842c5a0dea5fb5a1c3cf9ff41436b01b9de9d2a))
+
 ## [1.5.1](https://github.com/michelm117/cycling-coach-lab/compare/v1.5.0...v1.5.1) (2024-04-03)
 
 
