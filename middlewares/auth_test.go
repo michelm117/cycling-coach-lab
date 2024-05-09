@@ -24,6 +24,16 @@ func setupEchoContext() (e *echo.Echo, c echo.Context, rec *httptest.ResponseRec
 	return
 }
 
+func setupEchoContextForAutherization(role string, path string) (c model.AuthenticatedContext, rec *httptest.ResponseRecorder) {
+
+	au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com", Role: role}
+	// Create a request
+	req := httptest.NewRequest(http.MethodGet, path, nil)
+	rec = httptest.NewRecorder()
+	c = model.AuthenticatedContext{Context: echo.New().NewContext(req, rec), User: &au}
+	return
+}
+
 func createValidSession() *sessions.Session {
 	return &sessions.Session{
 		Values: make(map[interface{}]interface{}),
@@ -119,4 +129,54 @@ func TestAuthenticationMiddleware_BrowserSessionError(t *testing.T) {
 	assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
 	assert.Equal(t, "/auth/login", rec.Header().Get("Location"))
 	assert.Equal(t, "", rec.Body.String())
+}
+
+func TestAutherizationSuccess(t *testing.T) {
+	// Setup
+	path := "/path"
+	role := "admin"
+	method := "GET"
+	c, rec := setupEchoContextForAutherization(role, path)
+
+	ctrl := gomock.NewController(t)
+	mb := mocks.NewMockCasbinEnforcer(ctrl)
+
+	mb.EXPECT().Enforce(gomock.Eq(role), gomock.Eq(path), gomock.Eq(method)).Return(nil)
+
+	// Test middleware
+	authMiddleware := middlewares.Autheratziation(mb)
+	handler := authMiddleware(func(c echo.Context) error {
+		return c.String(http.StatusOK, "Authorized")
+	})
+	err := handler(c)
+
+	// Assertions
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "Authorized", rec.Body.String())
+}
+
+func TestAutherizationError(t *testing.T) {
+	// Setup
+	path := "/path"
+	role := "athlete"
+	method := "GET"
+	c, rec := setupEchoContextForAutherization(role, path)
+
+	ctrl := gomock.NewController(t)
+	mb := mocks.NewMockCasbinEnforcer(ctrl)
+
+	mb.EXPECT().Enforce(gomock.Eq(role), gomock.Eq(path), gomock.Eq(method)).Return(echo.ErrForbidden)
+
+	// Test middleware
+	authMiddleware := middlewares.Autheratziation(mb)
+	handler := authMiddleware(func(c echo.Context) error {
+		return c.String(http.StatusOK, "")
+	})
+	err := handler(c)
+	assert.NoError(t, err)
+	assert.Equal(t, "", rec.Body.String())
+	assert.Equal(t, http.StatusForbidden, rec.Code)
+	expectedHeader := http.Header(http.Header{"Hx-Trigger": []string{"{\"showToast\":{\"level\":\"danger\",\"message\":\"You are not allowed to access this!\"}}"}})
+	assert.Equal(t, rec.Result().Header, expectedHeader)
 }

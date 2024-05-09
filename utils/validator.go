@@ -32,7 +32,7 @@ func (v *validator) ValidateNonEmptyStringField(fieldName, value string) error {
 }
 
 func (v *validator) ValidateRole(role string) error {
-	if role != "admin" && role != "user" {
+	if role != "admin" && role != "athlete" {
 		return fmt.Errorf("Invalid role")
 	}
 	return nil

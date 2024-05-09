@@ -20,6 +20,7 @@ RUN npx tailwindcss -o /app/assets/styles.css --minify
 FROM gcr.io/distroless/static-debian11 AS release-stage
 WORKDIR /app
 COPY --from=build-stage /app/entrypoint /app/entrypoint
+COPY --from=build-stage /app/casbin /app/casbin
 COPY --from=build-stage /app/assets /app/assets
 COPY --from=build-stage /app/migrations /app/migrations
 ENV ENV=production
