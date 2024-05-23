@@ -3,109 +3,184 @@ package pages
 import (
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
+	"github.com/michelm117/cycling-coach-lab/views/components"
 )
 
-templ SettingsView(theme string) {
-	<div class="flex flex-col gap-6">
+templ SettingsView(theme string, emailSettings model.EmailSettings) {
+	<div class="flex flex-col justify-center md:mx-auto prose max-w-4xl">
 		<div class="prose">
 			<h1>Einstellungen</h1>
 		</div>
 		<!-- Theme selection -->
-		<div class="flex flex-wrap gap-6">
-			<div class="card bg-base-200  prose w-full lg:w-fit">
-				<div class="card-body">
-					<h3 class="card-title">Theme auswählen</h3>
-					<form data-cy="theme-switcher" hx-post="/settings/theme">
-						<div class="form-control">
-							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Light</span>
-								if theme == "light" {
-									<input type="radio" name="theme" class="radio theme-controller" value="light" checked/>
-								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="light"/>
-								}
-							</label>
-						</div>
-						<div class="form-control">
-							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Retro</span>
-								if theme == "retro" {
-									<input type="radio" name="theme" class="radio theme-controller" value="retro" checked/>
-								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="retro"/>
-								}
-							</label>
-						</div>
-						<div class="form-control">
-							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Corporate</span>
-								if theme == "corporate" {
-									<input type="radio" name="theme" class="radio theme-controller" value="corporate" checked/>
-								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="corporate"/>
-								}
-							</label>
-						</div>
-						<div class="form-control">
-							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Dracula</span>
-								if theme == "dracula" {
-									<input type="radio" name="theme" class="radio theme-controller" value="dracula" checked/>
-								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="dracula"/>
-								}
-							</label>
-						</div>
-						<div class="form-control">
-							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Nord</span>
-								if theme == "nord" {
-									<input type="radio" name="theme" class="radio theme-controller" value="nord" checked/>
-								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="nord"/>
-								}
-							</label>
-						</div>
-						<div class="form-control">
-							<label class="label cursor-pointer gap-4">
-								<span class="label-text">Dark</span>
-								if theme == "dark" {
-									<input type="radio" name="theme" class="radio theme-controller" value="dark" checked/>
-								} else {
-									<input type="radio" name="theme" class="radio theme-controller" value="dark"/>
-								}
-							</label>
-						</div>
-						<div class="card-actions justify-end">
-							<button data-cy="save-theme" type="submit" class="btn">Bestätigen</button>
-						</div>
-					</form>
+		@components.SettingsCard("Theme auswählen") {
+			<form data-cy="theme-switcher" hx-post="/settings/theme">
+				<div class="md:mx-auto max-w-md">
+					<div class="form-control">
+						<label class="label cursor-pointer gap-4">
+							<span class="label-text">Light</span>
+							if theme == "light" {
+								<input type="radio" name="theme" class="radio theme-controller" value="light" checked/>
+							} else {
+								<input type="radio" name="theme" class="radio theme-controller" value="light"/>
+							}
+						</label>
+					</div>
+					<div class="form-control">
+						<label class="label cursor-pointer gap-4">
+							<span class="label-text">Retro</span>
+							if theme == "retro" {
+								<input type="radio" name="theme" class="radio theme-controller" value="retro" checked/>
+							} else {
+								<input type="radio" name="theme" class="radio theme-controller" value="retro"/>
+							}
+						</label>
+					</div>
+					<div class="form-control">
+						<label class="label cursor-pointer gap-4">
+							<span class="label-text">Corporate</span>
+							if theme == "corporate" {
+								<input type="radio" name="theme" class="radio theme-controller" value="corporate" checked/>
+							} else {
+								<input type="radio" name="theme" class="radio theme-controller" value="corporate"/>
+							}
+						</label>
+					</div>
+					<div class="form-control">
+						<label class="label cursor-pointer gap-4">
+							<span class="label-text">Dracula</span>
+							if theme == "dracula" {
+								<input type="radio" name="theme" class="radio theme-controller" value="dracula" checked/>
+							} else {
+								<input type="radio" name="theme" class="radio theme-controller" value="dracula"/>
+							}
+						</label>
+					</div>
+					<div class="form-control">
+						<label class="label cursor-pointer gap-4">
+							<span class="label-text">Nord</span>
+							if theme == "nord" {
+								<input type="radio" name="theme" class="radio theme-controller" value="nord" checked/>
+							} else {
+								<input type="radio" name="theme" class="radio theme-controller" value="nord"/>
+							}
+						</label>
+					</div>
+					<div class="form-control">
+						<label class="label cursor-pointer gap-4">
+							<span class="label-text">Dark</span>
+							if theme == "dark" {
+								<input type="radio" name="theme" class="radio theme-controller" value="dark" checked/>
+							} else {
+								<input type="radio" name="theme" class="radio theme-controller" value="dark"/>
+							}
+						</label>
+					</div>
 				</div>
-			</div>
-			<!-- Reset application -->
-			<div class="card bg-warning text-warning-content prose">
-				<div class="card-body">
-					<h3 class="card-title text-black">
-						Anwendung zurücksetzen
-						<i class="fas fa-exclamation-triangle"></i>
-					</h3>
-					<p>
-						Wenn du die Anwendung zurücksetzt, werden <b>ALLE</b> Daten gelöscht. Dazu gehören alle Benutzer und deren
-						Trainingsdaten. Das betrifft auch deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die
-						Anwendung dann wieder neu einrichten. Bist du sicher, dass du die Anwendung zurücksetzen möchtest?
-					</p>
-					<p>Diese Aktion kann nicht rückgängig gemacht werden. </p>
-					<form class="card-actions justify-end" hx-post="/settings/reset" hx-swap="none">
-						<button data-cy="reset" type="submit" class="btn btn-error">Anwendung zurücksetzen</button>
-					</form>
+				<div class="pt-4 flex md:justify-end">
+					<button data-cy="save-theme" type="submit" class="btn">Bestätigen</button>
 				</div>
-			</div>
-		</div>
+			</form>
+		}
+		@components.SettingsCard("E-Mail-Server") {
+			<p>
+				Es ist wichtig diesen Server so zu konfigurieren, dass E-Mails versendet werden können, z.B. für die
+				Passwortwiederherstellung und Benachrichtigunen.
+			</p>
+			@EmailSettingsForm(emailSettings)
+		}
+		@components.SettingsCard("Anwendung zurücksetzen") {
+			<p>
+				Wenn du die Anwendung zurücksetzt, werden <b>ALLE</b> Daten gelöscht. Dazu gehören alle Benutzer und deren
+				Trainingsdaten. Das betrifft auch deine Trainingsdaten, deine Einstellungen und dein Account. Du kannst die
+				Anwendung dann wieder neu einrichten. Bist du sicher, dass du die Anwendung zurücksetzen möchtest?
+			</p>
+			<p>Diese Aktion kann nicht rückgängig gemacht werden. </p>
+			<form class="pt-4 flex md:justify-end" hx-post="/settings/reset" hx-swap="none">
+				<button data-cy="reset" type="submit" class="btn btn-error">Anwendung zurücksetzen</button>
+			</form>
+		}
 	</div>
 }
 
-templ SettingsPage(au *model.User, theme string) {
+templ EmailSettingsForm(emailSettings model.EmailSettings) {
+	<form hx-post="/settings/email">
+		<div class="md:mx-auto max-w-md">
+			<div class="form-control w-full">
+				<div class="label">
+					<span class="label-text">Absenderadresse</span>
+				</div>
+				<input
+					type="email"
+					name="from"
+					class="input input-bordered"
+					placeholder="admin@ccl.de"
+					value={ emailSettings.From }
+					required
+				/>
+			</div>
+			<div class="form-control w-full">
+				<div class="label"></div>
+				<span class="label-text">Serveradresse</span>
+				<input
+					type="text"
+					name="host"
+					class="input input-bordered"
+					placeholder="smtp.gmail.com"
+					value={ emailSettings.Host }
+					required
+				/>
+			</div>
+			<div class="form-control w-full">
+				<div class="label">
+					<span class="label-text">Serverport</span>
+				</div>
+				<input
+					type="number"
+					name="port"
+					class="input input-bordered"
+					placeholder="465"
+					value={ emailSettings.Port }
+					required
+				/>
+			</div>
+			<div class="form-control w-full">
+				<div class="label">
+					<span class="label-text">Benutzer</span>
+				</div>
+				<input
+					type="text"
+					name="username"
+					class="input input-bordered"
+					placeholder="ccl@gmail.com"
+					value={ emailSettings.Username }
+					required
+				/>
+			</div>
+			<div class="form-control w-full">
+				<div class="label">
+					<span class="label-text">Passwort</span>
+				</div>
+				<input
+					type="password"
+					name="password"
+					class="input input-bordered"
+					placeholder="******"
+					value={ emailSettings.Password }
+					required
+				/>
+			</div>
+		</div>
+		<div class="pt-4 flex md:justify-end gap-4">
+			<button data-cy="save-theme" type="submit" class="btn btn-primary">Speichern</button>
+			<button data-cy="test-email" type="button" class="btn" hx-post="/settings/email/test" hx-swap="none">
+				Test E-Mail senden
+			</button>
+		</div>
+	</form>
+}
+
+templ SettingsPage(au *model.User, theme string, emailSettings model.EmailSettings) {
 	@layout.DashboardLayout(au, theme) {
-		@SettingsView(theme)
+		@SettingsView(theme, emailSettings)
 	}
 }

@@ -96,6 +96,7 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	validator := utils.NewValidator(cryptoer)
 	browserSessionManager := utils.NewBrowserSessionManager()
 	globalSettingsServicer := services.NewGlobalSettingService(db, logger)
+	emailServicer := services.NewEmailService(globalSettingsServicer, logger)
 	userServicer := services.NewUserServicer(db, logger)
 	sessionService := services.NewSessionServicer(db, logger)
 	sessionService.ScheduleSessionCleanup()
@@ -119,14 +120,16 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	usersRoute.POST("", userManagementHandler.RenderAddUser)
 	usersRoute.DELETE("/:id", userManagementHandler.DeleteUser)
 
-	settingsHandler := handler.NewSettingsHandler(migrator, logger)
+	settingsHandler := handler.NewSettingsHandler(emailServicer, migrator, logger)
 	settingsRoute := app.Group("/settings")
 	settingsRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
 	settingsRoute.Use(middlewares.Autheratziation(enforcer))
 	settingsRoute.GET("", settingsHandler.RenderSettingsPage)
 	settingsRoute.GET("/view", settingsHandler.RenderSettingsView)
-	settingsRoute.POST("/reset", settingsHandler.Reset)
 	settingsRoute.POST("/theme", settingsHandler.SetTheme)
+	settingsRoute.POST("/email", settingsHandler.SaveEmailSettings)
+	settingsRoute.POST("/email/test", settingsHandler.SendTestEmail)
+	settingsRoute.POST("/reset", settingsHandler.Reset)
 }
 
 func initLogger() *zap.SugaredLogger {

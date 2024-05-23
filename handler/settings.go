@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -8,32 +10,87 @@ import (
 
 	"github.com/michelm117/cycling-coach-lab/db"
 	"github.com/michelm117/cycling-coach-lab/model"
+	"github.com/michelm117/cycling-coach-lab/services"
 	"github.com/michelm117/cycling-coach-lab/utils"
 	"github.com/michelm117/cycling-coach-lab/views/pages"
 )
 
 type SettingsHandler struct {
-	migrator db.Migrator
-	logger   *zap.SugaredLogger
+	emailServicer services.EmailServicer
+	migrator      db.Migrator
+	logger        *zap.SugaredLogger
 }
 
 func NewSettingsHandler(
+	emailServicer services.EmailServicer,
 	migtator db.Migrator,
 	logger *zap.SugaredLogger,
 ) SettingsHandler {
 	return SettingsHandler{
-		migrator: migtator,
-		logger:   logger,
+		emailServicer: emailServicer,
+		migrator:      migtator,
+		logger:        logger,
 	}
 }
 
 func (h *SettingsHandler) RenderSettingsPage(c echo.Context) error {
 	au := c.(model.AuthenticatedContext).User
-	return Render(c, pages.SettingsPage(au, GetTheme(c)))
+	emailSettings, err := h.emailServicer.GetEmailSettings()
+	emailSettings.Password = ""
+
+	if err == sql.ErrNoRows {
+		emailSettings = &model.EmailSettings{}
+		return Render(c, pages.SettingsPage(au, GetTheme(c), *emailSettings))
+	}
+
+	if err != nil {
+		return utils.Danger(err.Error())
+	}
+
+	return Render(c, pages.SettingsPage(au, GetTheme(c), *emailSettings))
 }
 
 func (h *SettingsHandler) RenderSettingsView(c echo.Context) error {
-	return Render(c, pages.SettingsView(GetTheme(c)))
+	emailSettings, err := h.emailServicer.GetEmailSettings()
+	emailSettings.Password = ""
+	if err != nil {
+		return utils.Danger(err.Error())
+	}
+	return Render(c, pages.SettingsView(GetTheme(c), *emailSettings))
+}
+
+func (h *SettingsHandler) SaveEmailSettings(c echo.Context) error {
+	settings := model.EmailSettings{
+		From:     c.FormValue("from"),
+		Host:     c.FormValue("host"),
+		Port:     c.FormValue("port"),
+		Username: c.FormValue("username"),
+		Password: c.FormValue("password"),
+	}
+	if err := h.emailServicer.SaveEmailSettings(&settings); err != nil {
+		return utils.Danger(err.Error())
+	}
+
+	utils.Success(c, "Email settings saved successfully")
+	settings.Password = ""
+	return Render(c, pages.EmailSettingsForm(settings))
+}
+
+func (h *SettingsHandler) SendTestEmail(c echo.Context) error {
+	emailSettings, err := h.emailServicer.GetEmailSettings()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return utils.Warning("Email settings are not properly configured")
+		}
+		fmt.Println("Error getting email settings")
+		return utils.Warning(err.Error())
+	}
+	if err := h.emailServicer.SendEmail([]string{emailSettings.From}, "Test email", "This is a test email"); err != nil {
+		fmt.Println("Error sending email")
+		return utils.Danger(err.Error())
+	}
+
+	return utils.Success(c, "Test email sent successfully")
 }
 
 func (h *SettingsHandler) Reset(c echo.Context) error {

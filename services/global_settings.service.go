@@ -70,10 +70,7 @@ func (s *GlobalSettingService) GetBySectionAndName(sectionName, settingName stri
 	setting := &model.GlobalSetting{}
 	err := row.Scan(&setting.SectionName, &setting.SettingName, &setting.SettingValue, &setting.SettingType)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("global setting with section '%s' and name '%s' not found", sectionName, settingName)
-		}
-		return nil, fmt.Errorf("failed to get global setting: %w", err)
+		return nil, err
 	}
 
 	value, err := s.ParseSettingsValue(setting.SettingType, setting.SettingValue)
