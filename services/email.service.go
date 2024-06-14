@@ -3,28 +3,32 @@ package services
 import (
 	"database/sql"
 	"fmt"
-	"net/smtp"
-	"strings"
 
+	gomail "github.com/Shopify/gomail"
 	"go.uber.org/zap"
 
 	"github.com/michelm117/cycling-coach-lab/model"
+	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
 type EmailServicer interface {
 	GetEmailSettings() (*model.EmailSettings, error)
 	SaveEmailSettings(*model.EmailSettings) error
 	SendEmail(to []string, subject, body string) error
+	SendEmailWithTemplate(to []string, subject, templatePath string, data interface{}) error
 }
 
 type EmailService struct {
 	globalSettingServicer GlobalSettingServicer
+	templater             Templater
 	logger                *zap.SugaredLogger
 }
 
-func NewEmailService(globalSettingServicer GlobalSettingServicer, logger *zap.SugaredLogger) EmailServicer {
+func NewEmailService(globalSettingServicer GlobalSettingServicer, templater Templater, logger *zap.SugaredLogger,
+) EmailServicer {
 	return &EmailService{
 		globalSettingServicer: globalSettingServicer,
+		templater:             templater,
 		logger:                logger,
 	}
 }
@@ -93,18 +97,28 @@ func (s *EmailService) SendEmail(to []string, subject, body string) error {
 		return err
 	}
 
-	receiver := ""
-	if len(to) > 1 {
-		receiver = strings.Join(to, ",")
-	} else {
-		receiver = to[0]
+	m := gomail.NewMessage()
+	m.SetHeader("From", settings.From)
+	m.SetHeader("To", to...)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", body)
+
+	emailSender, err := utils.NewGomailSender(settings.Host, settings.Port, settings.Username, settings.Password)
+	if err != nil {
+		return fmt.Errorf("Invalid email settings")
 	}
 
-	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s", settings.From, receiver, subject, body)
-	auth := smtp.PlainAuth("", settings.Username, settings.Password, settings.Host)
-	if err := smtp.SendMail(fmt.Sprintf("[%s]:%s", settings.Host, settings.Port), auth, settings.From, to, []byte(msg)); err != nil {
-		s.logger.Errorw("Failed to send email", "to", to, "subject", subject, "error", err)
+	if err := emailSender.Send(settings.From, to, subject, body); err != nil {
+		s.logger.Errorw("Failed to send email", "error", err)
 		return err
 	}
 	return nil
+}
+
+func (s *EmailService) SendEmailWithTemplate(to []string, subject, templatePath string, data interface{}) error {
+	body, err := s.templater.Template(templatePath, data)
+	if err != nil {
+		return err
+	}
+	return s.SendEmail(to, subject, body)
 }

@@ -19,7 +19,7 @@ import (
 
 func TestRenderSettingsPage(t *testing.T) {
 	au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com"}
-	handler := handler.NewSettingsHandler(nil, nil)
+	handler := handler.NewSettingsHandler(nil, nil, nil)
 
 	// Create a request
 	req := httptest.NewRequest(http.MethodGet, "/settings", nil)
@@ -33,7 +33,7 @@ func TestRenderSettingsPage(t *testing.T) {
 }
 
 func TestRenderSettingsView(t *testing.T) {
-	handler := handler.NewSettingsHandler(nil, nil)
+	handler := handler.NewSettingsHandler(nil, nil, nil)
 
 	// Create a request
 	req := httptest.NewRequest(http.MethodGet, "/settings/view", nil)
@@ -52,10 +52,11 @@ func TestReset(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	mm := mocks.NewMockMigrator(ctrl)
+	es := mocks.NewMockEmailServicer(ctrl)
 
 	t.Run("Not authorized", func(t *testing.T) {
 		au := model.User{ID: 1, Firstname: "John", Lastname: "Doe", Email: "john@doe.com", Role: "athlete"}
-		handler := handler.NewSettingsHandler(nil, logger)
+		handler := handler.NewSettingsHandler(nil, nil, nil)
 
 		// Create a request
 		req := httptest.NewRequest(http.MethodGet, "/settings/reset", nil)
@@ -73,7 +74,7 @@ func TestReset(t *testing.T) {
 
 		mm.EXPECT().Reset().Return(assert.AnError)
 
-		handler := handler.NewSettingsHandler(mm, logger)
+		handler := handler.NewSettingsHandler(es, mm, logger)
 
 		// Create a request
 		req := httptest.NewRequest(http.MethodGet, "/settings/reset", nil)
@@ -91,7 +92,7 @@ func TestReset(t *testing.T) {
 
 		mm.EXPECT().Reset().Return(nil)
 
-		handler := handler.NewSettingsHandler(mm, logger)
+		handler := handler.NewSettingsHandler(es, mm, logger)
 
 		// Create a request
 		req := httptest.NewRequest(http.MethodGet, "/settings/reset", nil)
@@ -107,7 +108,7 @@ func TestReset(t *testing.T) {
 }
 
 func TestSetTheme(t *testing.T) {
-	handler := handler.NewSettingsHandler(nil, nil)
+	handler := handler.NewSettingsHandler(nil, nil, nil)
 
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader("theme=aqua"))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)

@@ -13,7 +13,7 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y nodejs \
     npm
 RUN npm install
-RUN npx tailwindcss -o /app/assets/styles.css --minify
+RUN npx tailwindcss -o /app/assets/public/styles.css --minify
 
 
 # Deploy.

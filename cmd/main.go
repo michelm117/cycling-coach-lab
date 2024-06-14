@@ -37,7 +37,7 @@ func main() {
 	app := echo.New()
 
 	// Serve static files
-	assetsPath := path.Join(utils.GetProjectRoot(), "assets")
+	assetsPath := path.Join(utils.GetProjectRoot(), "assets/public")
 	logger.Infof("Serving static files from: %s", assetsPath)
 	app.Static("/assets", assetsPath)
 
@@ -95,8 +95,10 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	cryptoer := utils.NewCrypto()
 	validator := utils.NewValidator(cryptoer)
 	browserSessionManager := utils.NewBrowserSessionManager()
+	templatesPath := path.Join(utils.GetProjectRoot(), "assets/templates")
+	templaterService := services.NewTemplaterService(templatesPath, logger)
 	globalSettingsServicer := services.NewGlobalSettingService(db, logger)
-	emailServicer := services.NewEmailService(globalSettingsServicer, logger)
+	emailServicer := services.NewEmailService(globalSettingsServicer, templaterService, logger)
 	userServicer := services.NewUserServicer(db, logger)
 	sessionService := services.NewSessionServicer(db, logger)
 	sessionService.ScheduleSessionCleanup()
@@ -111,14 +113,15 @@ func Setup(app *echo.Echo, db *sql.DB, migrator db.Migrator, logger *zap.Sugared
 	authRoute.POST("/login", authHandler.Login)
 	authRoute.POST("/logout", authHandler.Logout)
 
-	userManagementHandler := handler.NewUserManagementHandler(userServicer, validator, logger)
+	userManagementHandler := handler.NewUserManagementHandler(userServicer, emailServicer, validator, logger)
 	usersRoute := app.Group("/users")
 	usersRoute.Use(middlewares.Authentication(sessionService, browserSessionManager))
 	usersRoute.Use(middlewares.Autheratziation(enforcer))
 	usersRoute.GET("", userManagementHandler.RenderUserManagementPage)
 	usersRoute.GET("/view", userManagementHandler.RenderUserManagementView)
-	usersRoute.POST("", userManagementHandler.RenderAddUser)
+	usersRoute.POST("", userManagementHandler.AddUser)
 	usersRoute.DELETE("/:id", userManagementHandler.DeleteUser)
+	usersRoute.POST("/invites", userManagementHandler.InviteUser)
 
 	settingsHandler := handler.NewSettingsHandler(emailServicer, migrator, logger)
 	settingsRoute := app.Group("/settings")

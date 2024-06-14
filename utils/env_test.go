@@ -7,7 +7,7 @@ import (
 	"github.com/michelm117/cycling-coach-lab/utils"
 )
 
-var ENVS = []string{"ENV", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "VERSION", "SESSION_SECRET"}
+var ENVS = []string{"ENV", "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME", "VERSION", "SESSION_SECRET", "DOMAIN"}
 
 func TestCheckForRequiredEnvVars(t *testing.T) {
 	// Save the original environment variables
@@ -37,6 +37,7 @@ func TestCheckForRequiredEnvVars(t *testing.T) {
 			"DB_NAME":        "cycling_coach_lab",
 			"VERSION":        "latest",
 			"SESSION_SECRET": "foobar",
+			"DOMAIN":         "http://localhost:8080",
 		}, false},
 
 		{"Variables missing", map[string]string{

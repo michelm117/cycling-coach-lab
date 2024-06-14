@@ -1,0 +1,41 @@
+package components
+
+import (
+	"fmt"
+
+	"github.com/michelm117/cycling-coach-lab/model"
+)
+
+templ FloatingActionButtons(actions []model.FloatingAction) {
+	<div
+		class="fixed bottom-8 md:bottom-12 right-8 md:right-12 gap-4 flex flex-col items-end h-fit"
+		x-data="{ showSubButtons: false }"
+		x-on:click.outside="showSubButtons = false"
+	>
+		<ul class="flex flex-col gap-2">
+			for i, action := range actions {
+				<li
+					x-cloak
+					x-show="showSubButtons"
+					@click={ action.OnClick }
+					class="cursor-pointer"
+					id={ fmt.Sprintf("action-%v", i) }
+				>
+					<button
+						class="btn btn-circle"
+					>
+						<i class={ "fa-solid", action.Icon }></i>
+					</button>
+					<div class="badge">{ action.Name }</div>
+				</li>
+			}
+		</ul>
+		<button
+			data-cy="open-add-user-overlay"
+			class="btn btn-primary btn-lg btn-circle rotate-45"
+			@click="showSubButtons = !showSubButtons"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+		</button>
+	</div>
+}

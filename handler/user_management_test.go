@@ -197,7 +197,7 @@ func TestRenderAddUser(t *testing.T) {
 		c := echo.New().NewContext(req, rec)
 
 		// Call the handler
-		assert.Error(t, handler.RenderAddUser(c))
+		assert.Error(t, handler.AddUser(c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
@@ -212,7 +212,7 @@ func TestRenderAddUser(t *testing.T) {
 		c := echo.New().NewContext(req, rec)
 
 		// Call the handler
-		assert.ErrorContains(t, handler.RenderAddUser(c), "Could not add user")
+		assert.ErrorContains(t, handler.AddUser(c), "Could not add user")
 		assert.Equal(t, http.StatusOK, rec.Code)
 	})
 
@@ -233,7 +233,7 @@ func TestRenderAddUser(t *testing.T) {
 		c := echo.New().NewContext(req, rec)
 
 		// Call the handler
-		assert.NoError(t, handler.RenderAddUser(c))
+		assert.NoError(t, handler.AddUser(c))
 		assert.Equal(t, http.StatusOK, rec.Code)
 		test_utils.MakeSnapshot(t, rec.Body.String())
 	})

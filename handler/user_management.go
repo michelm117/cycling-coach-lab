@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -14,17 +15,19 @@ import (
 )
 
 type UserManagementHandler struct {
-	userServicer services.UserServicer
-	validator    utils.Validator
-	logger       *zap.SugaredLogger
+	userServicer  services.UserServicer
+	emailServicer services.EmailServicer
+	validator     utils.Validator
+	logger        *zap.SugaredLogger
 }
 
 func NewUserManagementHandler(
 	userServicer services.UserServicer,
+	emailServicer services.EmailServicer,
 	validator utils.Validator,
 	logger *zap.SugaredLogger,
 ) UserManagementHandler {
-	return UserManagementHandler{userServicer: userServicer, validator: validator, logger: logger}
+	return UserManagementHandler{userServicer: userServicer, emailServicer: emailServicer, validator: validator, logger: logger}
 }
 
 func (h UserManagementHandler) RenderUserManagementPage(c echo.Context) error {
@@ -60,7 +63,7 @@ func (h UserManagementHandler) DeleteUser(c echo.Context) error {
 	return utils.Success(c, "User deleted successfully")
 }
 
-func (h UserManagementHandler) RenderAddUser(c echo.Context) error {
+func (h UserManagementHandler) AddUser(c echo.Context) error {
 	user, err := h.validator.CreateValidUser(
 		c.FormValue("firstname"),
 		c.FormValue("lastname"),
@@ -80,4 +83,34 @@ func (h UserManagementHandler) RenderAddUser(c echo.Context) error {
 
 	utils.Success(c, fmt.Sprintf("User '%s' added successfully", user.Email))
 	return Render(c, pages.AddUserResponse(user))
+}
+
+func (h UserManagementHandler) InviteUser(c echo.Context) error {
+	email := c.FormValue("email")
+	if err := h.validator.ValidateEmail(email); err != nil {
+		return utils.Warning("Invalid email")
+	}
+
+	role := c.FormValue("role")
+	if err := h.validator.ValidateRole(role); err != nil {
+		return utils.Warning("Invalid role")
+	}
+
+	token := ""
+	err := h.emailServicer.SendEmailWithTemplate(
+		[]string{email},
+		"Registrationseinladung - Cycling Coach Lab",
+		"email/registration-invite.tpl",
+		struct {
+			Domain string
+			Token  string
+		}{
+			Domain: os.Getenv("DOMAIN"),
+			Token:  token,
+		},
+	)
+	if err != nil {
+		return utils.Warning("Could not send invitation email")
+	}
+	return utils.Success(c, fmt.Sprintf("User '%s' invited successfully", email))
 }

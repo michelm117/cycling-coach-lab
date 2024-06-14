@@ -2,7 +2,6 @@ package handler
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -82,12 +81,10 @@ func (h *SettingsHandler) SendTestEmail(c echo.Context) error {
 		if err == sql.ErrNoRows {
 			return utils.Warning("Email settings are not properly configured")
 		}
-		fmt.Println("Error getting email settings")
 		return utils.Warning(err.Error())
 	}
 	if err := h.emailServicer.SendEmail([]string{emailSettings.From}, "Test email", "This is a test email"); err != nil {
-		fmt.Println("Error sending email")
-		return utils.Danger(err.Error())
+		return utils.Danger("Failed to send test email, please your email settings")
 	}
 
 	return utils.Success(c, "Test email sent successfully")

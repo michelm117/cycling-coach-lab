@@ -17,6 +17,7 @@ templ DashboardLayout(au *model.User, theme string) {
 						{ children... }
 					</div>
 				</div>
+				@LoadingOverlay()
 			</div>
 			@Sidebar(au)
 		</div>
@@ -49,7 +50,7 @@ templ Navbar(au *model.User) {
 }
 
 templ Sidebar(au *model.User) {
-	<div data-cy="sidebar" class="drawer-side z-50">
+	<div data-cy="sidebar" class="drawer-side z-40">
 		<label for="drawer" aria-label="close sidebar" data-cy="sidebar-overlay" class="drawer-overlay"></label>
 		<div class="p-4 md:min-w-72 min-h-full bg-slate-400 shadow-lg text-black">
 			<!-- Sidebar content here -->
@@ -95,7 +96,7 @@ templ ProfileDropDownMenu(au *model.User) {
 			x-transition:enter="ease-out duration-200"
 			x-transition:enter-start="-translate-y-2"
 			x-transition:enter-end="translate-y-0"
-			class="absolute top-0 z-50 w-56 mt-12 right-0"
+			class="absolute top-0 z-40 w-56 mt-12 right-0"
 			x-cloak
 			data-cy="navbar-action-menu"
 		>
@@ -260,5 +261,11 @@ templ ProfileDropDownMenu(au *model.User) {
 				</a>
 			</div>
 		</div>
+	</div>
+}
+
+templ LoadingOverlay() {
+	<div class="absolute right-2 bottom-2 md:right-8 md:bottom-8 -translate-x-1/2 -translate-y-1/2 z-50">
+		<i id="dashboard-spinner" class="htmx-indicator animate-spin fa-solid fa-spinner text-xl"></i>
 	</div>
 }

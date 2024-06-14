@@ -1,10 +1,11 @@
 package pages
 
 import (
+	"fmt"
+
 	"github.com/michelm117/cycling-coach-lab/model"
 	"github.com/michelm117/cycling-coach-lab/views/layout"
 	"github.com/michelm117/cycling-coach-lab/views/components"
-	"fmt"
 )
 
 templ UserTable(au *model.User, users []*model.User) {
@@ -90,55 +91,90 @@ templ UserRow(user *model.User, disableDeletion bool) {
 	</tr>
 }
 
-templ AddUserOverlay() {
+templ Overlay(title, trigger, tooltip string) {
 	<div
-		id="add-user-overlay"
-		x-data="{ OpenAddUserOverlay: false }"
-		x-trap="OpenAddUserOverlay"
-		@keyup.esc="OpenAddUserOverlay = false"
-		:@closeOverlay="OpenAddUserOverlay = false"
+		x-trap={ trigger }
+		@keyup.esc={ fmt.Sprintf("%s = false", trigger) }
+		:@closeOverlay={ fmt.Sprintf("%s = false", trigger) }
 	>
 		<div
-			class="fixed left-[calc(-50vw+50%)] top-0 bottom-0 h-fill w-full bg-gray-900 bg-opacity-50 z-40"
-			x-show="OpenAddUserOverlay"
+			class="fixed left-[calc(-50vw+50%)] md:left-0 top-0 bottom-0 h-fill w-full bg-gray-900 bg-opacity-50 z-50"
 			x-cloak
-			@click="OpenAddUserOverlay = !OpenAddUserOverlay"
+			x-show={ trigger }
+			@click={ fmt.Sprintf("%s = !%s", trigger, trigger) }
+			x-transition:enter="transition ease-out duration-300"
+			x-transition:enter-start="opacity-0 transform"
+			x-transition:enter-end="opacity-100 transform"
+			x-transition:leave="transition ease-in duration-300"
+			x-transition:leave-start="opacity-100 transform"
+			x-transition:leave-end="opacity-0 transform"
 		></div>
 		<div
-			data-cy="add-user-overlay"
+			data-cy="create-user-overlay"
 			class="fixed bottom-0 left-[calc(-50vw+50%)] md:left-auto md:right-0 w-screen md:w-fit h-full bg-base-100 rounded-lg shadow-lg z-50"
-			x-show="OpenAddUserOverlay"
+			x-show={ trigger }
 			x-cloak
-			x-transition.duration.300ms
+			x-transition:enter="transition ease-out duration-300"
+			x-transition:enter-start="opacity-0 transform translate-x-full"
+			x-transition:enter-end="opacity-100 transform translate-x-0"
+			x-transition:leave="transition ease-in duration-300"
+			x-transition:leave-start="opacity-1000 transform translate-x-0"
+			x-transition:leave-end="opacity-0 transform translate-x-full"
 		>
 			<button
-				data-cy="add-user-overlay-close"
+				data-cy="create-user-overlay-close"
 				class="btn btn-ghost absolute top-2 right-4"
-				@click="OpenAddUserOverlay = false"
+				@click={ fmt.Sprintf("%s = false", trigger) }
 			>
 				<i class="fa-solid fa-times"></i>
 			</button>
 			<div class="flex flex-col items-center p-4 h-full">
-				<h3 class="font-bold text-lg">Benutzer hinzufügen</h3>
+				<div class="flex items-center gap-4">
+					<h3 class="font-bold text-lg">{ title }</h3>
+					if tooltip != "" {
+						<div class="tooltip tooltip-bottom" data-tip={ tooltip }>
+							<i class="fa-solid fa-info-circle"></i>
+						</div>
+					}
+				</div>
 				<div class="flex flex-col justify-center mt-6"></div>
-				@AddUserForm()
+				{ children... }
 			</div>
 		</div>
-		<button
-			data-cy="open-add-user-overlay"
-			class="btn btn-circle btn-primary absolute right-10 bottom-10 md:right-20 md:bottom-20"
-			@click="OpenAddUserOverlay = !OpenAddUserOverlay"
-		>
-			<i class="fa-solid fa-plus"></i>
-		</button>
 	</div>
+}
+
+templ InviteUserForm() {
+	<form
+		hx-post="/users/invites"
+		hx-swap="none"
+		class="flex flex-col justify-between w-full h-full flex-1 space-y-4 mb-4 min-w-[483px]"
+	>
+		<div class="flex-1 overflow-y-auto max-h-[calc(50vh)]">
+			<div class="flex flex-col">
+				<label for="email" class="text-sm">Email:</label>
+				<input type="email" id="email" data-cy="email" name="email" class="input input-bordered" required/>
+			</div>
+			<div class="flex flex-col">
+				<label for="role" class="text-sm">Benutzerrole:</label>
+				<select type="role" id="role" data-cy="role" name="role" class="select select-bordered">
+					<option selected value="athlete">Athlet</option>
+					<option value="admin">Administrator</option>
+				</select>
+			</div>
+		</div>
+		<button data-cy="create-user-overlay-submit" type="submit" class="btn btn-primary w-full mt-6">
+			Erstellen
+		</button>
+	</form>
 }
 
 templ AddUserForm() {
 	<form
 		hx-post="/users"
+		hx-swap="none"
 		class="flex flex-col justify-between w-full h-full flex-1 space-y-4 mb-4"
-		x-init="OpenAddUserOverlay = false"
+		x-init="OpenCreateUserOverlay = false"
 	>
 		<div class="flex-1 overflow-y-auto max-h-[calc(50vh)]">
 			<div class="grid sm:grid-cols-2 gap-4">
@@ -152,7 +188,7 @@ templ AddUserForm() {
 				</div>
 			</div>
 			<div class="flex flex-col">
-				<label for="lastname" class="text-sm">Geburtsdatum:</label>
+				<label for="dateOfBirth" class="text-sm">Geburtsdatum:</label>
 				<input type="date" id="dateOfBirth" data-cy="dateOfBirth" name="dateOfBirth" required/>
 			</div>
 			<div class="flex flex-col">
@@ -182,7 +218,7 @@ templ AddUserForm() {
 				</select>
 			</div>
 		</div>
-		<button data-cy="add-user-overlay-submit" type="submit" class="btn btn-primary w-full mt-6">
+		<button data-cy="create-user-overlay-submit" type="submit" class="btn btn-primary w-full mt-6">
 			Erstellen
 		</button>
 	</form>
@@ -196,9 +232,26 @@ templ AddUserResponse(user *model.User) {
 }
 
 templ UserManagementView(au *model.User, users []*model.User) {
-	<div x-data="{userIdToDelete: null}">
+	<div x-data="{userIdToDelete: null, OpenCreateUserOverlay: false, OpenInviteUserOverlay: false }">
 		@UserTable(au, users)
-		@AddUserOverlay()
+		@Overlay("Benutzer einladen", "OpenInviteUserOverlay", "Lade einen Benutzer per Email ein. Der Benutzer kann seine Daten dann selbst vervollständigen.") {
+			@InviteUserForm()
+		}
+		@Overlay("Benutzer hinzufügen", "OpenCreateUserOverlay", "") {
+			@AddUserForm()
+		}
+		@components.FloatingActionButtons([]model.FloatingAction{
+			{
+				Name:    "Einladen",
+				Icon:    "fa-envelope",
+				OnClick: "OpenInviteUserOverlay = true",
+			},
+			{
+				Name:    "Erstellen",
+				Icon:    "fa-user",
+				OnClick: "OpenCreateUserOverlay = true",
+			},
+		})
 	</div>
 }
 

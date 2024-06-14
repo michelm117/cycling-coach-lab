@@ -1,0 +1,16 @@
+package components
+
+templ SettingsCard(title, spinnerID string) {
+<div>
+  <span class="flex flex-row items-center">
+    <h3>{ title }</h3>
+    if spinnerID != "" {
+    <span id={ spinnerID } class="animate-spin h-full bg-red-50">
+      <i class="fa-solid fa-spinner"></i>
+    </span>
+    }
+  </span>
+  <hr class="h-px mb-8 -mt-3 bg-gray-400 border-0" />
+  { children... }
+</div>
+}

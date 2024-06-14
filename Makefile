@@ -23,7 +23,7 @@ init:
 generate:
 	@echo "Generating static files..."
 	@templ generate 
-	@npx tailwindcss -o assets/styles.css --minify
+	@npx tailwindcss -o assets/public/styles.css --minify
 
 generate-mocks:
 	@echo "Generating mocks..."
@@ -42,14 +42,24 @@ reset-db:
 	@migrate -path ./migrations/ -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down
 	@migrate -path ./migrations/ -database "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
 
-## start: build and run project with hot reload
-.PHONY: start
-start:
+## air: run project with air
+.PHONY: air
+air:
 	@docker compose --env-file=.env -f deployments/docker-compose.dev.yml up -d
 	@air
 
+.Phony: templ
+templ:
+	@templ generate -watch -proxy=http://localhost:8080
+
 tailwind:
-	@npx tailwindcss -c tailwind.config.js -o assets/styles.css --watch
+	@npx tailwindcss -c tailwind.config.js -o assets/public/styles.css --watch
+
+start:
+	@echo "Run the following commands in separate terminals to start the project and hot reload the frontend"
+	@echo "make air"
+	@echo "make tailwind"
+	@echo "make templ"
 
 ## update: update project dependencies
 .PHONY: update
